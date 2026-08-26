@@ -1,34 +1,37 @@
-# ChessPath — Starter Repo
+# ChessPath
 
-Vite + React frontend, live Supabase project (Postgres + Auth, schema
-already applied), real chess.js move validation, react-chessboard for a
-proper Lichess/Chess.com-style piece set, offline Stockfish for computer
-play, real Tier 1 lesson content with a live rule-based coach, and a
-mobile-responsive layout throughout.
+A free chess learning platform for complete beginners through advanced
+players — learning-first rather than play-first. Vite + React frontend,
+live Supabase backend (Postgres + Auth, RLS on every table), chess.js
+for move validation, react-chessboard for the board UI, offline
+Stockfish for computer play, and a rule-based live coach. Closed beta,
+no monetization.
 
-## Getting started (needs internet access — Claude Code Desktop, your
-## own machine, or any dev environment with npm)
+## Getting started
+
+(Needs internet access — your own machine, Claude Code Desktop, or
+any dev environment with npm.)
 
 1. Install dependencies:
    npm install
 
 2. Supabase is already live — `.env.local` has the real project URL and
    key wired in (project: chesspath). Nothing to configure. Auth URL
-   Configuration (Site URL + Redirect URLs) has already been set up in
-   the Supabase dashboard to point at the deployed Vercel URL and
+   Configuration (Site URL + Redirect URLs) is already set in the
+   Supabase dashboard to point at the deployed Vercel URL and
    localhost:5173.
 
 3. Start the dev server:
    npm run dev
-   - Opens at http://localhost:5173
+   - Opens at `http://localhost:5173`
    - `server.host: true` in vite.config.js means you can also open it on
-     your phone over WiFi at http://<your-computer's-local-IP>:5173 —
-     the real way to test the mobile layout.
+     your phone over WiFi at `http://<your-computer's-local-IP>:5173` —
+     the real way to test the mobile layout and the PWA install prompt.
 
 4. Deploy (Vercel, free tier):
    - Environment variables (VITE_SUPABASE_URL, VITE_SUPABASE_ANON_KEY)
      must be set in Vercel's Project Settings → Environment Variables —
-     .env.local is gitignored and never gets deployed automatically.
+     .env.local is gitignored and never deploys automatically.
    - If deploying via drag-and-drop ("Vercel Drop") rather than a
      connected GitHub repo, you must re-drop the folder after adding
      env vars to trigger a new build — there's no auto-redeploy without
@@ -36,134 +39,191 @@ mobile-responsive layout throughout.
 
 ## What's here
 
-- `src/App.jsx` — app shell: nav, landing page, diagnostic quiz (saves
-  to Supabase when signed in), results screen, and routing to Lessons/Play
-- `src/screens/Lessons.jsx` — Tier 1 lesson flow: explanation → try it on
-  a real board → for goal-based lessons, checked against the actual
-  solution move → a matched puzzle (the "lesson-to-play loop")
-- `src/screens/Play.jsx` — Practice mode (pass-and-play with the live
-  coach) and vs Computer mode (offline Stockfish, 5 difficulty presets)
-- `src/components/ChessBoard.jsx` — shared react-chessboard wrapper,
-  using the library's default piece set (same visual family as
-  Lichess/Chess.com) instead of anything custom-drawn
-- `src/lib/coach.js` — the live coaching engine. After every move, checks
-  whether the piece that just moved is attacked and undefended (the
-  "your rook is undefended on that diagonal" feature), and flags
-  unfavorable trades. Independent of chess.js's turn-based move
-  generator on purpose, since "is this square defended" needs checking
-  for either color regardless of whose turn it is.
-- `src/lib/stockfish.js` — Web Worker wrapper around the `stockfish` npm
-  package. Runs entirely client-side once loaded — no network calls
-  during play, which is what makes "offline" actually true and not just
-  a claim.
-- `src/data/lessons.js` — Tier 1 lesson content. Every FEN and solution
-  move in here was hand-verified with an independent move checker before
-  being written (not just eyeballed) — a wrong chess puzzle actively
-  mis-teaches a beginner, so these were checked square-by-square rather
-  than trusted on the first pass.
-- `supabase/schema.sql` — already applied to the live project: profiles,
-  diagnostic_results, progress (now actually used — lesson completions
-  write here), puzzle_attempts
+### App shell
 
-## What's new in this pass
+- `src/App.jsx` — nav, landing page, diagnostic quiz, results screen,
+  routing, the first-visit nav walkthrough, and the badge-earned toast.
+- `src/main.jsx` — entry point, crash error boundary, service worker
+  registration.
 
-- **Undo move + position/game sharing** — Play screen now has Undo, and a Share menu that copies the current position (FEN) or full game (PGN) to clipboard.
-- **"Explain this move"** — click any past move in the move history and the coach re-analyzes that exact position, not just the live one.
-- **Glossary tooltips** — lesson explanations auto-detect words like "opposition," "fork," or "zugzwang" and make them tap/hover for a plain-language definition (`src/data/glossary.js`, `src/components/Term.jsx`).
-- **Mastery indicator per topic** — the Lessons screen now shows progress bars for Rules & Movement, Checkmate Patterns, and Tactics, computed from real completed-lesson data.
-- **Streak counter** — a simple day-streak badge on the landing page. Honest limitation: this is stored in the browser (localStorage), not tied to an account, so it resets on a different device or cleared browser data — a cross-device version would need to move this into Supabase per-user.
-- **Daily puzzle** — same puzzle for everyone on a given calendar day (deterministic by date), accessible from the landing page without going through a lesson.
-- **Spaced repetition** — puzzle attempts now schedule a next-review date (simple SM-2-lite scheduler in `src/lib/spacedRepetition.js`). When a signed-in tester has something due, it surfaces at the top of the Lessons screen. Honest limitation: this is a client-side "surface it when they open the app" mechanic, not push notifications or email reminders — those need a backend cron job and an email/push service, which is real infrastructure beyond a client-side app on its own.
-- **In-app feedback button** — a floating button on every screen, writes straight to a `feedback` table with which screen the person was on. Built for exactly this beta-testing phase, so testers don't have to remember to message you separately.
+### Screens (`src/screens/`)
 
-## Stockfish engine — updated
+- `Lessons.jsx` — Tier 1 (6 lessons) and Tier 2 (4 lessons) flow:
+  explanation → try it on a real board → matched puzzle. Also owns the
+  zero-knowledge "jump straight to Lesson 1" entry point and links out
+  to the mistakes and glossary pages.
+- `Play.jsx` — Practice mode (pass-and-play with the live coach) and vs
+  Computer mode (offline Stockfish, 12 difficulty presets).
+- `GuidedGame.jsx` — a scripted 10-ply mini-match (the Italian Game
+  opening) for a total beginner's first hands-on game. The player plays
+  every White move themselves; Black's replies are scripted and
+  auto-play with a short pause; the coach narrates every move on both
+  sides.
+- `LiveMatch.jsx` — real-time matches between two signed-in testers via
+  Supabase Realtime, with time controls, Glicko-2 ratings, and a
+  post-game coach review.
+- `PuzzleRush.jsx` — 90-second timed puzzle streak.
+- `Profile.jsx` — ratings, lessons mastered, best Puzzle Rush streak,
+  latest diagnostic tier, and the badges grid (earned badges in color,
+  unearned ones grayed out).
+- `BeginnerMistakes.jsx` — a static reference page of 8 common beginner
+  mistakes (what it is, why it hurts, what to do instead).
+- `Glossary.jsx` — a searchable, alphabetized version of the same term
+  definitions that already power the inline hover tooltips.
+- `Admin.jsx` — tester counts, tier distribution, feedback, gated to
+  one admin email.
+- `Privacy.jsx` — plain-language privacy statement.
 
-`src/lib/stockfish.js` now loads the engine via:
-```js
-new Worker(new URL("stockfish.js/stockfish.js", import.meta.url))
-```
-using the `stockfish.js` package (single-threaded, no `SharedArrayBuffer`
-requirement — this replaced an earlier version that used the multi-
-threaded `stockfish` package, which crashed in production with
-"SharedArrayBuffer is not defined" since Vercel doesn't send the
-cross-origin isolation headers that build needs). This is a well-
-established, long-used package with a simple single-file convention,
-which is why it was chosen over guessing at internal filenames in the
-multi-threaded build — but the exact file layout still couldn't be
-verified by actually running `npm install` in this environment (no
-internet access during development). Two safety nets are now in place
-either way: `whenReady()` and `getBestMove()` both time out and log a
-clear console warning instead of hanging silently if the worker fails
-to load, so a real failure would be visible and diagnosable rather than
-just "the bot doesn't move."
+### Shared components (`src/components/`)
 
-## What's still simplified (by design, for a first beta)
+- `ChessBoard.jsx` — the react-chessboard wrapper every screen uses.
+  Owns move interaction centrally: drag-and-drop, click-to-move (click
+  a piece to select it — legal destinations highlight — then click
+  where to move it), and a guaranteed snap-back on any illegal drop
+  (checked against the position's actual legal moves before it ever
+  reaches the screen's own move handler). Uses the library's default
+  piece set — the same visual family as Lichess/Chess.com — not
+  anything custom-drawn.
+- `PromotionPicker.jsx` — real piece choice on promotion.
+- `Term.jsx` — inline glossary tooltip.
+- `FeedbackButton.jsx` — floating feedback button on every screen,
+  writes to the `feedback` table with which screen the person was on.
 
-- Diagnostic quiz is a 6-question sample, not the full 15–20 adaptive
-  position test described in the blueprint
-- Tier 1 has 6 lessons covering piece movement, check/checkmate/
-  stalemate, back-rank mate, pins, and forks — not the full Tier 1–3
-  curriculum from the blueprint, which is a genuine content-authoring
-  project beyond one build session
-- The live coach catches hanging pieces and bad trades — not yet full
-  positional feedback ("that's a weak square because...")
-- Auto-queen on pawn promotion (no promotion picker UI yet)
-- No live matchmaking between two signed-in testers yet (Practice mode
-  is local pass-and-play)
+### Core logic (`src/lib/`)
+
+- `coach.js` — after every move, checks whether the piece that just
+  moved is attacked and undefended, and flags unfavorable trades.
+  Independent of chess.js's turn-based move generator on purpose,
+  since "is this square defended" needs checking for either color
+  regardless of whose turn it is.
+- `stockfish.js` — Web Worker wrapper around the `stockfish.js`
+  package (single-threaded, no `SharedArrayBuffer` requirement). Runs
+  entirely client-side once loaded — no network calls during play.
+- `glicko2.js` — the same rating algorithm Lichess uses, implemented
+  from Glickman's published spec and checked with real sanity tests
+  before shipping (a lower-rated win raises rating, a loss lowers it,
+  an equal-rating draw barely moves it).
+- `spacedRepetition.js` — SM-2-lite scheduler for puzzle review dates.
+- `liveMatch.js` — Supabase Realtime channel wrapper (move, resign,
+  draw offer/response, timeout, rating-share events).
+- `clock.js` — countdown/formatting for Live Match time controls.
+- `ratings.js` — fetch/update helpers for the `ratings` table.
+- `badges.js` — the 8-badge catalog and award logic. localStorage-first
+  (works instantly for guests too), with best-effort background sync
+  to Supabase for signed-in users.
+- `supabaseClient.js` — Supabase client init, with a graceful fallback
+  if env vars are missing instead of a hard crash.
+
+### Content data (`src/data/`)
+
+- `lessons.js` — Tier 1 (6) and Tier 2 (4) lesson content plus a small
+  sample puzzle set. Every FEN and solution move was hand-verified with
+  an independent move checker before being written, not just eyeballed.
+- `guidedGame.js` — the guided first game's script. Every one of the 10
+  moves was independently verified legal (piece movement, path
+  blocking, castling rights/path/king-safety) with a from-scratch
+  Python legality checker before being written here — no chess library
+  was available offline in the environment this was built in, so this
+  checker was hand-rolled and itself tested against known-illegal moves
+  to confirm it actually rejects bad input.
+- `beginnerMistakes.js` — the 8 entries behind the mistakes page.
+  General strategic principles, not specific move sequences, so unlike
+  the guided game there's no board position here needing legality
+  verification.
+- `glossary.js` — term definitions, shared by the inline tooltips and
+  the dedicated glossary page.
+
+### PWA (`public/`)
+
+- `manifest.webmanifest`, `icon-192.png`, `icon-512.png`,
+  `apple-touch-icon.png` — installability. The icon is a plain navy/gold
+  monogram generated with `sharp`, deliberately not a hand-drawn chess
+  piece (this project already replaced one earlier round of "AI slop"
+  hand-drawn pieces with react-chessboard's real artwork, and an app
+  icon is exactly the kind of asset where a hand-drawn attempt risks
+  the same result).
+- `sw.js` — hand-rolled service worker (no build plugin was available
+  offline). Runtime caching, not a build-time precache manifest: the
+  app becomes installable immediately, and becomes usable offline once
+  you've opened it online at least once — not offline-capable from a
+  completely fresh install with zero prior network access.
+
+### Database
+
+`supabase/schema.sql`, already applied to the live project as
+migrations:
+
+- `profiles`, `diagnostic_results`, `progress`, `puzzle_attempts` (with
+  `next_review_at` / `interval_days` / `ease` for spaced repetition),
+  `feedback`, `imported_puzzles`, `ratings`, `games`,
+  `puzzle_rush_scores`, `badges_earned`. RLS enabled on every table,
+  scoped to each user's own rows.
+
+### Other
+
+- `scripts/import-lichess-puzzles.mjs` — replaces the small hand-
+  verified puzzle sample with the full tagged Lichess open puzzle
+  database (CC0). See "Honest limitations" below for why it hasn't
+  been run yet.
+- `TESTER_ONBOARDING.md` — a real, usable plan for what testers at
+  different skill levels should focus on, not a placeholder.
+
+## Honest limitations
+
+These are real, current constraints — not disclaimers to skip over:
+
+- **Live Match clocks are not server-authoritative.** Each client runs
+  its own local countdown, resynced on every move. Fine for a small
+  trusted beta; not cheat-proof.
+- **Ratings are self-reported.** There's no game server, so each
+  player's browser computes and writes its own updated rating after a
+  game. Same trust model as the clocks above.
+- **Badges are the same trust model.** localStorage-first, best-effort
+  Supabase sync — not something to build a public leaderboard on
+  without a server-side check.
+- **Streak counter is per-browser**, stored in localStorage, not tied
+  to an account — resets on a different device or cleared browser data.
+- **Spaced repetition surfaces reviews when the app is opened**, not
+  via push notification or email — that needs a backend cron job and a
+  notification service, real infrastructure beyond a client-side app.
+- **Puzzle Rush and the daily puzzle draw from a small hand-verified
+  sample** (a handful of puzzles) until the Lichess import script
+  (`scripts/import-lichess-puzzles.mjs`) actually runs — it's real and
+  complete but needs internet access and a Supabase service-role key,
+  neither available in the environment this was built in.
+- **"vs Computer" mode has no clock** — time controls were built where
+  they matter most first (human-vs-human ratings), not retrofitted
+  everywhere yet.
+- **Simplified nav for new accounts can flash briefly** for a returning
+  signed-in user with real progress — the nav starts simplified and
+  expands once their lesson history loads from Supabase.
+- **PWA offline support is runtime-cached, not precached** — see the
+  `sw.js` note above.
+- **Accessibility is a basic pass, not full keyboard-only play** —
+  landmark roles and an `aria-live` region on the coach's messages, but
+  full keyboard chess-move input is a genuinely larger piece of work
+  not built yet.
+- **Everything chess-related that ships here was independently
+  verified before being written** — lesson FENs, the guided game's
+  moves, the Glicko-2 math — using hand-rolled checkers where no chess
+  library was available offline, specifically because a wrong position
+  or an illegal "legal" move actively mis-teaches a beginner. Where
+  that verification wasn't possible (Lichess puzzle import, live
+  two-client Realtime sync), that's flagged above and in the code
+  rather than assumed to work.
 
 ## Next steps
 
-- Expand Tier 1 with more motifs (skewers, discovered attacks) and
-  start on Tier 2
-- Wire real puzzles from the Lichess open puzzle database (CC0) instead
-  of the small hand-verified sample set
-- Add a promotion-choice UI
-- Supabase Realtime for live matches between testers
-
-
-## What's new in this pass — time controls, ratings, and standard-site features
-
-**High confidence:**
-- **Glicko-2 rating system** (`src/lib/glicko2.js`) — the same algorithm Lichess uses. Implemented from Glickman's published spec and verified with real sanity checks before shipping (a lower-rated win raises rating, a loss lowers it, an equal-rating draw barely moves it, winner/loser gain/lose symmetric amounts) — not just trusted on the math being right, actually run and checked.
-- **Time controls**: Bullet, Blitz, Rapid, Classical, each with real preset options (1+0 up to 30+0), wired into Live Match. Clock UI with Lichess-style low-time red flash under 10 seconds.
-- **Game controls**: resign, draw offer/accept/decline, abort (before any moves) — all in `LiveMatch.jsx`.
-- **Post-game coach review** — after any Live Match game, "Review with coach" replays the whole game through the existing coach logic and flags any move worth a second look, move by move.
-- **Board themes restored — verified real Lichess colors, not invented ones.** Brown (`#F0D9B5`/`#B58863`) and Blue (`#DEE3E6`/`#8CA2AD`) came back as exact hex values from a Lichess forum thread; Green (`#EEEED2`/`#769656`) from a standard chess-board color palette source. **Piece styles were deliberately NOT expanded back to multiple options** — react-chessboard's single bundled default set is genuine Lichess/Chess.com-quality vector art, and re-adding hand-drawn alternates was the exact risk flagged and correctly avoided.
-- **Puzzle Rush** and **Profile page** — real screens, real Supabase-backed data (best streak, per-time-control ratings, lessons mastered, latest diagnostic tier).
-
-**Medium confidence — real code, needs live two-client testing to fully trust:**
-- **Live Match clocks are NOT server-authoritative** — each client runs its own local countdown, resynced on every move. Fine for a small trusted beta; a determined bad actor could theoretically exploit client-side timing. Flagged directly in `clock.js`.
-- **Rating updates trust each client to self-report** — since there's no game server, each player's browser computes and writes its own updated rating after a game. Fine for a small closed beta among people who know each other; would need a server-side function (e.g. a Supabase Edge Function) to be cheat-resistant for a public product. Flagged in `ratings.js`.
-- **Time control mismatch on join** — the guest currently just uses whatever they have selected locally rather than automatically inheriting the host's choice; noted directly in the Live Match UI to agree on it out of band before sharing a code. A real fix (broadcasting the host's choice at match creation) is a natural next step.
-
-**Honest scoping decision:**
-- **"vs Computer" mode does not have a clock yet** — time controls were built where they matter most (real human-vs-human ratings), not retrofitted everywhere. Worth adding later, not pretending it's already there.
-- **Puzzle Rush draws from the same small hand-verified puzzle sample** (2-3 puzzles) as everywhere else — will repeat quickly until the Lichess import script actually runs.
-
-
-
-- **Fixed: "SharedArrayBuffer is not defined" crash on vs Computer moves** — the previous build used `stockfish`'s multi-threaded NNUE engine, which requires `SharedArrayBuffer` and specific cross-origin isolation headers Vercel doesn't send by default. Switched to the `stockfish.js` package (nmrugg's classic single-threaded build) — no `SharedArrayBuffer`, no server header config needed, at the cost of slightly weaker top-end engine strength. Also added timeout safety nets in `src/lib/stockfish.js` so a future load failure surfaces as a console warning instead of the "vs Computer" button silently doing nothing.
-- **Fixed: white background showing around/behind the app** — there was no global CSS at all, so the browser's default white `body` background and margin showed through. Added `src/index.css` plus an inline `<style>` in `index.html` (so there's no flash of white even before the bundle loads).
-- **Bot difficulty: 5 presets → 12-rung ladder** — `src/lib/stockfish.js`'s `DIFFICULTY_PRESETS` now runs Beginner → Novice → Casual → Amateur → Intermediate → Advanced → Expert → Master → Senior Master → Int'l Master → Grandmaster → Full Strength, with both Stockfish's Skill Level and think time scaling together so each rung actually plays differently.
-- **Layout fix**: the board+panel row on Play and Lessons wasn't centered, leaving a lot of dead space on wide screens, and the board itself was capped at a small fixed width. Both are now responsive to actual window width and centered.
-
-
-
-**High confidence — straightforward, verifiable logic:**
-- **Promotion picker** (`src/components/PromotionPicker.jsx`) — real piece choice instead of auto-queen, wired into Play.
-- **Tier 2 lessons** — 2 new hand-verified tactics (discovered attack, queen double attack — verified the same rigorous way as Tier 1) plus 2 conceptual positional lessons (outposts, weak squares). Tier tabs added to the Lessons screen.
-- **Privacy page** (`src/screens/Privacy.jsx`) — plain-language statement, linked in the footer.
-- **Admin dashboard** (`src/screens/Admin.jsx`) — tester counts, tier distribution, lesson completion, and raw feedback, gated to one admin email. Real Supabase queries, not mock data.
-- **Basic accessibility pass** — landmark roles and an `aria-live` region on the coach's message, so a screen reader announces new feedback. Honest scope: this is NOT full keyboard-only chess move input — that's a genuinely larger piece of work (react-chessboard's own keyboard support would need verifying live, which I couldn't do here) and shouldn't be assumed to exist yet.
-
-**Medium confidence — real code, but genuinely needs live testing:**
-- **Live matchmaking** (`src/screens/LiveMatch.jsx`, `src/lib/liveMatch.js`) — uses Supabase Realtime (broadcast + presence), which are documented standard APIs, but two-client sync is the kind of thing that can only truly be confirmed by opening two browser tabs and playing a real game. This is flagged in the code itself. **Test this one specifically before trusting it with testers.**
-
-**Cannot run from this sandbox — needs a live environment:**
-- **Lichess puzzle import** (`scripts/import-lichess-puzzles.mjs`) — real, complete script to replace the small hand-verified puzzle sample with tagged puzzles from the actual Lichess open puzzle database (CC0). Needs internet access to download the puzzle file and a Supabase **service role** key (not the public anon key) to run. Also flags one specific unknown in a comment: Lichess's current export is `.zst` compressed, not gzip, so it may need a decompression step first — this is the kind of external-file-format detail that can only be confirmed by actually running it against the live file, which wasn't possible here.
-- **Tester onboarding plan** (`TESTER_ONBOARDING.md`) — this one's just a document, not code, so there's nothing to "run" — but it's a real, usable plan for structuring what different skill-level testers should focus on, not a placeholder.
-
-## New database tables (already live, migrations applied)
-- `feedback` — feedback button submissions
-- `puzzle_attempts` — now has `next_review_at`, `interval_days`, `ease` columns for spaced repetition
-- `imported_puzzles` — target table for the Lichess import script above
+- Run the Lichess puzzle import to replace the small hand-verified
+  sample with the full tagged puzzle database
+- Server-side (Supabase Edge Function) rating and badge verification,
+  so neither can be spoofed by a modified client
+- Server-authoritative Live Match clocks
+- A clock for "vs Computer" mode
+- Broadcast the host's time-control choice to the guest on Live Match
+  join, instead of relying on agreeing out of band
+- Expand Tier 1/2 with more motifs (skewers, discovered attacks) and
+  start on Tier 3
+- Full keyboard-only move input for accessibility
+- A build-time precache manifest for the service worker (would need a
+  PWA build plugin, not installable offline in this environment)
