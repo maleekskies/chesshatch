@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import App from "./App.jsx";
+import "./index.css";
 
 // A blank white page with no error message is the hardest kind of bug
 // to debug from a deployed site. This catches any render-time crash and
@@ -39,3 +40,13 @@ ReactDOM.createRoot(document.getElementById("root")).render(
     </ErrorBoundary>
   </React.StrictMode>
 );
+
+// Register the service worker after the page has finished loading, so
+// it never competes with the initial render for bandwidth/CPU. Wrapped
+// in a feature check + catch since some browsers (and all non-HTTPS
+// dev contexts other than localhost) don't support it.
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => { /* offline support just won't be available */ });
+  });
+}

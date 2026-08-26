@@ -1,0 +1,17 @@
+/* Global reset — without this, the browser's default white body
+   background and 8px margin show through around/behind the app,
+   especially on short pages or during load before React mounts. */
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #1B2430; /* matches the app's dark theme pageBg */
+  min-height: 100%;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}

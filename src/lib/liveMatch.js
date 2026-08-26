@@ -12,7 +12,7 @@ export function generateMatchCode() {
   return Math.random().toString(36).slice(2, 6).toUpperCase();
 }
 
-export function joinMatchChannel(code, { onMove, onOpponentJoined, onPresenceSync }) {
+export function joinMatchChannel(code, { onMove, onOpponentJoined, onPresenceSync, onResign, onDrawOffer, onDrawResponse, onTimeout, onRatingShare }) {
   const channel = supabase.channel(`match-${code}`, {
     config: { broadcast: { self: false }, presence: { key: code } },
   });
@@ -20,10 +20,19 @@ export function joinMatchChannel(code, { onMove, onOpponentJoined, onPresenceSyn
   channel
     .on("broadcast", { event: "move" }, ({ payload }) => onMove?.(payload))
     .on("broadcast", { event: "opponent-joined" }, ({ payload }) => onOpponentJoined?.(payload))
+    .on("broadcast", { event: "resign" }, ({ payload }) => onResign?.(payload))
+    .on("broadcast", { event: "draw-offer" }, ({ payload }) => onDrawOffer?.(payload))
+    .on("broadcast", { event: "draw-response" }, ({ payload }) => onDrawResponse?.(payload))
+    .on("broadcast", { event: "timeout" }, ({ payload }) => onTimeout?.(payload))
+    .on("broadcast", { event: "rating-share" }, ({ payload }) => onRatingShare?.(payload))
     .on("presence", { event: "sync" }, () => onPresenceSync?.(channel.presenceState()))
     .subscribe();
 
   return channel;
+}
+
+export function broadcastEvent(channel, event, payload) {
+  channel.send({ type: "broadcast", event, payload });
 }
 
 export function sendMove(channel, { from, to, promotion }) {

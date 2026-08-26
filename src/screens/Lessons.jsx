@@ -26,13 +26,27 @@ function ExplanationText({ text, ...termProps }) {
   );
 }
 
-export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onLessonComplete, completedIds, session }) {
+export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onLessonComplete, completedIds, session, autoOpenFirstLesson, onShowMistakes, onShowGlossary, onEarnBadge }) {
   const [activeLesson, setActiveLesson] = useState(null);
   const [showPuzzle, setShowPuzzle] = useState(false);
   const [reviewPuzzle, setReviewPuzzle] = useState(null); // set when opening from "due for review"
   const [dueReviews, setDueReviews] = useState([]);
   const [activeTier, setActiveTier] = useState(1);
   const lessonsForTier = activeTier === 1 ? TIER1_LESSONS : TIER2_LESSONS;
+
+  // Zero-knowledge entry point: someone who has never played before can
+  // skip the diagnostic and the lesson list entirely and land straight
+  // in Tier 1, Lesson 1. Only runs once, on mount — this component
+  // remounts fresh each time the "Never played before?" button is
+  // clicked from the landing page, so it won't re-trigger on ordinary
+  // "Lessons" nav clicks later in the same visit.
+  useEffect(() => {
+    if (autoOpenFirstLesson && TIER1_LESSONS.length > 0) {
+      setActiveTier(1);
+      setActiveLesson(TIER1_LESSONS[0]);
+      setShowPuzzle(false);
+    }
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (!session?.user) { setDueReviews([]); return; }
@@ -73,7 +87,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
       <PuzzleView
         puzzle={reviewPuzzle}
         theme={theme} textMain={textMain} textMuted={textMuted} accentGold={accentGold} borderCol={borderCol} isPhone={isPhone}
-        session={session}
+        session={session} onEarnBadge={onEarnBadge}
         onBack={() => { setReviewPuzzle(null); setDueReviews((d) => d.filter((p) => p.id !== reviewPuzzle.id)); }}
       />
     );
@@ -82,13 +96,23 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
   if (!activeLesson) {
     return (
       <div>
-        <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
+        <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap" }}>
           {[1, 2].map((t) => (
             <button key={t} onClick={() => setActiveTier(t)}
               style={{ padding: "7px 14px", borderRadius: 8, border: activeTier === t ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: activeTier === t ? "rgba(201,162,39,0.12)" : "transparent", color: activeTier === t ? accentGold : textMain, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               Tier {t}
             </button>
           ))}
+          {onShowMistakes && (
+            <button onClick={onShowMistakes} style={{ marginLeft: "auto", background: "transparent", border: "none", color: textMuted, fontSize: 12.5, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              Common beginner mistakes →
+            </button>
+          )}
+          {onShowGlossary && (
+            <button onClick={onShowGlossary} style={{ background: "transparent", border: "none", color: textMuted, fontSize: 12.5, cursor: "pointer", textDecoration: "underline", textUnderlineOffset: 3 }}>
+              Glossary →
+            </button>
+          )}
         </div>
         <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
           {activeTier === 1 ? "Tier 1 — Complete Beginner" : "Tier 2 — Intermediate"}
@@ -160,11 +184,12 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
       onComplete={() => { onLessonComplete(activeLesson.id); setShowPuzzle(true); }}
       showPuzzle={showPuzzle}
       termProps={termProps}
+      onEarnBadge={onEarnBadge}
     />
   );
 }
 
-function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, session, onBack, onComplete, showPuzzle, termProps }) {
+function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, session, onBack, onComplete, showPuzzle, termProps, onEarnBadge }) {
   const chessRef = useRef(new Chess(lesson.fen));
   const chess = chessRef.current;
   const [version, setVersion] = useState(0);
@@ -193,7 +218,7 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
     return true;
   }
 
-  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 380;
+  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 440;
 
   return (
     <div>
@@ -202,7 +227,7 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
       </button>
 
       {!showPuzzle ? (
-        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
           <div>
             <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
           </div>
@@ -237,19 +262,19 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
           </div>
         </div>
       ) : (
-        <PuzzleView puzzle={puzzle} theme={theme} textMain={textMain} textMuted={textMuted} accentGold={accentGold} borderCol={borderCol} isPhone={isPhone} session={session} onBack={onBack} />
+        <PuzzleView puzzle={puzzle} theme={theme} textMain={textMain} textMuted={textMuted} accentGold={accentGold} borderCol={borderCol} isPhone={isPhone} session={session} onBack={onBack} onEarnBadge={onEarnBadge} />
       )}
     </div>
   );
 }
 
-export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, borderCol, isPhone, session, onBack }) {
+export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, borderCol, isPhone, session, onBack, onEarnBadge }) {
   const chessRef = useRef(new Chess(puzzle.fen));
   const chess = chessRef.current;
   const [version, setVersion] = useState(0);
   const [result, setResult] = useState(null);
 
-  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 380;
+  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 440;
 
   async function recordAttempt(correct) {
     if (!session?.user) return;
@@ -288,6 +313,7 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
     recordAttempt(correct);
     if (correct) {
       setResult({ good: true });
+      onEarnBadge?.("first_puzzle");
     } else {
       setResult({ good: false });
       setTimeout(() => { chess.load(puzzle.fen); setVersion((v) => v + 1); setResult(null); }, 900);
@@ -296,7 +322,7 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
   }
 
   return (
-    <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+    <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
       <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
       <div style={{ flex: "1 1 240px", minWidth: 240, maxWidth: 340 }}>
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: accentGold, marginBottom: 8 }}>Puzzle — {puzzle.motif}</div>

@@ -10,7 +10,7 @@ import { createEngine, DIFFICULTY_PRESETS } from "../lib/stockfish.js";
 //  - "practice": pass-and-play, with the live coach commenting after
 //    every move, undo, and position export/share.
 //  - "computer": play against offline Stockfish at a chosen difficulty.
-export default function Play({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone }) {
+export default function Play({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onEarnBadge }) {
   const [mode, setMode] = useState("practice"); // practice | computer
   const chessRef = useRef(new Chess());
   const chess = chessRef.current;
@@ -59,6 +59,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
       setEngineThinking(false);
       setVersion((v) => v + 1);
       runCoach("b", to);
+      if (chess.isGameOver()) onEarnBadge?.("first_game");
     });
   }, [difficulty]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -76,6 +77,8 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     setSelectedPly(null);
     setVersion((v) => v + 1);
     runCoach(moverColor, to);
+    if (chess.isCheckmate()) onEarnBadge?.("first_checkmate");
+    if (chess.isGameOver()) onEarnBadge?.("first_game");
     if (mode === "computer" && !chess.isGameOver()) {
       setTimeout(requestEngineMove, 300);
     }
@@ -154,11 +157,13 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     });
   }
 
-  const boardWidth = isPhone ? Math.min(340, window.innerWidth - 48) : 420;
+  const boardWidth = isPhone
+    ? Math.min(340, window.innerWidth - 48)
+    : Math.min(560, Math.max(420, window.innerWidth - 560));
   const historySAN = chess.history();
 
   return (
-    <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start" }}>
+    <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "center" }}>
       <div style={{ flex: "0 0 auto", position: "relative" }}>
         {pendingPromotion && (
           <PromotionPicker color={pendingPromotion.moverColor} onPick={resolvePromotion} panelBg={panelBg} borderCol={borderCol} textMain={textMain} accentGold={accentGold} />

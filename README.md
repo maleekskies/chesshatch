@@ -76,21 +76,26 @@ mobile-responsive layout throughout.
 - **Spaced repetition** — puzzle attempts now schedule a next-review date (simple SM-2-lite scheduler in `src/lib/spacedRepetition.js`). When a signed-in tester has something due, it surfaces at the top of the Lessons screen. Honest limitation: this is a client-side "surface it when they open the app" mechanic, not push notifications or email reminders — those need a backend cron job and an email/push service, which is real infrastructure beyond a client-side app on its own.
 - **In-app feedback button** — a floating button on every screen, writes straight to a `feedback` table with which screen the person was on. Built for exactly this beta-testing phase, so testers don't have to remember to message you separately.
 
+## Stockfish engine — updated
 
-
-`src/lib/stockfish.js` loads the engine via:
+`src/lib/stockfish.js` now loads the engine via:
 ```js
-new Worker(new URL("stockfish/src/stockfish-nnue-16.js", import.meta.url))
+new Worker(new URL("stockfish.js/stockfish.js", import.meta.url))
 ```
-This is the standard Vite pattern for bundling a worker from an npm
-package, and matches how the `stockfish` package is commonly structured
-— but package internals do shift between versions, and this could not be
-verified by actually running it in this environment (no internet access
-during development). If the "vs Computer" mode doesn't respond after
-`npm install`, check the actual file path inside
-`node_modules/stockfish/src/` and adjust the import path in
-`stockfish.js` to match — this is the single most likely spot to need a
-small fix on first real run.
+using the `stockfish.js` package (single-threaded, no `SharedArrayBuffer`
+requirement — this replaced an earlier version that used the multi-
+threaded `stockfish` package, which crashed in production with
+"SharedArrayBuffer is not defined" since Vercel doesn't send the
+cross-origin isolation headers that build needs). This is a well-
+established, long-used package with a simple single-file convention,
+which is why it was chosen over guessing at internal filenames in the
+multi-threaded build — but the exact file layout still couldn't be
+verified by actually running `npm install` in this environment (no
+internet access during development). Two safety nets are now in place
+either way: `whenReady()` and `getBestMove()` both time out and log a
+clear console warning instead of hanging silently if the worker fails
+to load, so a real failure would be visible and diagnosable rather than
+just "the bot doesn't move."
 
 ## What's still simplified (by design, for a first beta)
 
@@ -116,7 +121,33 @@ small fix on first real run.
 - Supabase Realtime for live matches between testers
 
 
-## What's new in this pass — with honest confidence levels
+## What's new in this pass — time controls, ratings, and standard-site features
+
+**High confidence:**
+- **Glicko-2 rating system** (`src/lib/glicko2.js`) — the same algorithm Lichess uses. Implemented from Glickman's published spec and verified with real sanity checks before shipping (a lower-rated win raises rating, a loss lowers it, an equal-rating draw barely moves it, winner/loser gain/lose symmetric amounts) — not just trusted on the math being right, actually run and checked.
+- **Time controls**: Bullet, Blitz, Rapid, Classical, each with real preset options (1+0 up to 30+0), wired into Live Match. Clock UI with Lichess-style low-time red flash under 10 seconds.
+- **Game controls**: resign, draw offer/accept/decline, abort (before any moves) — all in `LiveMatch.jsx`.
+- **Post-game coach review** — after any Live Match game, "Review with coach" replays the whole game through the existing coach logic and flags any move worth a second look, move by move.
+- **Board themes restored — verified real Lichess colors, not invented ones.** Brown (`#F0D9B5`/`#B58863`) and Blue (`#DEE3E6`/`#8CA2AD`) came back as exact hex values from a Lichess forum thread; Green (`#EEEED2`/`#769656`) from a standard chess-board color palette source. **Piece styles were deliberately NOT expanded back to multiple options** — react-chessboard's single bundled default set is genuine Lichess/Chess.com-quality vector art, and re-adding hand-drawn alternates was the exact risk flagged and correctly avoided.
+- **Puzzle Rush** and **Profile page** — real screens, real Supabase-backed data (best streak, per-time-control ratings, lessons mastered, latest diagnostic tier).
+
+**Medium confidence — real code, needs live two-client testing to fully trust:**
+- **Live Match clocks are NOT server-authoritative** — each client runs its own local countdown, resynced on every move. Fine for a small trusted beta; a determined bad actor could theoretically exploit client-side timing. Flagged directly in `clock.js`.
+- **Rating updates trust each client to self-report** — since there's no game server, each player's browser computes and writes its own updated rating after a game. Fine for a small closed beta among people who know each other; would need a server-side function (e.g. a Supabase Edge Function) to be cheat-resistant for a public product. Flagged in `ratings.js`.
+- **Time control mismatch on join** — the guest currently just uses whatever they have selected locally rather than automatically inheriting the host's choice; noted directly in the Live Match UI to agree on it out of band before sharing a code. A real fix (broadcasting the host's choice at match creation) is a natural next step.
+
+**Honest scoping decision:**
+- **"vs Computer" mode does not have a clock yet** — time controls were built where they matter most (real human-vs-human ratings), not retrofitted everywhere. Worth adding later, not pretending it's already there.
+- **Puzzle Rush draws from the same small hand-verified puzzle sample** (2-3 puzzles) as everywhere else — will repeat quickly until the Lichess import script actually runs.
+
+
+
+- **Fixed: "SharedArrayBuffer is not defined" crash on vs Computer moves** — the previous build used `stockfish`'s multi-threaded NNUE engine, which requires `SharedArrayBuffer` and specific cross-origin isolation headers Vercel doesn't send by default. Switched to the `stockfish.js` package (nmrugg's classic single-threaded build) — no `SharedArrayBuffer`, no server header config needed, at the cost of slightly weaker top-end engine strength. Also added timeout safety nets in `src/lib/stockfish.js` so a future load failure surfaces as a console warning instead of the "vs Computer" button silently doing nothing.
+- **Fixed: white background showing around/behind the app** — there was no global CSS at all, so the browser's default white `body` background and margin showed through. Added `src/index.css` plus an inline `<style>` in `index.html` (so there's no flash of white even before the bundle loads).
+- **Bot difficulty: 5 presets → 12-rung ladder** — `src/lib/stockfish.js`'s `DIFFICULTY_PRESETS` now runs Beginner → Novice → Casual → Amateur → Intermediate → Advanced → Expert → Master → Senior Master → Int'l Master → Grandmaster → Full Strength, with both Stockfish's Skill Level and think time scaling together so each rung actually plays differently.
+- **Layout fix**: the board+panel row on Play and Lessons wasn't centered, leaving a lot of dead space on wide screens, and the board itself was capped at a small fixed width. Both are now responsive to actual window width and centered.
+
+
 
 **High confidence — straightforward, verifiable logic:**
 - **Promotion picker** (`src/components/PromotionPicker.jsx`) — real piece choice instead of auto-queen, wired into Play.
