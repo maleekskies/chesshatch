@@ -4,7 +4,7 @@ import { supabase } from "../lib/supabaseClient.js";
 import { TIME_CONTROLS } from "../lib/glicko2.js";
 import { BADGES } from "../lib/badges.js";
 
-// A real profile page — aggregates data already being collected
+// A real profile page, aggregates data already being collected
 // (ratings, lessons completed, diagnostic tier, puzzle rush best) into
 // one view for the tester themselves, rather than only existing in the
 // Admin dashboard for you to see.
@@ -63,7 +63,7 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
           return (
             <div key={tc.key} style={{ background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 9, padding: "12px 14px", textAlign: "center" }}>
               <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Fraunces', serif", color: r ? textMain : textMuted }}>
-                {r ? r.rating : "—"}
+                {r ? r.rating : ", "}
               </div>
               <div style={{ fontSize: 10.5, color: textMuted, marginTop: 2 }}>{tc.label}</div>
               {r && <div style={{ fontSize: 9.5, color: textMuted, marginTop: 3 }}>{r.games_played} games</div>}

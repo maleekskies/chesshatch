@@ -8,6 +8,7 @@ import { formatClock, isLowTime, msFromMinutes } from "../lib/clock.js";
 import { applyRatingUpdate, saveOwnRating, getRating } from "../lib/ratings.js";
 import { analyzeMove } from "../lib/coach.js";
 import { supabase } from "../lib/supabaseClient.js";
+import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
 // Real-time match between two signed-in testers, with time controls,
 // clocks, resign/draw/abort, and Glicko-2 rating updates.
@@ -57,6 +58,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
 
   function applyRemoteMove({ from, to, promotion }) {
     chess.move({ from, to, promotion: promotion || undefined });
+    giveMoveFeedback();
     applyIncrement(chess.turn() === "w" ? "b" : "w"); // color that just moved is the opposite of whose turn it now is
     setVersion((v) => v + 1);
     checkGameOverAfterMove();
@@ -89,7 +91,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
     if (ratingApplied || !session?.user) return;
     setRatingApplied(true);
     // Each client updates only its own rating row, computed against the
-    // opponent's rating snapshot shared over broadcast — see the
+    // opponent's rating snapshot shared over broadcast, see the
     // honest limitation noted in ratings.js about client-only trust.
     if (!myRating || !opponentRating) return;
     const iAmWhite = role === "w";
@@ -122,7 +124,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
   }
 
   function handleTimeout(colorThatRanOut) {
-    // Only the player whose own clock this is reports the timeout —
+    // Only the player whose own clock this is reports the timeout.
     // avoids both sides racing to declare it.
     if (colorThatRanOut !== role) return;
     clearInterval(tickRef.current);
@@ -170,7 +172,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
     setRole("b");
     setStage("playing");
     // Guest doesn't know the host's chosen time control in advance in
-    // this simple v1 — defaults to the same category/option currently
+    // this simple v1, defaults to the same category/option currently
     // selected in the UI. Host and guest should agree on time control
     // out of band (e.g. "let's do 5+0 blitz") before sharing the code.
     timeControlRef.current = { ...tcOption, tcKey: tcCategory.key };
@@ -282,7 +284,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
           </button>
         </div>
         <p style={{ fontSize: 11, color: textMuted, marginTop: 14, lineHeight: 1.5 }}>
-          Agree on the time control with your opponent before sharing the code — the joiner's own selection is used if it doesn't match.
+          Agree on the time control with your opponent before sharing the code, the joiner's own selection is used if it doesn't match.
         </p>
       </div>
     );
@@ -328,7 +330,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
         </div>
         {showReview && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-            {reviewNotes.length === 0 && <p style={{ color: textMuted, fontSize: 13 }}>No moves flagged by the coach — a clean game.</p>}
+            {reviewNotes.length === 0 && <p style={{ color: textMuted, fontSize: 13 }}>No moves flagged by the coach, a clean game.</p>}
             {reviewNotes.map((n) => (
               <div key={n.ply} style={{ padding: "9px 12px", borderRadius: 8, background: n.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(201,162,39,0.08)", border: `1px solid ${n.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: textMain }}>
                 <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: accentGold, marginRight: 6 }}>{n.san}</span>
@@ -354,7 +356,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
 
       <div style={{ flex: "1 1 220px", minWidth: 220, maxWidth: 280 }}>
         <div style={{ fontSize: 12, color: textMuted, marginBottom: 14, fontFamily: "'IBM Plex Mono', monospace" }}>
-          {tcOption.label} {tcCategory.label} — playing as {role === "w" ? "White" : "Black"}
+          {tcOption.label} {tcCategory.label}, playing as {role === "w" ? "White" : "Black"}
         </div>
 
         {drawOfferPending && (

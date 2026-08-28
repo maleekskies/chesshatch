@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GLOSSARY } from "../data/glossary.js";
 
 // Wraps a glossary word in explanation text. Tap/hover reveals the
-// definition inline instead of assuming the reader already knows it —
+// definition inline instead of assuming the reader already knows it.
 // meant for exactly the "what does 'opposition' mean" moment mid-lesson.
 export default function Term({ word, textMain, accentGold, panelBg, borderCol }) {
   const [open, setOpen] = useState(false);

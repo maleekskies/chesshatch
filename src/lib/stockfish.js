@@ -1,9 +1,9 @@
-// Offline Stockfish wrapper — runs entirely in a Web Worker in the
+// Offline Stockfish wrapper, runs entirely in a Web Worker in the
 // browser, no network calls once the page (and this worker file) has
 // loaded. This is what makes "play vs computer" work without internet.
 //
 // Uses the `stockfish.js` npm package (nmrugg's classic build), which is
-// deliberately single-threaded — it does NOT use SharedArrayBuffer, so
+// deliberately single-threaded, it does NOT use SharedArrayBuffer, so
 // it doesn't need the Cross-Origin-Opener-Policy / Cross-Origin-Embedder-
 // Policy headers that multi-threaded NNUE builds require (and that
 // Vercel doesn't send by default, which is what caused the
@@ -23,7 +23,7 @@ export function createEngine() {
     console.error(
       "[ChessPath] Stockfish worker failed to load:",
       e.message || e,
-      "— check that node_modules/stockfish.js/stockfish.js actually exists at that path after npm install; the exact file layout couldn't be verified without live internet access during development."
+      "Check that node_modules/stockfish.js/stockfish.js actually exists at that path after npm install. The exact file layout couldn't be verified without live internet access during development."
     );
   };
 
@@ -44,12 +44,12 @@ export function createEngine() {
     return new Promise((resolve) => {
       readyResolvers.push(resolve);
       // Safety net: if the worker never becomes ready (e.g. the file
-      // failed to load), don't hang the UI forever — resolve anyway
+      // failed to load), don't hang the UI forever, resolve anyway
       // after a few seconds so getBestMove can fail visibly instead of
       // the "vs Computer" button just doing nothing with no feedback.
       setTimeout(() => {
         if (!ready) {
-          console.warn("[ChessPath] Stockfish never became ready — engine moves will not work.");
+          console.warn("[ChessPath] Stockfish never became ready, engine moves will not work.");
           resolve();
         }
       }, 4000);
@@ -57,7 +57,7 @@ export function createEngine() {
   }
 
   // skillLevel: 0 (weakest) to 20 (full strength). Roughly maps to
-  // beginner-through-strong-club-player for a teaching tool — the
+  // beginner-through-strong-club-player for a teaching tool, the
   // blueprint's "graduated bot strength" from Phase 3.
   function setSkillLevel(skillLevel) {
     worker.postMessage(`setoption name Skill Level value ${Math.max(0, Math.min(20, skillLevel))}`);
@@ -84,7 +84,7 @@ export function createEngine() {
         worker.postMessage(`position fen ${fen}`);
         worker.postMessage(`go movetime ${moveTimeMs}`);
         // If the engine is unresponsive (failed load, etc.), don't hang
-        // forever — resolve null so the caller's existing "(none)"-style
+        // forever, resolve null so the caller's existing "(none)"-style
         // check handles it instead of the UI silently freezing.
         setTimeout(() => {
           if (!settled) {
@@ -104,7 +104,7 @@ export function createEngine() {
 }
 
 // Convenience: skill-level presets, spaced out across a full ladder from
-// complete beginner to full engine strength — the blueprint's "graduated
+// complete beginner to full engine strength, the blueprint's "graduated
 // bot strength" made concrete. Skill Level (0-20) and think time both
 // increase together so each rung actually feels harder, not just the
 // same difficulty with a fancier name.

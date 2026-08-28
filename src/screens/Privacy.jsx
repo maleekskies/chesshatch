@@ -1,4 +1,4 @@
-// A short, honest privacy statement — worth having before more people
+// A short, honest privacy statement, worth having before more people
 // hand over an email address, even for a small closed beta with no
 // monetization. Deliberately plain-language, not a legal boilerplate
 // wall of text.
@@ -6,7 +6,7 @@ export default function Privacy({ textMain, textMuted, panelBg, borderCol, accen
   return (
     <div style={{ maxWidth: 640 }}>
       <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
-        Privacy — what we collect and why
+        Privacy, what we collect and why
       </h2>
       <p style={{ color: textMuted, fontSize: 13, marginBottom: 24 }}>
         Last updated for the closed beta. ChessPath is not monetized and your data is never sold or used for advertising.
@@ -22,18 +22,18 @@ export default function Privacy({ textMain, textMuted, panelBg, borderCol, accen
       <Section title="What we don't do" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>
         No ads, no selling data to third parties, no tracking you across other sites. Supabase (our
         database provider) and Vercel (our hosting provider) process data on our behalf as
-        infrastructure — they don't use it for their own purposes.
+        infrastructure, they don't use it for their own purposes.
       </Section>
 
       <Section title="Who can see it" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>
-        Your progress and results are private to your account — row-level security in the database
+        Your progress and results are private to your account, row-level security in the database
         means even another signed-in tester can't query your data. As the person running this beta,
         we can see aggregate stats and individual feedback you submit, since that's the point of
         testing.
       </Section>
 
       <Section title="Your data, your choice" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>
-        Since this is an early beta, there's no self-serve "delete my account" button yet — if you'd
+        Since this is an early beta, there's no self-serve "delete my account" button yet, if you'd
         like your data removed, just ask and it'll be deleted directly from the database.
       </Section>
     </div>

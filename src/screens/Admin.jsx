@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient.js";
 
-// A real look at how the beta is going — not the tester-facing progress
+// A real look at how the beta is going, not the tester-facing progress
 // dashboard from the blueprint, but YOUR view: how many testers, what
 // tiers they're landing in, where progress drops off, and raw feedback.
 // Gated to a known admin email so testers don't stumble into it.
@@ -76,7 +76,7 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
         ))}
       </div>
 
-      <SectionHeading title="Lesson completion — where people drop off" accentGold={accentGold} />
+      <SectionHeading title="Lesson completion, where people drop off" accentGold={accentGold} />
       <div style={{ marginBottom: 24 }}>
         {Object.keys(stats.lessonCounts).length === 0 && <p style={{ color: textMuted, fontSize: 13 }}>No lessons completed yet.</p>}
         {Object.entries(stats.lessonCounts).map(([lesson, count]) => (

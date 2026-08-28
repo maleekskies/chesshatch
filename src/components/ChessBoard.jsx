@@ -1,11 +1,12 @@
 import { useState, useMemo, useEffect } from "react";
 import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
+import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
 const GOLD = "#C9A227";
 
 // Thin wrapper around react-chessboard so every screen in the app uses
-// the same clean, standard Staunton piece set (the library's default —
+// the same clean, standard Staunton piece set (the library's default,
 // the same visual family as Lichess/Chess.com) and the same theme-color
 // wiring, instead of each screen reinventing board styling.
 //
@@ -21,7 +22,7 @@ const GOLD = "#C9A227";
 //     square instead of hanging on the drop square.
 //
 // `onPieceDrop(from, to)` is called for both a valid drag-drop AND a
-// completed click-to-move sequence — every screen already implements
+// completed click-to-move sequence, every screen already implements
 // that one handler, so no screen needs to change to get either feature.
 export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white", theme, boardWidth = 420, arePiecesDraggable = true }) {
   const [selectedSquare, setSelectedSquare] = useState(null);
@@ -64,10 +65,12 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
     setSelectedSquare(null);
     if (!arePiecesDraggable || typeof onPieceDrop !== "function") return false;
     // Reject anything that isn't a legal destination for that piece before
-    // it ever reaches the screen's handler — this is what guarantees the
+    // it ever reaches the screen's handler, this is what guarantees the
     // piece snaps back on a wrong drop instead of hanging in place.
     if (!legalTargets(source).includes(target)) return false;
-    return onPieceDrop(source, target);
+    const accepted = onPieceDrop(source, target);
+    if (accepted) giveMoveFeedback();
+    return accepted;
   }
 
   function handleSquareClick(square) {
@@ -86,7 +89,8 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
     if (selectedTargets.includes(square)) {
       const from = selectedSquare;
       setSelectedSquare(null);
-      onPieceDrop(from, square);
+      const accepted = onPieceDrop(from, square);
+      if (accepted) giveMoveFeedback();
       return;
     }
 

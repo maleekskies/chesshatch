@@ -2,7 +2,7 @@
 // into Supabase's puzzle_attempts-adjacent content, replacing the small
 // hand-verified sample set with real, tagged puzzles.
 //
-// CANNOT BE RUN FROM THIS BUILD SESSION — needs live internet access to
+// CANNOT BE RUN FROM THIS BUILD SESSION. Needs live internet access to
 // download the Lichess puzzle CSV, which this sandbox doesn't have.
 // Run this once from Code Desktop or your own machine, after `npm install`.
 //
@@ -11,7 +11,7 @@
 //
 // Requires these env vars (same Supabase project, but needs the
 // SERVICE ROLE key, not the public anon key, since this writes data
-// directly — never expose the service role key in client-side code):
+// directly. Never expose the service role key in client-side code):
 //   SUPABASE_URL=https://mvmycbhsrekrfncrsvrc.supabase.co
 //   SUPABASE_SERVICE_ROLE_KEY=<from Supabase dashboard > Settings > API>
 
@@ -20,7 +20,7 @@ import { createGunzip } from "zlib";
 import { createInterface } from "readline";
 
 const LICHESS_PUZZLE_CSV_GZ = "https://database.lichess.org/lichess_db_puzzle.csv.zst";
-// Note: Lichess's current export is .zst (Zstandard), not gzip — this
+// Note: Lichess's current export is .zst (Zstandard), not gzip. This
 // script assumes a gzip re-export or that you've decompressed it first
 // with a zstd tool (e.g. `zstd -d lichess_db_puzzle.csv.zst`) and point
 // this script at the local .csv instead. Flagging this because it's
@@ -37,7 +37,7 @@ if (!SUPABASE_URL || !SERVICE_KEY) {
 const supabase = createClient(SUPABASE_URL, SERVICE_KEY);
 
 // Which motifs from Lichess's puzzle themes map to ChessPath's Tier 1/2
-// lesson categories — only import puzzles tagged with themes a
+// lesson categories. Only import puzzles tagged with themes a
 // beginner-to-intermediate curriculum actually uses.
 const RELEVANT_THEMES = new Set([
   "pin", "fork", "skewer", "discoveredAttack", "hangingPiece",
@@ -68,7 +68,7 @@ async function importPuzzles(csvPath) {
 
     // Lichess puzzles give the position BEFORE the opponent's setup move;
     // the actual puzzle starts one move later. This needs verifying against
-    // real rows before trusting it blindly — noted here rather than assumed.
+    // real rows before trusting it blindly, noted here rather than assumed.
     const firstSolutionMove = moves.split(" ")[1];
     if (!firstSolutionMove) continue;
 

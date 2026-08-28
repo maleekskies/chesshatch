@@ -3,7 +3,7 @@
 // HONEST FLAG: this is the least-verified piece of this build. Broadcast
 // and presence are documented, standard supabase-js v2 APIs, but actual
 // two-client sync behavior can only really be confirmed by opening two
-// browser windows and testing it live — which isn't possible from this
+// browser windows and testing it live, which isn't possible from this
 // sandbox. Test this one specifically, with two real tabs/devices,
 // before relying on it with testers.
 import { supabase } from "./supabaseClient.js";

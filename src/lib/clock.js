@@ -1,4 +1,4 @@
-// Chess clock logic — countdown timers with increment, matching
+// Chess clock logic, countdown timers with increment, matching
 // standard time-control behavior (Fischer increment: added AFTER the
 // move that used it, not before).
 //
@@ -6,7 +6,7 @@
 // game, each browser runs its own local countdown. Clocks are
 // resynced whenever a move arrives (both sides snap to the mover's
 // reported remaining time), which keeps drift from compounding, but
-// there's no server-authoritative clock — a player with a badly lagging
+// there's no server-authoritative clock, a player with a badly lagging
 // connection could theoretically see a slightly different time than
 // their opponent for a moment. This is the standard approach for a
 // client-only real-time app without a dedicated game server, but it's
@@ -31,5 +31,5 @@ export function formatClock(ms) {
 }
 
 export function isLowTime(ms) {
-  return ms > 0 && ms < 10000; // under 10 seconds — Lichess-style red flash threshold
+  return ms > 0 && ms < 10000; // under 10 seconds. Lichess-style red flash threshold
 }

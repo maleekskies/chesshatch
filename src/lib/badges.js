@@ -29,7 +29,7 @@ export function getEarnedBadges() {
 // null if it was already earned before or isn't a real badge key.
 //
 // HONEST LIMITATION: like ratings elsewhere in this app, this is a
-// client-only write — localStorage is the source of truth (so it works
+// client-only write, localStorage is the source of truth (so it works
 // instantly for guests too), and for signed-in users it's mirrored to
 // Supabase best-effort in the background. There's no server check that
 // the badge was actually earned fairly; fine for a closed beta, not

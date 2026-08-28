@@ -1,8 +1,8 @@
-# ChessPath Beta — Tester Onboarding Plan
+# ChessPath Beta: Tester Onboarding Plan
 
 A real testing plan, not just "here's a link, try it." The point of
 testing across skill levels is to learn different things from each
-group — this plan gives each group something specific to focus on so
+group. This plan gives each group something specific to focus on so
 the feedback that comes back is actually useful.
 
 ## Who to recruit, and what to ask each group
@@ -12,7 +12,7 @@ the feedback that comes back is actually useful.
   finish.
 - What you're actually testing: does the diagnostic correctly place
   them at the very start? Does Tier 1 make sense with zero assumed
-  knowledge? Where do they get stuck or confused — this is the group
+  knowledge? Where do they get stuck or confused? This is the group
   most likely to reveal a lesson that assumes something it shouldn't.
 
 **Casual players (knows the rules, plays occasionally online)**
@@ -25,7 +25,7 @@ the feedback that comes back is actually useful.
 
 **Club-level / stronger players**
 - What to have them do: skim the diagnostic (it'll place them in
-  Tier 2, since that's as far as the curriculum goes right now — tell
+  Tier 2, since that's as far as the curriculum goes right now, tell
   them this upfront so it's not a surprise), then focus on the Tier 2
   tactics puzzles and the coach's live feedback during a practice
   game.
@@ -36,23 +36,23 @@ the feedback that comes back is actually useful.
 
 ## What to tell every tester before they start
 
-- This is an early beta — pieces, puzzles, and lessons will change.
+- This is an early beta, pieces, puzzles, and lessons will change.
 - The diagnostic is a short sample (6 questions), not the full
-  version yet — don't read too much into the exact tier it gives.
-- There's a feedback button (bottom-right corner) on every screen —
-  ask them to use it in the moment something's confusing, rather than
+  version yet, don't read too much into the exact tier it gives.
+- There's a feedback button (bottom-right corner) on every screen.
+  Ask them to use it in the moment something's confusing, rather than
   waiting to remember it later.
 - Tell them explicitly: "wrong" or "confusing" feedback is more useful
-  than "looks good" — they don't need to be polite about it.
+  than "looks good", they don't need to be polite about it.
 
 ## What to look at afterward
 
-- Feedback table in Supabase — read every entry, note which screen
+- Feedback table in Supabase, read every entry, note which screen
   each one came from.
-- `diagnostic_results` — do real testers' tiers roughly match what you'd
+- `diagnostic_results`: do real testers' tiers roughly match what you'd
   expect from talking to them? A mismatch here means the 6-question
   sample isn't discriminating well.
-- `progress` — where does completion drop off? A lesson everyone
+- `progress`: where does completion drop off? A lesson everyone
   finishes but the next one nobody starts is worth a closer look.
 
 ## After this round

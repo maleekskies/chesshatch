@@ -5,6 +5,7 @@ import ChessBoard from "../components/ChessBoard.jsx";
 import PromotionPicker from "../components/PromotionPicker.jsx";
 import { analyzeMove, squareToRC } from "../lib/coach.js";
 import { createEngine, DIFFICULTY_PRESETS } from "../lib/stockfish.js";
+import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
 // Play screen: two modes.
 //  - "practice": pass-and-play, with the live coach commenting after
@@ -56,6 +57,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
       if (!uci || uci === "(none)") { setEngineThinking(false); return; }
       const from = uci.slice(0, 2), to = uci.slice(2, 4), promo = uci.slice(4) || undefined;
       chess.move({ from, to, promotion: promo || "q" });
+      giveMoveFeedback();
       setEngineThinking(false);
       setVersion((v) => v + 1);
       runCoach("b", to);
@@ -120,7 +122,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     setVersion((v) => v + 1);
   }
 
-  // "Explain this move" — replay the game up to a chosen ply and re-run
+  // "Explain this move", replay the game up to a chosen ply and re-run
   // the same coach analysis used live, so past moves get the same
   // scrutiny as the current one.
   function explainPly(index) {
@@ -140,7 +142,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
       isStalemate: replay.isStalemate(),
     });
     setSelectedPly(index);
-    setCoachMsg(msg || { tone: "notice", text: "Nothing flagged on this move — looked like a reasonable choice." });
+    setCoachMsg(msg || { tone: "notice", text: "Nothing flagged on this move, looked like a reasonable choice." });
   }
 
   function copyPGN() {
@@ -173,7 +175,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
         <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12.5, color: textMuted, fontFamily: "'IBM Plex Mono', monospace" }}>
             {chess.isGameOver() ? "Game over" : chess.turn() === "w" ? "White to move" : "Black to move"}
-            {engineThinking ? " — engine thinking…" : ""}
+            {engineThinking ? ", engine thinking…" : ""}
           </span>
           <button onClick={undoMove} disabled={historySAN.length === 0}
             style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: `1px solid ${borderCol}`, color: historySAN.length ? textMuted : borderCol, borderRadius: 6, padding: "5px 9px", fontSize: 11.5, cursor: historySAN.length ? "pointer" : "not-allowed" }}>
@@ -232,7 +234,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
               ))}
             </div>
             <p style={{ fontSize: 11, color: textMuted, marginTop: 8, lineHeight: 1.5 }}>
-              Runs fully offline in your browser via Stockfish (WASM) — no internet needed once the page has loaded.
+              Runs fully offline in your browser via Stockfish (WASM), no internet needed once the page has loaded.
             </p>
           </div>
         )}
@@ -240,10 +242,10 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
         <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 8 }}>
           <MessageCircle size={14} color={accentGold} />
           <span style={{ fontSize: 12, fontWeight: 600, color: textMain }}>Coach</span>
-          {selectedPly !== null && <span style={{ fontSize: 10.5, color: textMuted }}>— on move {Math.floor(selectedPly / 2) + 1}{selectedPly % 2 === 0 ? "" : "…"}</span>}
+          {selectedPly !== null && <span style={{ fontSize: 10.5, color: textMuted }}>(move {Math.floor(selectedPly / 2) + 1}{selectedPly % 2 === 0 ? "" : "…"})</span>}
         </div>
         <div role="status" aria-live="polite" style={{ minHeight: 70, padding: "10px 12px", borderRadius: 8, background: coachMsg ? (coachMsg.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(201,162,39,0.08)") : "transparent", border: `1px solid ${coachMsg?.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: coachMsg ? textMain : textMuted, lineHeight: 1.5 }}>
-          {coachMsg ? coachMsg.text : "Make a move and I'll point out anything worth noticing — or click any past move above to see the coach's take on it."}
+          {coachMsg ? coachMsg.text : "Make a move and I'll point out anything worth noticing, or click any past move above to see the coach's take on it."}
         </div>
       </div>
     </div>

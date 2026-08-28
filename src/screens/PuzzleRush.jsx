@@ -7,11 +7,11 @@ import { supabase } from "../lib/supabaseClient.js";
 
 const RUSH_SECONDS = 90;
 
-// Timed puzzle-solving streak — named directly in the blueprint's
+// Timed puzzle-solving streak, named directly in the blueprint's
 // feature list. Honest scope: cycles through the small hand-verified
 // SAMPLE_PUZZLES set (repeating in a shuffled order once exhausted)
 // until the real Lichess puzzle import replaces it with a much larger
-// pool — with only 2-3 puzzles, repeats will be quick to notice, but
+// pool, with only 2-3 puzzles, repeats will be quick to notice, but
 // the mechanic itself (timer, streak, miss ends the run) is real.
 export default function PuzzleRush({ session, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone }) {
   const [stage, setStage] = useState("idle"); // idle | running | over
@@ -111,7 +111,7 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
           <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, margin: 0 }}>Puzzle Rush</h2>
         </div>
         <p style={{ color: textMuted, fontSize: 13.5, marginBottom: 16, lineHeight: 1.6 }}>
-          Solve as many puzzles as you can in {RUSH_SECONDS} seconds. One wrong move ends the run — go for streak, not speed alone.
+          Solve as many puzzles as you can in {RUSH_SECONDS} seconds. One wrong move ends the run, go for streak, not speed alone.
         </p>
         {session?.user && (
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 20, color: textMuted, fontSize: 13 }}>

@@ -1,4 +1,4 @@
--- ChessPath — initial Supabase schema
+-- ChessPath: initial Supabase schema
 -- Run this in the Supabase SQL editor (Project -> SQL Editor -> New query)
 
 -- Beta testers / users (Supabase auth.users already handles login;

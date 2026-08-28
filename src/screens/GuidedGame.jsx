@@ -3,12 +3,13 @@ import { Chess } from "chess.js";
 import { MessageCircle, RotateCcw, ChevronRight, Sparkles } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import { GUIDED_FIRST_GAME } from "../data/guidedGame.js";
+import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
 const STEPS = GUIDED_FIRST_GAME.steps;
 
 // A short, fully scripted mini-match for a total beginner's first
 // hands-on game: the player plays exactly the White moves in the
-// script (enforced — a legal-but-different move is politely declined
+// script (enforced, a legal-but-different move is politely declined
 // and snaps back, same as any other illegal drop), and Black's replies
 // play themselves automatically with a short pause, so it reads like a
 // real game happening rather than a lecture. The coach narrates every
@@ -34,6 +35,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
     const t = setTimeout(() => {
       const move = chess.move({ from: currentStep.from, to: currentStep.to, promotion: "q" });
       if (move) {
+        giveMoveFeedback();
         setVersion((v) => v + 1);
         setNarration(currentStep.say);
         setStepIndex((i) => i + 1);
@@ -47,7 +49,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
   function onPieceDrop(from, to) {
     if (!awaitingUser) return false;
     if (from !== currentStep.from || to !== currentStep.to) {
-      // Legal chess move, just not the one the script calls for here —
+      // Legal chess move, just not the one the script calls for here.
       // decline it (the board snaps it back) and nudge toward the
       // intended move instead of silently doing nothing.
       setHint(`Try ${currentStep.prompt.replace(/^Play /, "")}`);

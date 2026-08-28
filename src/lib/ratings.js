@@ -20,7 +20,7 @@ export async function getAllRatings(userId) {
 // Applies a Glicko-2 update for both players after a completed game and
 // writes it back. HONEST LIMITATION: since this is a client-only app
 // with no game server, each client computes and writes its OWN rating
-// row — there's no server verifying the reported result actually
+// row, there's no server verifying the reported result actually
 // happened, so this trusts both clients to report honestly. Fine for a
 // small closed beta among people who know each other; would need a
 // server-side function (e.g. a Supabase Edge Function) to be cheat-

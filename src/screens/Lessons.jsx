@@ -8,8 +8,35 @@ import { GLOSSARY } from "../data/glossary.js";
 import { nextReview } from "../lib/spacedRepetition.js";
 import { supabase } from "../lib/supabaseClient.js";
 
+// Builds a Chess instance from a FEN without ever throwing. A bad FEN
+// (malformed data, a missing king, anything chess.js's own validator
+// rejects) previously crashed this whole screen and, since there was
+// no boundary between here and the app root, took down the entire app
+// with a raw "Invalid FEN" error. Content data should never have that
+// much power over the app's stability, so this always returns a
+// working board: the requested position if it's valid, or a plain
+// starting position (with a console warning, so a real content bug is
+// still visible to whoever's testing) if it isn't.
+function safeChess(fen) {
+  try {
+    return new Chess(fen);
+  } catch (err) {
+    console.warn(`Invalid FEN, falling back to the starting position: ${fen}`, err);
+    return new Chess();
+  }
+}
+
+function safeLoad(chess, fen) {
+  try {
+    chess.load(fen);
+  } catch (err) {
+    console.warn(`Invalid FEN on reload, falling back to the starting position: ${fen}`, err);
+    chess.reset();
+  }
+}
+
 // Renders lesson explanation text, auto-linking any glossary word it
-// contains to a hover/tap definition — so "opposition" or "fork" is
+// contains to a hover/tap definition, so "opposition" or "fork" is
 // explained the moment it's used, not just assumed knowledge.
 function ExplanationText({ text, ...termProps }) {
   const words = Object.keys(GLOSSARY).sort((a, b) => b.length - a.length);
@@ -36,7 +63,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
 
   // Zero-knowledge entry point: someone who has never played before can
   // skip the diagnostic and the lesson list entirely and land straight
-  // in Tier 1, Lesson 1. Only runs once, on mount — this component
+  // in Tier 1, Lesson 1. Only runs once, on mount, this component
   // remounts fresh each time the "Never played before?" button is
   // clicked from the landing page, so it won't re-trigger on ordinary
   // "Lessons" nav clicks later in the same visit.
@@ -115,12 +142,12 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
           )}
         </div>
         <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
-          {activeTier === 1 ? "Tier 1 — Complete Beginner" : "Tier 2 — Intermediate"}
+          {activeTier === 1 ? "Tier 1. Complete Beginner" : "Tier 2. Intermediate"}
         </h2>
         <p style={{ color: textMuted, fontSize: 13.5, marginBottom: 18, maxWidth: 520 }}>
           {activeTier === 1
             ? "Start here if you're new to chess. Each lesson ends with a puzzle to lock in what you just learned."
-            : "Once the basics are solid — deeper tactics and the positional ideas that separate a casual player from a strong one."}
+            : "Once the basics are solid, deeper tactics and the positional ideas that separate a casual player from a strong one."}
         </p>
 
         {/* Mastery per category */}
@@ -165,7 +192,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
                 </div>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 600, color: textMain }}>{lesson.title}</div>
-                  <div style={{ fontSize: 12, color: textMuted, marginTop: 2 }}>{lesson.category} — {lesson.explanation.slice(0, 55)}…</div>
+                  <div style={{ fontSize: 12, color: textMuted, marginTop: 2 }}>{lesson.category}, {lesson.explanation.slice(0, 55)}…</div>
                 </div>
               </button>
             );
@@ -177,6 +204,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
 
   return (
     <LessonView
+      key={activeLesson.id}
       lesson={activeLesson}
       theme={theme} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
       session={session}
@@ -190,7 +218,19 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
 }
 
 function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, session, onBack, onComplete, showPuzzle, termProps, onEarnBadge }) {
-  const chessRef = useRef(new Chess(lesson.fen));
+  if (lesson.qa) {
+    return (
+      <QAView
+        lesson={lesson}
+        theme={theme} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
+        onBack={onBack}
+        onComplete={onComplete}
+        termProps={termProps}
+      />
+    );
+  }
+
+  const chessRef = useRef(safeChess(lesson.fen));
   const chess = chessRef.current;
   const [version, setVersion] = useState(0);
   const [feedback, setFeedback] = useState(null);
@@ -209,11 +249,11 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
     const uci = from + to;
     const correct = lesson.solutionSquares.includes(uci);
     if (correct) {
-      setFeedback({ good: true, text: lesson.goal === "checkmate" ? "That's checkmate — well spotted." : "That's it — exactly right." });
+      setFeedback({ good: true, text: lesson.goal === "checkmate" ? "That's checkmate, well spotted." : "That's it, exactly right." });
       setSolved(true);
     } else {
-      setFeedback({ good: false, text: "Not quite — try again, or use the hint below." });
-      setTimeout(() => { chess.load(lesson.fen); setVersion((v) => v + 1); }, 900);
+      setFeedback({ good: false, text: "Not quite, try again, or use the hint below." });
+      setTimeout(() => { safeLoad(chess, lesson.fen); setVersion((v) => v + 1); }, 900);
     }
     return true;
   }
@@ -242,7 +282,7 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
             )}
 
             {lesson.freePlay && (
-              <div style={{ fontSize: 12, color: textMuted, marginBottom: 12 }}>Free play — move the piece around, no wrong answers here.</div>
+              <div style={{ fontSize: 12, color: textMuted, marginBottom: 12 }}>Free play, move the piece around, no wrong answers here.</div>
             )}
 
             {!lesson.freePlay && lesson.hint && (
@@ -257,7 +297,7 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
               disabled={!lesson.freePlay && !solved}
               style={{ width: "100%", background: (lesson.freePlay || solved) ? accentGold : borderCol, color: (lesson.freePlay || solved) ? "#1B2430" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: (lesson.freePlay || solved) ? "pointer" : "not-allowed" }}
             >
-              {lesson.freePlay ? "Got it — continue" : solved ? "Continue to puzzle" : "Solve it first"}
+              {lesson.freePlay ? "Got it, continue" : solved ? "Continue to puzzle" : "Solve it first"}
             </button>
           </div>
         </div>
@@ -268,8 +308,63 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
   );
 }
 
+// A direct question-and-answer lesson, for rules that are hard to
+// teach through free movement on a board (en passant, promotion
+// choices, draw rules) but need a clear, direct explanation instead.
+// The board is optional and, when present, purely illustrative: it
+// isn't draggable, since there's nothing to solve here.
+function QAView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onBack, onComplete, termProps }) {
+  const [revealed, setRevealed] = useState(false);
+  const boardWidth = isPhone ? Math.min(300, window.innerWidth - 48) : 360;
+
+  return (
+    <div>
+      <button onClick={onBack} style={{ display: "flex", alignItems: "center", gap: 4, background: "transparent", border: "none", color: textMuted, fontSize: 12.5, cursor: "pointer", marginBottom: 14, padding: 0 }}>
+        <ChevronLeft size={15} /> All lessons
+      </button>
+
+      <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
+        {lesson.fen && (
+          <div>
+            <ChessBoard fen={lesson.fen} theme={theme} boardWidth={boardWidth} arePiecesDraggable={false} />
+          </div>
+        )}
+        <div style={{ flex: "1 1 260px", minWidth: 260, maxWidth: 380 }}>
+          <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: accentGold, marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>
+            Question
+          </div>
+          <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 600, margin: "0 0 16px", lineHeight: 1.4 }}>
+            {lesson.question}
+          </h2>
+
+          {!revealed ? (
+            <button onClick={() => setRevealed(true)} style={{ width: "100%", background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginBottom: 12 }}>
+              Show the answer
+            </button>
+          ) : (
+            <div style={{ padding: "12px 14px", borderRadius: 8, marginBottom: 16, background: "rgba(201,162,39,0.08)", border: `1px solid ${accentGold}` }}>
+              <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: accentGold, marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>
+                Answer
+              </div>
+              <ExplanationText text={lesson.answer} {...termProps} />
+            </div>
+          )}
+
+          <button
+            onClick={() => { onComplete(); onBack(); }}
+            disabled={!revealed}
+            style={{ width: "100%", background: revealed ? accentGold : borderCol, color: revealed ? "#1B2430" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: revealed ? "pointer" : "not-allowed" }}
+          >
+            {revealed ? "Got it, continue" : "Show the answer first"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, borderCol, isPhone, session, onBack, onEarnBadge }) {
-  const chessRef = useRef(new Chess(puzzle.fen));
+  const chessRef = useRef(safeChess(puzzle.fen));
   const chess = chessRef.current;
   const [version, setVersion] = useState(0);
   const [result, setResult] = useState(null);
@@ -316,7 +411,7 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
       onEarnBadge?.("first_puzzle");
     } else {
       setResult({ good: false });
-      setTimeout(() => { chess.load(puzzle.fen); setVersion((v) => v + 1); setResult(null); }, 900);
+      setTimeout(() => { safeLoad(chess, puzzle.fen); setVersion((v) => v + 1); setResult(null); }, 900);
     }
     return true;
   }
@@ -325,14 +420,14 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
     <div style={{ display: "flex", gap: 24, flexWrap: "wrap", justifyContent: "center" }}>
       <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
       <div style={{ flex: "1 1 240px", minWidth: 240, maxWidth: 340 }}>
-        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: accentGold, marginBottom: 8 }}>Puzzle — {puzzle.motif}</div>
+        <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: accentGold, marginBottom: 8 }}>Puzzle, {puzzle.motif}</div>
         <p style={{ color: textMuted, fontSize: 13.5, lineHeight: 1.6, marginBottom: 16 }}>Find the best move for White.</p>
         {!session?.user && (
           <p style={{ color: textMuted, fontSize: 11.5, marginBottom: 12 }}>Sign in to have this scheduled for spaced review later.</p>
         )}
         {result && (
           <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 14, background: result.good ? "rgba(201,162,39,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${result.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>
-            {result.good ? puzzle.explanation : "Not quite — the position has reset, try again."}
+            {result.good ? puzzle.explanation : "Not quite, the position has reset, try again."}
           </div>
         )}
         <button onClick={onBack} style={{ width: "100%", background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>

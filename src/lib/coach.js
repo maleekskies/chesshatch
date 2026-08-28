@@ -1,4 +1,4 @@
-// ChessPath live coach — rule-based move feedback for beginners.
+// ChessPath live coach, rule-based move feedback for beginners.
 // Deliberately independent of chess.js's turn-based legal-move generator,
 // because "is this square attacked/defended" needs to be checked for
 // EITHER color regardless of whose turn it is. Works directly off the
@@ -14,14 +14,14 @@ function slideAttacks(board, r, c, dirs, targetR, targetC) {
     let nr = r + dr, nc = c + dc;
     while (inBounds(nr, nc)) {
       if (nr === targetR && nc === targetC) return true;
-      if (board[nr][nc]) break; // blocked — ray stops here either way
+      if (board[nr][nc]) break; // blocked, ray stops here either way
       nr += dr; nc += dc;
     }
   }
   return false;
 }
 
-// Does the piece at (r,c) attack (targetR,targetC)? Attack, not "legal move" —
+// Does the piece at (r,c) attack (targetR,targetC)? Attack, not "legal move".
 // pawns count diagonals even onto empty squares, since that's what "defended" means.
 function pieceAttacks(board, r, c, targetR, targetC) {
   const piece = board[r][c];
@@ -59,7 +59,7 @@ export function squareToRC(square) {
 }
 export function rcToSquare(r, c) { return `${FILES[c]}${8 - r}`; }
 
-// Piece "value" — used only to decide if a hanging piece is worth flagging
+// Piece "value", used only to decide if a hanging piece is worth flagging
 // loudly (losing a queen matters more than a pawn push into a defended pawn).
 const VALUE = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
 
@@ -70,8 +70,8 @@ const VALUE = { p: 1, n: 3, b: 3, r: 5, q: 9, k: 0 };
  * piece landed, e.g. "e5".
  */
 export function analyzeMove({ board, moverColor, toSquare, isCheck, isCheckmate, isStalemate }) {
-  if (isCheckmate) return { tone: "result", text: "Checkmate — the game is over." };
-  if (isStalemate) return { tone: "result", text: "Stalemate — the game is drawn." };
+  if (isCheckmate) return { tone: "result", text: "Checkmate, the game is over." };
+  if (isStalemate) return { tone: "result", text: "Stalemate, the game is drawn." };
 
   const [tr, tc] = squareToRC(toSquare);
   const movedPiece = board[tr][tc];
@@ -86,14 +86,14 @@ export function analyzeMove({ board, moverColor, toSquare, isCheck, isCheckmate,
     const attackerSquare = rcToSquare(attacker.r, attacker.c);
     return {
       tone: "warning",
-      text: `Careful — your ${PIECE_NAMES[movedPiece.type]} on ${toSquare} is undefended, and their ${attackerName} on ${attackerSquare} can take it for free.`,
+      text: `Careful, your ${PIECE_NAMES[movedPiece.type]} on ${toSquare} is undefended, and their ${attackerName} on ${attackerSquare} can take it for free.`,
     };
   }
 
   if (attacker && defender && VALUE[attacker.piece.type] < VALUE[movedPiece.type]) {
     return {
       tone: "notice",
-      text: `Watch that trade — your ${PIECE_NAMES[movedPiece.type]} on ${toSquare} is defended, but their ${PIECE_NAMES[attacker.piece.type]} is worth less, so trading there favors them.`,
+      text: `Watch that trade, your ${PIECE_NAMES[movedPiece.type]} on ${toSquare} is defended, but their ${PIECE_NAMES[attacker.piece.type]} is worth less, so trading there favors them.`,
     };
   }
 
