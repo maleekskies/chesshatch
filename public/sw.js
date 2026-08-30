@@ -37,9 +37,24 @@ self.addEventListener("fetch", (event) => {
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
 
+  // A synthetic last-resort response. respondWith() must always
+  // resolve to a real Response, never undefined, or the browser
+  // throws "Failed to convert value to Response" and the whole
+  // request fails outright instead of degrading gracefully. This is
+  // only ever reached when both the cache and the network have
+  // nothing to offer (e.g. a completely fresh install with zero
+  // connectivity, hitting a page that was never visited online).
+  function offlineFallback() {
+    return new Response(
+      "You're offline and this page hasn't been loaded before, so there's nothing cached for it yet.",
+      { status: 503, headers: { "Content-Type": "text/plain" } }
+    );
+  }
+
   if (request.mode === "navigate") {
-    // Network-first for page loads, falling back to the cached shell
-    // (and then the specific cached page, if any) when offline.
+    // Network-first for page loads, falling back to the cached shell,
+    // then the specific cached page, then the synthetic response
+    // above, in that order, when offline.
     event.respondWith(
       fetch(request)
         .then((response) => {
@@ -47,13 +62,16 @@ self.addEventListener("fetch", (event) => {
           caches.open(CACHE_NAME).then((cache) => cache.put(request, copy));
           return response;
         })
-        .catch(() => caches.match("/").then((r) => r || caches.match(request)))
+        .catch(() =>
+          caches.match("/").then((shell) => shell || caches.match(request)).then((cached) => cached || offlineFallback())
+        )
     );
     return;
   }
 
   // Cache-first for everything else (JS/CSS bundles, images, fonts),
-  // falling back to network and caching whatever comes back.
+  // falling back to network, then the synthetic response above if
+  // both the cache and the network come up empty.
   event.respondWith(
     caches.match(request).then((cached) => {
       if (cached) return cached;
@@ -65,7 +83,7 @@ self.addEventListener("fetch", (event) => {
           }
           return response;
         })
-        .catch(() => cached);
+        .catch(() => cached || offlineFallback());
     })
   );
 });

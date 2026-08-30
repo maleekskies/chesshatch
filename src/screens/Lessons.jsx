@@ -192,7 +192,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
                 </div>
                 <div>
                   <div style={{ fontSize: 14.5, fontWeight: 600, color: textMain }}>{lesson.title}</div>
-                  <div style={{ fontSize: 12, color: textMuted, marginTop: 2 }}>{lesson.category}, {lesson.explanation.slice(0, 55)}…</div>
+                  <div style={{ fontSize: 12, color: textMuted, marginTop: 2 }}>{lesson.category}, {(lesson.explanation || lesson.question || "").slice(0, 55)}…</div>
                 </div>
               </button>
             );
