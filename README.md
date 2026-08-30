@@ -1,4 +1,4 @@
-# ChessPath
+# ChessLoop
 
 A free chess learning platform for complete beginners through advanced
 players, learning-first rather than play-first. Vite + React frontend,

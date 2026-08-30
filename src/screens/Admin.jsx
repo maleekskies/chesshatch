@@ -55,7 +55,7 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
 
   return (
     <div style={{ maxWidth: 720 }}>
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 20px" }}>
+      <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 20px" }}>
         Beta overview
       </h2>
 
@@ -105,7 +105,7 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
 function StatCard({ label, value, textMain, textMuted, panelBg, borderCol }) {
   return (
     <div style={{ background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 9, padding: "12px 14px" }}>
-      <div style={{ fontSize: 22, fontWeight: 700, color: textMain, fontFamily: "'Fraunces', serif" }}>{value}</div>
+      <div style={{ fontSize: 22, fontWeight: 700, color: textMain, fontFamily: "'Poppins', sans-serif" }}>{value}</div>
       <div style={{ fontSize: 11, color: textMuted, marginTop: 2 }}>{label}</div>
     </div>
   );

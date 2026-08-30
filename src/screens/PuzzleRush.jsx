@@ -108,7 +108,7 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
       <div style={{ maxWidth: 420 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
           <Zap size={18} color={accentGold} />
-          <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, margin: 0 }}>Puzzle Rush</h2>
+          <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, fontWeight: 700, margin: 0 }}>Puzzle Rush</h2>
         </div>
         <p style={{ color: textMuted, fontSize: 13.5, marginBottom: 16, lineHeight: 1.6 }}>
           Solve as many puzzles as you can in {RUSH_SECONDS} seconds. One wrong move ends the run, go for streak, not speed alone.
@@ -118,7 +118,7 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
             <Trophy size={14} color={accentGold} /> Best streak: <span style={{ color: textMain, fontWeight: 600 }}>{bestStreak}</span>
           </div>
         )}
-        <button onClick={start} style={{ background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "12px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={start} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "12px 20px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
           Start Rush
         </button>
       </div>
@@ -128,11 +128,11 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
   if (stage === "over") {
     return (
       <div style={{ maxWidth: 420 }}>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Run over</h2>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Run over</h2>
         <p style={{ color: textMain, fontSize: 16, marginBottom: 4 }}>Streak: <strong style={{ color: accentGold }}>{streak}</strong></p>
         {session?.user && <p style={{ color: textMuted, fontSize: 13, marginBottom: 20 }}>Best: {bestStreak}</p>}
         {!session?.user && <p style={{ color: textMuted, fontSize: 12, marginBottom: 20 }}>Sign in to save your best streak.</p>}
-        <button onClick={start} style={{ background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "11px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={start} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "11px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
           Try again
         </button>
       </div>
@@ -143,7 +143,7 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
     <div style={{ display: "flex", gap: 20, flexWrap: "wrap", justifyContent: "center" }}>
       <div style={{ position: "relative" }}>
         {flash && (
-          <div style={{ position: "absolute", inset: 0, background: flash === "good" ? "rgba(201,162,39,0.25)" : "rgba(224,91,91,0.3)", zIndex: 10, borderRadius: 4, pointerEvents: "none" }} />
+          <div style={{ position: "absolute", inset: 0, background: flash === "good" ? "rgba(226,105,75,0.25)" : "rgba(224,91,91,0.3)", zIndex: 10, borderRadius: 4, pointerEvents: "none" }} />
         )}
         <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
       </div>

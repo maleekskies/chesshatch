@@ -46,7 +46,7 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
 
   return (
     <div style={{ maxWidth: 680 }}>
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 4px" }}>
+      <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 4px" }}>
         {session.user.email}
       </h2>
       <p style={{ color: textMuted, fontSize: 12.5, marginBottom: 24, fontFamily: "'IBM Plex Mono', monospace" }}>
@@ -62,7 +62,7 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
           const r = ratingByTC[tc.key];
           return (
             <div key={tc.key} style={{ background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 9, padding: "12px 14px", textAlign: "center" }}>
-              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Fraunces', serif", color: r ? textMain : textMuted }}>
+              <div style={{ fontSize: 22, fontWeight: 700, fontFamily: "'Poppins', sans-serif", color: r ? textMain : textMuted }}>
                 {r ? r.rating : ", "}
               </div>
               <div style={{ fontSize: 10.5, color: textMuted, marginTop: 2 }}>{tc.label}</div>
@@ -105,7 +105,7 @@ function StatBlock({ icon, label, value, small, textMain, textMuted, panelBg, bo
   return (
     <div style={{ background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 10, padding: 16 }}>
       <div style={{ marginBottom: 8 }}>{icon}</div>
-      <div style={{ fontSize: small ? 15 : 22, fontWeight: 700, color: textMain, fontFamily: small ? "'Inter', sans-serif" : "'Fraunces', serif" }}>{value}</div>
+      <div style={{ fontSize: small ? 15 : 22, fontWeight: 700, color: textMain, fontFamily: small ? "'Inter', sans-serif" : "'Poppins', sans-serif" }}>{value}</div>
       <div style={{ fontSize: 11, color: textMuted, marginTop: 3 }}>{label}</div>
     </div>
   );

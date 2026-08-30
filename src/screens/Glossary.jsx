@@ -24,12 +24,12 @@ export default function Glossary({ textMain, textMuted, panelBg, borderCol, acce
 
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
         <BookOpen size={20} color={accentGold} />
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: 0 }}>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: 0 }}>
           Glossary
         </h2>
       </div>
       <p style={{ color: textMuted, fontSize: 13.5, lineHeight: 1.6, marginBottom: 18, maxWidth: 560 }}>
-        Every chess term used across ChessPath's lessons and coaching, in one place, the same definitions you'll see if you hover a highlighted word mid-lesson.
+        Every chess term used across ChessLoop's lessons and coaching, in one place, the same definitions you'll see if you hover a highlighted word mid-lesson.
       </p>
 
       <div style={{ marginBottom: 20 }}>

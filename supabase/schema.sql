@@ -1,8 +1,8 @@
--- ChessPath: initial Supabase schema
+-- ChessLoop: initial Supabase schema
 -- Run this in the Supabase SQL editor (Project -> SQL Editor -> New query)
 
 -- Beta testers / users (Supabase auth.users already handles login;
--- this table holds ChessPath-specific profile data)
+-- this table holds ChessLoop-specific profile data)
 create table if not exists profiles (
   id uuid references auth.users on delete cascade primary key,
   display_name text,

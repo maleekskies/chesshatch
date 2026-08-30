@@ -9,7 +9,7 @@
 // a fast attack and quick decay to approximate a wooden piece landing
 // on a board. It is not a sampled recording of a real chess set.
 
-const STORAGE_KEY = "chesspath_feedback_mode";
+const STORAGE_KEY = "chessloop_feedback_mode";
 const VALID_MODES = ["sound", "vibration", "silent"];
 
 export function getFeedbackMode() {

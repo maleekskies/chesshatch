@@ -43,14 +43,14 @@ export default function FeedbackButton({ session, currentScreen, textMain, textM
             style={{ width: "100%", boxSizing: "border-box", padding: "8px 10px", borderRadius: 6, border: `1px solid ${borderCol}`, background: "transparent", color: textMain, fontSize: 12.5, resize: "vertical", marginBottom: 8, fontFamily: "inherit" }}
           />
           <button onClick={submit} disabled={status === "sending" || !message.trim()}
-            style={{ width: "100%", background: accentGold, color: "#1B2430", border: "none", borderRadius: 6, padding: "8px 10px", fontSize: 12.5, fontWeight: 600, cursor: message.trim() ? "pointer" : "not-allowed" }}>
+            style={{ width: "100%", background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 6, padding: "8px 10px", fontSize: 12.5, fontWeight: 600, cursor: message.trim() ? "pointer" : "not-allowed" }}>
             {status === "sending" ? "Sending…" : status === "sent" ? "Thanks, sent." : "Send"}
           </button>
           {status === "error" && <div style={{ fontSize: 11, color: "#E05B5B", marginTop: 6 }}>Something went wrong, try again.</div>}
         </div>
       )}
       <button onClick={() => setOpen((v) => !v)}
-        style={{ width: 44, height: 44, borderRadius: "50%", background: accentGold, border: "none", color: "#1B2430", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.3)" }}>
+        style={{ width: 44, height: 44, borderRadius: "50%", background: accentGold, border: "none", color: "#FFFFFF", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", boxShadow: "0 6px 16px rgba(0,0,0,0.3)" }}>
         <MessageSquarePlus size={19} />
       </button>
     </div>

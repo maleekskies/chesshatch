@@ -248,7 +248,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
   if (stage === "choose") {
     return (
       <div style={{ maxWidth: 420 }}>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, margin: "0 0 6px" }}>Live Match</h2>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, fontWeight: 700, margin: "0 0 6px" }}>Live Match</h2>
         <p style={{ color: textMuted, fontSize: 13, marginBottom: 20 }}>
           A real-time rated game against another signed-in tester, with a real clock.
         </p>
@@ -258,7 +258,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
           <div style={{ display: "flex", gap: 6, marginBottom: 8 }}>
             {TIME_CONTROLS.map((tc) => (
               <button key={tc.key} onClick={() => { setTcCategory(tc); setTcOption(tc.options[0]); }}
-                style={{ flex: 1, padding: "7px 4px", borderRadius: 7, border: tcCategory.key === tc.key ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: tcCategory.key === tc.key ? "rgba(201,162,39,0.12)" : "transparent", color: tcCategory.key === tc.key ? accentGold : textMain, fontSize: 12, cursor: "pointer" }}>
+                style={{ flex: 1, padding: "7px 4px", borderRadius: 7, border: tcCategory.key === tc.key ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: tcCategory.key === tc.key ? "rgba(226,105,75,0.12)" : "transparent", color: tcCategory.key === tc.key ? accentGold : textMain, fontSize: 12, cursor: "pointer" }}>
                 {tc.label}
               </button>
             ))}
@@ -266,14 +266,14 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
           <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
             {tcCategory.options.map((opt) => (
               <button key={opt.label} onClick={() => setTcOption(opt)}
-                style={{ padding: "5px 10px", borderRadius: 6, border: tcOption.label === opt.label ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: tcOption.label === opt.label ? "rgba(201,162,39,0.12)" : "transparent", color: textMain, fontSize: 12, cursor: "pointer" }}>
+                style={{ padding: "5px 10px", borderRadius: 6, border: tcOption.label === opt.label ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: tcOption.label === opt.label ? "rgba(226,105,75,0.12)" : "transparent", color: textMain, fontSize: 12, cursor: "pointer" }}>
                 {opt.label}
               </button>
             ))}
           </div>
         </div>
 
-        <button onClick={createMatch} style={{ width: "100%", marginBottom: 10, background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "12px 16px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={createMatch} style={{ width: "100%", marginBottom: 10, background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "12px 16px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
           Create a match
         </button>
         <div style={{ display: "flex", gap: 8 }}>
@@ -314,14 +314,14 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
       : `${gameResult?.outcome === "white" ? "White" : "Black"} wins by ${gameResult?.reason}`;
     return (
       <div style={{ maxWidth: 460 }}>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{resultLabel}</h2>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 22, fontWeight: 700, marginBottom: 8 }}>{resultLabel}</h2>
         {myRating && opponentRating && gameResult?.reason !== "abort" && (
           <p style={{ color: textMuted, fontSize: 13, marginBottom: 16 }}>
             Your rating: {myRating.rating}{myRating.games_played !== undefined ? ` (${myRating.games_played + 1} games)` : ""}
           </p>
         )}
         <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
-          <button onClick={buildReview} style={{ display: "flex", alignItems: "center", gap: 6, background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "10px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+          <button onClick={buildReview} style={{ display: "flex", alignItems: "center", gap: 6, background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "10px 14px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
             <MessageCircle size={14} /> Review with coach
           </button>
           <button onClick={() => setStage("choose")} style={{ background: "transparent", border: `1px solid ${borderCol}`, color: textMain, borderRadius: 8, padding: "10px 14px", fontSize: 13, cursor: "pointer" }}>
@@ -332,7 +332,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
             {reviewNotes.length === 0 && <p style={{ color: textMuted, fontSize: 13 }}>No moves flagged by the coach, a clean game.</p>}
             {reviewNotes.map((n) => (
-              <div key={n.ply} style={{ padding: "9px 12px", borderRadius: 8, background: n.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(201,162,39,0.08)", border: `1px solid ${n.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: textMain }}>
+              <div key={n.ply} style={{ padding: "9px 12px", borderRadius: 8, background: n.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(226,105,75,0.08)", border: `1px solid ${n.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: textMain }}>
                 <span style={{ fontFamily: "'IBM Plex Mono', monospace", color: accentGold, marginRight: 6 }}>{n.san}</span>
                 {n.text}
               </div>
@@ -360,10 +360,10 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
         </div>
 
         {drawOfferPending && (
-          <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(201,162,39,0.1)", border: `1px solid ${accentGold}`, marginBottom: 12 }}>
+          <div style={{ padding: "10px 12px", borderRadius: 8, background: "rgba(226,105,75,0.1)", border: `1px solid ${accentGold}`, marginBottom: 12 }}>
             <div style={{ fontSize: 12.5, color: textMain, marginBottom: 8 }}>Opponent offers a draw</div>
             <div style={{ display: "flex", gap: 6 }}>
-              <button onClick={() => respondDraw(true)} style={{ flex: 1, background: accentGold, color: "#1B2430", border: "none", borderRadius: 6, padding: "6px 8px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Accept</button>
+              <button onClick={() => respondDraw(true)} style={{ flex: 1, background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 6, padding: "6px 8px", fontSize: 12, fontWeight: 600, cursor: "pointer" }}>Accept</button>
               <button onClick={() => respondDraw(false)} style={{ flex: 1, background: "transparent", border: `1px solid ${borderCol}`, color: textMain, borderRadius: 6, padding: "6px 8px", fontSize: 12, cursor: "pointer" }}>Decline</button>
             </div>
           </div>
@@ -384,7 +384,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
 function ClockDisplay({ label, ms, active, textMain, textMuted, panelBg, borderCol, accentGold }) {
   const low = isLowTime(ms);
   return (
-    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", borderRadius: 8, background: active ? "rgba(201,162,39,0.1)" : panelBg, border: `1px solid ${active ? accentGold : borderCol}` }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "8px 12px", borderRadius: 8, background: active ? "rgba(226,105,75,0.1)" : panelBg, border: `1px solid ${active ? accentGold : borderCol}` }}>
       <span style={{ fontSize: 11.5, color: textMuted }}>{label}</span>
       <span style={{ fontSize: 20, fontFamily: "'IBM Plex Mono', monospace", fontWeight: 600, color: low ? "#E05B5B" : textMain }}>
         {formatClock(ms)}

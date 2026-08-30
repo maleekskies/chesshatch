@@ -126,7 +126,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
         <div style={{ display: "flex", gap: 8, marginBottom: 14, alignItems: "center", flexWrap: "wrap" }}>
           {[1, 2].map((t) => (
             <button key={t} onClick={() => setActiveTier(t)}
-              style={{ padding: "7px 14px", borderRadius: 8, border: activeTier === t ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: activeTier === t ? "rgba(201,162,39,0.12)" : "transparent", color: activeTier === t ? accentGold : textMain, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              style={{ padding: "7px 14px", borderRadius: 8, border: activeTier === t ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: activeTier === t ? "rgba(226,105,75,0.12)" : "transparent", color: activeTier === t ? accentGold : textMain, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
               Tier {t}
             </button>
           ))}
@@ -141,7 +141,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
             </button>
           )}
         </div>
-        <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
+        <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
           {activeTier === 1 ? "Tier 1. Complete Beginner" : "Tier 2. Intermediate"}
         </h2>
         <p style={{ color: textMuted, fontSize: 13.5, marginBottom: 18, maxWidth: 520 }}>
@@ -173,7 +173,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {dueReviews.map((p) => (
                 <button key={p.id} onClick={() => setReviewPuzzle(p)}
-                  style={{ textAlign: "left", padding: "10px 14px", borderRadius: 8, border: `1px solid ${accentGold}`, background: "rgba(201,162,39,0.08)", color: textMain, fontSize: 13, cursor: "pointer" }}>
+                  style={{ textAlign: "left", padding: "10px 14px", borderRadius: 8, border: `1px solid ${accentGold}`, background: "rgba(226,105,75,0.08)", color: textMain, fontSize: 13, cursor: "pointer" }}>
                   Review: {p.motif} puzzle
                 </button>
               ))}
@@ -187,7 +187,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
             return (
               <button key={lesson.id} onClick={() => { setActiveLesson(lesson); setShowPuzzle(false); }}
                 style={{ display: "flex", alignItems: "center", gap: 12, textAlign: "left", padding: "14px 16px", borderRadius: 10, border: `1px solid ${borderCol}`, background: panelBg, cursor: "pointer" }}>
-                <div style={{ width: 26, height: 26, borderRadius: "50%", background: done ? accentGold : "transparent", border: `1.5px solid ${done ? accentGold : borderCol}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11.5, color: done ? "#1B2430" : textMuted, fontWeight: 600 }}>
+                <div style={{ width: 26, height: 26, borderRadius: "50%", background: done ? accentGold : "transparent", border: `1.5px solid ${done ? accentGold : borderCol}`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, fontSize: 11.5, color: done ? "#FFFFFF" : textMuted, fontWeight: 600 }}>
                   {done ? <CheckCircle2 size={15} /> : i + 1}
                 </div>
                 <div>
@@ -272,11 +272,11 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
             <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
           </div>
           <div style={{ flex: "1 1 240px", minWidth: 240, maxWidth: 340 }}>
-            <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 19, fontWeight: 600, margin: "0 0 10px" }}>{lesson.title}</h2>
+            <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 19, fontWeight: 600, margin: "0 0 10px" }}>{lesson.title}</h2>
             <ExplanationText text={lesson.explanation} {...termProps} />
 
             {feedback && (
-              <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 12, background: feedback.good ? "rgba(201,162,39,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${feedback.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>
+              <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 12, background: feedback.good ? "rgba(226,105,75,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${feedback.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>
                 {feedback.text}
               </div>
             )}
@@ -295,7 +295,7 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
             <button
               onClick={onComplete}
               disabled={!lesson.freePlay && !solved}
-              style={{ width: "100%", background: (lesson.freePlay || solved) ? accentGold : borderCol, color: (lesson.freePlay || solved) ? "#1B2430" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: (lesson.freePlay || solved) ? "pointer" : "not-allowed" }}
+              style={{ width: "100%", background: (lesson.freePlay || solved) ? accentGold : borderCol, color: (lesson.freePlay || solved) ? "#FFFFFF" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: (lesson.freePlay || solved) ? "pointer" : "not-allowed" }}
             >
               {lesson.freePlay ? "Got it, continue" : solved ? "Continue to puzzle" : "Solve it first"}
             </button>
@@ -333,16 +333,16 @@ function QAView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accent
           <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: accentGold, marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>
             Question
           </div>
-          <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: 18, fontWeight: 600, margin: "0 0 16px", lineHeight: 1.4 }}>
+          <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 18, fontWeight: 600, margin: "0 0 16px", lineHeight: 1.4 }}>
             {lesson.question}
           </h2>
 
           {!revealed ? (
-            <button onClick={() => setRevealed(true)} style={{ width: "100%", background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginBottom: 12 }}>
+            <button onClick={() => setRevealed(true)} style={{ width: "100%", background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer", marginBottom: 12 }}>
               Show the answer
             </button>
           ) : (
-            <div style={{ padding: "12px 14px", borderRadius: 8, marginBottom: 16, background: "rgba(201,162,39,0.08)", border: `1px solid ${accentGold}` }}>
+            <div style={{ padding: "12px 14px", borderRadius: 8, marginBottom: 16, background: "rgba(226,105,75,0.08)", border: `1px solid ${accentGold}` }}>
               <div style={{ fontSize: 10.5, letterSpacing: "0.08em", textTransform: "uppercase", color: accentGold, marginBottom: 6, fontFamily: "'IBM Plex Mono', monospace" }}>
                 Answer
               </div>
@@ -353,7 +353,7 @@ function QAView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accent
           <button
             onClick={() => { onComplete(); onBack(); }}
             disabled={!revealed}
-            style={{ width: "100%", background: revealed ? accentGold : borderCol, color: revealed ? "#1B2430" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: revealed ? "pointer" : "not-allowed" }}
+            style={{ width: "100%", background: revealed ? accentGold : borderCol, color: revealed ? "#FFFFFF" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: revealed ? "pointer" : "not-allowed" }}
           >
             {revealed ? "Got it, continue" : "Show the answer first"}
           </button>
@@ -426,11 +426,11 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
           <p style={{ color: textMuted, fontSize: 11.5, marginBottom: 12 }}>Sign in to have this scheduled for spaced review later.</p>
         )}
         {result && (
-          <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 14, background: result.good ? "rgba(201,162,39,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${result.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>
+          <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 14, background: result.good ? "rgba(226,105,75,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${result.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>
             {result.good ? puzzle.explanation : "Not quite, the position has reset, try again."}
           </div>
         )}
-        <button onClick={onBack} style={{ width: "100%", background: accentGold, color: "#1B2430", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
+        <button onClick={onBack} style={{ width: "100%", background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
           Back to lessons
         </button>
       </div>

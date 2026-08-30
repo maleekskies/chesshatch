@@ -8,7 +8,7 @@ export default function BeginnerMistakes({ textMain, textMuted, panelBg, borderC
         <ChevronLeft size={14} /> Back to lessons
       </button>
 
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 8px" }}>
+      <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 8px" }}>
         Common Beginner Mistakes
       </h2>
       <p style={{ color: textMuted, fontSize: 13.5, lineHeight: 1.6, marginBottom: 24, maxWidth: 560 }}>

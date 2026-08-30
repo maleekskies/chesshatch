@@ -108,7 +108,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
           </div>
 
           {!finished && awaitingUser && (
-            <div style={{ background: "rgba(201,162,39,0.1)", border: `1px solid ${accentGold}`, borderRadius: 8, padding: "9px 11px", fontSize: 12.5, color: textMain, marginBottom: 12, lineHeight: 1.5 }}>
+            <div style={{ background: "rgba(226,105,75,0.1)", border: `1px solid ${accentGold}`, borderRadius: 8, padding: "9px 11px", fontSize: 12.5, color: textMain, marginBottom: 12, lineHeight: 1.5 }}>
               {currentStep.prompt}
             </div>
           )}
@@ -120,7 +120,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
             <MessageCircle size={14} color={accentGold} />
             <span style={{ fontSize: 12, fontWeight: 600, color: textMain }}>Coach</span>
           </div>
-          <div role="status" aria-live="polite" style={{ minHeight: 70, padding: "10px 12px", borderRadius: 8, background: "rgba(201,162,39,0.05)", border: `1px solid ${borderCol}`, fontSize: 12.5, color: textMain, lineHeight: 1.5 }}>
+          <div role="status" aria-live="polite" style={{ minHeight: 70, padding: "10px 12px", borderRadius: 8, background: "rgba(226,105,75,0.05)", border: `1px solid ${borderCol}`, fontSize: 12.5, color: textMain, lineHeight: 1.5 }}>
             {narration}
           </div>
 
@@ -128,7 +128,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
             <div style={{ marginTop: 16 }}>
               <p style={{ fontSize: 12.5, color: textMuted, lineHeight: 1.5, marginBottom: 12 }}>{GUIDED_FIRST_GAME.outro}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                <button onClick={onGoToLessons} style={{ background: accentGold, color: "#1B2430", border: "none", borderRadius: 7, padding: "9px 14px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
+                <button onClick={onGoToLessons} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 7, padding: "9px 14px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
                   Start Tier 1 lessons <ChevronRight size={13} />
                 </button>
                 <button onClick={onGoToPlay} style={{ background: "transparent", color: textMain, border: `1px solid ${borderCol}`, borderRadius: 7, padding: "9px 14px", fontSize: 12.5, cursor: "pointer" }}>

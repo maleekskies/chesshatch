@@ -5,11 +5,11 @@
 export default function Privacy({ textMain, textMuted, panelBg, borderCol, accentGold, isPhone }) {
   return (
     <div style={{ maxWidth: 640 }}>
-      <h2 style={{ fontFamily: "'Fraunces', serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
+      <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: isPhone ? 22 : 26, fontWeight: 700, margin: "0 0 6px" }}>
         Privacy, what we collect and why
       </h2>
       <p style={{ color: textMuted, fontSize: 13, marginBottom: 24 }}>
-        Last updated for the closed beta. ChessPath is not monetized and your data is never sold or used for advertising.
+        Last updated for the closed beta. ChessLoop is not monetized and your data is never sold or used for advertising.
       </p>
 
       <Section title="What we collect" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>

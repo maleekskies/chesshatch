@@ -228,7 +228,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
             <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
               {DIFFICULTY_PRESETS.map((d) => (
                 <button key={d.key} onClick={() => setDifficulty(d)}
-                  style={{ padding: "5px 9px", borderRadius: 7, border: difficulty.key === d.key ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: difficulty.key === d.key ? "rgba(201,162,39,0.12)" : "transparent", color: textMain, fontSize: 11.5, cursor: "pointer" }}>
+                  style={{ padding: "5px 9px", borderRadius: 7, border: difficulty.key === d.key ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: difficulty.key === d.key ? "rgba(226,105,75,0.12)" : "transparent", color: textMain, fontSize: 11.5, cursor: "pointer" }}>
                   {d.label}
                 </button>
               ))}
@@ -244,7 +244,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
           <span style={{ fontSize: 12, fontWeight: 600, color: textMain }}>Coach</span>
           {selectedPly !== null && <span style={{ fontSize: 10.5, color: textMuted }}>(move {Math.floor(selectedPly / 2) + 1}{selectedPly % 2 === 0 ? "" : "…"})</span>}
         </div>
-        <div role="status" aria-live="polite" style={{ minHeight: 70, padding: "10px 12px", borderRadius: 8, background: coachMsg ? (coachMsg.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(201,162,39,0.08)") : "transparent", border: `1px solid ${coachMsg?.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: coachMsg ? textMain : textMuted, lineHeight: 1.5 }}>
+        <div role="status" aria-live="polite" style={{ minHeight: 70, padding: "10px 12px", borderRadius: 8, background: coachMsg ? (coachMsg.tone === "warning" ? "rgba(224,91,91,0.1)" : "rgba(226,105,75,0.08)") : "transparent", border: `1px solid ${coachMsg?.tone === "warning" ? "#E05B5B" : borderCol}`, fontSize: 12.5, color: coachMsg ? textMain : textMuted, lineHeight: 1.5 }}>
           {coachMsg ? coachMsg.text : "Make a move and I'll point out anything worth noticing, or click any past move above to see the coach's take on it."}
         </div>
       </div>
@@ -254,7 +254,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
 
 function ModeBtn({ active, onClick, icon, label, accentGold, textMain, borderCol, panelBg }) {
   return (
-    <button onClick={onClick} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 10px", borderRadius: 7, border: active ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: active ? "rgba(201,162,39,0.12)" : "transparent", color: active ? accentGold : textMain, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
+    <button onClick={onClick} style={{ flex: 1, display: "flex", alignItems: "center", justifyContent: "center", gap: 6, padding: "8px 10px", borderRadius: 7, border: active ? `1.5px solid ${accentGold}` : `1px solid ${borderCol}`, background: active ? "rgba(226,105,75,0.12)" : "transparent", color: active ? accentGold : textMain, fontSize: 12.5, fontWeight: 600, cursor: "pointer" }}>
       {icon} {label}
     </button>
   );

@@ -14,7 +14,7 @@ export const BADGES = {
   streak_7: { label: "7-Day Streak", desc: "Practiced 7 days in a row.", icon: "🔥" },
 };
 
-const STORAGE_KEY = "chesspath_badges";
+const STORAGE_KEY = "chessloop_badges";
 
 export function getEarnedBadges() {
   try {

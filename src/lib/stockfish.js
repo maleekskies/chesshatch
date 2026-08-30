@@ -21,7 +21,7 @@ export function createEngine() {
   worker.onerror = (e) => {
     loadFailed = true;
     console.error(
-      "[ChessPath] Stockfish worker failed to load:",
+      "[ChessLoop] Stockfish worker failed to load:",
       e.message || e,
       "Check that node_modules/stockfish.js/stockfish.js actually exists at that path after npm install. The exact file layout couldn't be verified without live internet access during development."
     );
@@ -49,7 +49,7 @@ export function createEngine() {
       // the "vs Computer" button just doing nothing with no feedback.
       setTimeout(() => {
         if (!ready) {
-          console.warn("[ChessPath] Stockfish never became ready, engine moves will not work.");
+          console.warn("[ChessLoop] Stockfish never became ready, engine moves will not work.");
           resolve();
         }
       }, 4000);

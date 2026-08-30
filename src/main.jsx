@@ -1,3 +1,4 @@
+import "./lib/migrateStorage.js"; // must run before anything reads the renamed keys below
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
@@ -19,7 +20,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.error) {
       return (
         <div style={{ padding: 24, fontFamily: "monospace", color: "#EDE6D6", background: "#1B2430", minHeight: "100vh" }}>
-          <h2 style={{ color: "#E05B5B" }}>ChessPath crashed on load</h2>
+          <h2 style={{ color: "#E05B5B" }}>ChessLoop crashed on load</h2>
           <p>{String(this.state.error?.message || this.state.error)}</p>
           <p style={{ color: "#8791A1", fontSize: 13, marginTop: 16 }}>
             Check the browser console (F12) for the full stack trace. If this

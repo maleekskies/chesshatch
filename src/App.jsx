@@ -26,7 +26,7 @@ function useFonts() {
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href =
-      "https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600&display=swap";
+      "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap";
     document.head.appendChild(link);
     return () => document.head.removeChild(link);
   }, []);
@@ -51,16 +51,16 @@ function useStreak() {
   const [streak, setStreak] = useState(0);
   useEffect(() => {
     const today = new Date().toDateString();
-    const last = localStorage.getItem("chesspath_last_visit");
-    const prevStreak = parseInt(localStorage.getItem("chesspath_streak") || "0", 10);
+    const last = localStorage.getItem("chessloop_last_visit");
+    const prevStreak = parseInt(localStorage.getItem("chessloop_streak") || "0", 10);
     if (last === today) {
       setStreak(prevStreak);
       return;
     }
     const yesterday = new Date(Date.now() - 86400000).toDateString();
     const newStreak = last === yesterday ? prevStreak + 1 : 1;
-    localStorage.setItem("chesspath_last_visit", today);
-    localStorage.setItem("chesspath_streak", String(newStreak));
+    localStorage.setItem("chessloop_last_visit", today);
+    localStorage.setItem("chessloop_streak", String(newStreak));
     setStreak(newStreak);
   }, []);
   return streak;
@@ -84,7 +84,7 @@ const THEMES = {
 // Brown and Blue match Lichess's actual published values; Green matches
 // the widely-used standard chess-board green palette; the accent UI
 // color (used for highlights/buttons, not the board itself) is
-// ChessPath's own, not Lichess's.
+// ChessLoop's own, not Lichess's.
 
 // ================= Diagnostic quiz content =================
 // The quiz draws from DIAGNOSTIC_BEGINNER_POOL (src/data/diagnosticPool.js),
@@ -124,7 +124,7 @@ function sampleQuizQuestions() {
 // new visitor most needs to notice. Shown once per browser (localStorage
 // flag), same per-browser, not per-account, limitation as the streak
 // counter above.
-const WALKTHROUGH_DISMISSED_KEY = "chesspath_walkthrough_dismissed";
+const WALKTHROUGH_DISMISSED_KEY = "chessloop_walkthrough_dismissed";
 const WALKTHROUGH_STEPS = [
   { key:"diagnostic", label:"Diagnostic", text:"Not sure where to start? A short quiz places you at the right level." },
   { key:"lessons", label:"Lessons", text:"Step-by-step lessons, from how pieces move up to real tactics, with a live coach watching your moves." },
@@ -178,7 +178,7 @@ const SCREEN_TO_PATH = Object.fromEntries(
 
 
 // ================= App shell =================
-export default function ChessPathApp(){
+export default function ChessLoopApp(){
   useFonts();
   const width = useWindowWidth();
   const streak = useStreak();
@@ -196,7 +196,7 @@ export default function ChessPathApp(){
   const [answers, setAnswers] = useState({});
   const [quizQuestions, setQuizQuestions] = useState(() => sampleQuizQuestions());
   const [navOpen, setNavOpen] = useState(false);
-  const [darkMode] = useState(true);
+  const [darkMode] = useState(false);
   const [completedIds, setCompletedIds] = useState(new Set());
   const [dailyPuzzleOpen, setDailyPuzzleOpen] = useState(false);
   const [boardThemeKey, setBoardThemeKey] = useState("brown");
@@ -349,12 +349,12 @@ export default function ChessPathApp(){
     }
   }
 
-  const pageBg = darkMode ? "#1B2430" : "#F5F1E8";
+  const pageBg = darkMode ? "#1B2430" : "#FFF8EF";
   const panelBg = darkMode ? "#232E3D" : "#FFFFFF";
-  const textMain = darkMode ? "#EDE6D6" : "#1B2430";
-  const textMuted = darkMode ? "#8791A1" : "#6B7280";
-  const borderCol = darkMode ? "#2E3A4C" : "#E5E0D3";
-  const accentGold = "#C9A227";
+  const textMain = darkMode ? "#EDE6D6" : "#2B2620";
+  const textMuted = darkMode ? "#8791A1" : "#6B6355";
+  const borderCol = darkMode ? "#2E3A4C" : "#ECE4D6";
+  const accentGold = "#E2694B";
 
   const result = useMemo(()=> scoreQuiz(answers, quizQuestions), [answers, quizQuestions]);
 
@@ -389,9 +389,9 @@ export default function ChessPathApp(){
         <div style={{ maxWidth:1080, margin:"0 auto", padding: isPhone ? "12px 16px" : "14px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div onClick={()=>setScreen("landing")} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
             <div style={{ width:26, height:26, borderRadius:8, background:accentGold, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <Crown size={16} color="#1B2430"/>
+              <Crown size={16} color="#FFFFFF"/>
             </div>
-            <span style={{ fontFamily:"'Fraunces', serif", fontWeight:600, fontSize:17 }}>ChessPath</span>
+            <span style={{ fontFamily:"'Poppins', sans-serif", fontWeight:600, fontSize:17 }}>ChessLoop</span>
           </div>
 
           {isPhone ? (
@@ -495,10 +495,10 @@ export default function ChessPathApp(){
 
         {screen==="landing" && !dailyPuzzleOpen && (
           <div>
-            <div style={{ fontFamily:"'Fraunces', serif", fontSize:12, letterSpacing:"0.16em", textTransform:"uppercase", color:accentGold, marginBottom:12 }}>
-              Learn. Play. Master.
+            <div style={{ display:"inline-block", background:"rgba(78,122,58,0.12)", color:"#4E7A3A", fontFamily:"'Poppins', sans-serif", fontSize:12, fontWeight:600, padding:"6px 14px", borderRadius:20, marginBottom:18 }}>
+              Learn, play, master
             </div>
-            <h1 style={{ fontFamily:"'Fraunces', serif", fontWeight:700, fontSize: isPhone?28:42, lineHeight:1.2, margin:0, maxWidth:600 }}>
+            <h1 style={{ fontFamily:"'Poppins', sans-serif", fontWeight:700, fontSize: isPhone?28:42, lineHeight:1.25, margin:0, maxWidth:600 }}>
               A calm, clear way to actually get better at chess.
             </h1>
             <p style={{ color:textMuted, fontSize: isPhone?14:16, lineHeight:1.7, marginTop:16, maxWidth:540 }}>
@@ -506,68 +506,74 @@ export default function ChessPathApp(){
               step, matched to where you are right now.
             </p>
 
-            <p style={{ fontSize:13, fontWeight:600, color:textMuted, marginTop: isPhone?32:40, marginBottom:14 }}>
+            <p style={{ fontSize:14, fontWeight:600, color:textMain, marginTop: isPhone?32:40, marginBottom:16 }}>
               Where would you like to start?
             </p>
 
-            <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:14 }}>
-              <div style={{ background:"rgba(201,162,39,0.06)", border:`1px solid rgba(201,162,39,0.35)`, borderRadius:16, padding: isPhone ? 20 : 22, display:"flex", flexDirection:"column" }}>
-                <BookOpen size={20} color={accentGold} style={{ marginBottom:12 }}/>
-                <div style={{ fontWeight:700, fontSize:16, marginBottom:6 }}>I'm new to chess</div>
-                <p style={{ color:textMuted, fontSize:13, lineHeight:1.6, marginBottom:18, flexGrow:1 }}>
+            <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:18 }}>
+              <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
+                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(226,105,75,0.14)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                  <BookOpen size={20} color={accentGold}/>
+                </div>
+                <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I'm new to chess</div>
+                <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
                   Start from the very beginning: how each piece moves, one gentle step at a time.
                 </p>
-                <button onClick={()=>setScreen("lessons-zk")} style={{ background:accentGold, color:"#1B2430", border:"none", borderRadius:10, padding:"11px 16px", fontSize:13.5, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                <button onClick={()=>setScreen("lessons-zk")} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
                   Start with the basics <ChevronRight size={15}/>
                 </button>
-                <button onClick={()=>setScreen("guided")} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:10, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
+                <button onClick={()=>setScreen("guided")} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:12, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
                   Or try a short guided first game
                 </button>
               </div>
 
-              <div style={{ background:"rgba(255,255,255,0.02)", border:`1px solid ${borderCol}`, borderRadius:16, padding: isPhone ? 20 : 22, display:"flex", flexDirection:"column" }}>
-                <Target size={20} color={accentGold} style={{ marginBottom:12 }}/>
-                <div style={{ fontWeight:700, fontSize:16, marginBottom:6 }}>I already know the rules</div>
-                <p style={{ color:textMuted, fontSize:13, lineHeight:1.6, marginBottom:18, flexGrow:1 }}>
+              <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
+                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(78,122,58,0.12)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                  <Target size={20} color="#4E7A3A"/>
+                </div>
+                <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I already know the rules</div>
+                <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
                   Take a short, friendly quiz so lessons can start at the right level for you, not too easy, not too hard.
                 </p>
-                <button onClick={startQuiz} style={{ background:"transparent", color:textMain, border:`1px solid ${borderCol}`, borderRadius:10, padding:"11px 16px", fontSize:13.5, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                <button onClick={startQuiz} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
                   Find my level <ChevronRight size={15}/>
                 </button>
               </div>
 
-              <div style={{ background:"rgba(255,255,255,0.02)", border:`1px solid ${borderCol}`, borderRadius:16, padding: isPhone ? 20 : 22, display:"flex", flexDirection:"column" }}>
-                <Users size={20} color={accentGold} style={{ marginBottom:12 }}/>
-                <div style={{ fontWeight:700, fontSize:16, marginBottom:6 }}>I just want to play</div>
-                <p style={{ color:textMuted, fontSize:13, lineHeight:1.6, marginBottom:18, flexGrow:1 }}>
+              <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
+                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(74,99,194,0.12)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                  <Users size={20} color="#4A63C2"/>
+                </div>
+                <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I just want to play</div>
+                <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
                   Jump straight into a game against a friend or the computer, no setup needed.
                 </p>
-                <button onClick={()=>setScreen("play")} style={{ background:"transparent", color:textMain, border:`1px solid ${borderCol}`, borderRadius:10, padding:"11px 16px", fontSize:13.5, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                <button onClick={()=>setScreen("play")} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
                   Start a game <ChevronRight size={15}/>
                 </button>
-                <button onClick={()=>{ setDailyPuzzleOpen(true); setScreen("landing"); }} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:10, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
+                <button onClick={()=>{ setDailyPuzzleOpen(true); setScreen("landing"); }} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:12, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
                   Or solve today's puzzle
                 </button>
               </div>
             </div>
 
             {streak > 1 && (
-              <div style={{ marginTop:22, display:"inline-flex", alignItems:"center", gap:6, background:"rgba(255,255,255,0.02)", border:`1px solid ${borderCol}`, borderRadius:20, padding:"6px 12px", fontSize:12.5, color:textMuted }}>
+              <div style={{ marginTop:22, display:"inline-flex", alignItems:"center", gap:6, background:panelBg, boxShadow:"0 2px 10px rgba(43,38,32,0.06)", borderRadius:20, padding:"8px 14px", fontSize:12.5, color:textMuted }}>
                 🔥 <span style={{ color:textMain, fontWeight:600 }}>{streak} day streak</span>
               </div>
             )}
 
             <div style={{ marginTop: isPhone?40:56, paddingTop: isPhone?28:36, borderTop:`1px solid ${borderCol}` }}>
               <p style={{ fontSize:13, fontWeight:600, color:textMuted, marginBottom:16 }}>
-                Why ChessPath feels different
+                Why ChessLoop feels different
               </p>
-              <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:14 }}>
+              <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:16 }}>
                 {[
                   { icon:<Target size={18} color={accentGold}/>, title:"Placed at your level", desc:"A short quiz finds where you really are across tactics, endgames, and rules, so nothing feels too easy or too hard." },
                   { icon:<BookOpen size={18} color={accentGold}/>, title:"Real lessons, not just puzzles", desc:"Piece movement, mate patterns, and tactics, explained one calm step at a time, with a live coach watching your moves." },
                   { icon:<TrendingUp size={18} color={accentGold}/>, title:"Practice that sticks", desc:"Every lesson ends with a matched puzzle, so what you just learned actually stays with you." },
                 ].map((f,i)=>(
-                  <div key={i} style={{ background:"rgba(255,255,255,0.02)", border:`1px solid ${borderCol}`, borderRadius:14, padding:16 }}>
+                  <div key={i} style={{ background:panelBg, borderRadius:18, padding:18, boxShadow:"0 2px 12px rgba(43,38,32,0.05)" }}>
                     <div style={{ marginBottom:10 }}>{f.icon}</div>
                     <div style={{ fontWeight:600, fontSize:14.5, marginBottom:6 }}>{f.title}</div>
                     <div style={{ color:textMuted, fontSize:13, lineHeight:1.6 }}>{f.desc}</div>
@@ -591,7 +597,7 @@ export default function ChessPathApp(){
             <div style={{ height:4, background:borderCol, borderRadius:2, marginBottom:26, overflow:"hidden" }}>
               <div style={{ height:"100%", width:`${((qIndex)/quizQuestions.length)*100}%`, background:accentGold, transition:"width 0.3s ease" }}/>
             </div>
-            <h2 style={{ fontFamily:"'Fraunces', serif", fontSize: isPhone?19:22, fontWeight:600, lineHeight:1.4, marginBottom: quizQuestions[qIndex].fen ? 18 : 22 }}>
+            <h2 style={{ fontFamily:"'Poppins', sans-serif", fontSize: isPhone?19:22, fontWeight:600, lineHeight:1.4, marginBottom: quizQuestions[qIndex].fen ? 18 : 22 }}>
               {quizQuestions[qIndex].prompt}
             </h2>
             {quizQuestions[qIndex].fen && (
@@ -620,7 +626,7 @@ export default function ChessPathApp(){
             <div style={{ fontSize:12, letterSpacing:"0.14em", textTransform:"uppercase", color:accentGold, marginBottom:8, display:"flex", alignItems:"center", gap:6 }}>
               <Sparkles size={14}/> Your placement
             </div>
-            <h2 style={{ fontFamily:"'Fraunces', serif", fontSize: isPhone?26:32, fontWeight:700, margin:"0 0 8px" }}>{result.tier}</h2>
+            <h2 style={{ fontFamily:"'Poppins', sans-serif", fontSize: isPhone?26:32, fontWeight:700, margin:"0 0 8px" }}>{result.tier}</h2>
             <p style={{ color:textMuted, fontSize:14, marginBottom:10 }}>
               {result.correct} of {result.total} correct. Each attempt draws a fresh, balanced set from a pool of over {DIAGNOSTIC_BEGINNER_POOL.length} verified positions, so retaking the quiz shows different questions.
             </p>
@@ -651,7 +657,7 @@ export default function ChessPathApp(){
               })}
             </div>
             <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-              <button onClick={()=>setScreen("lessons")} style={{ background:accentGold, color:"#1B2430", border:"none", borderRadius:8, padding:"12px 18px", fontSize:14, fontWeight:600, cursor:"pointer" }}>
+              <button onClick={()=>setScreen("lessons")} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:8, padding:"12px 18px", fontSize:14, fontWeight:600, cursor:"pointer" }}>
                 Start Tier 1 lessons
               </button>
               <button onClick={startQuiz} style={{ background:"transparent", color:textMain, border:`1px solid ${borderCol}`, borderRadius:8, padding:"12px 18px", fontSize:14, cursor:"pointer" }}>
@@ -730,16 +736,16 @@ function AuthControl({ session, authOpen, setAuthOpen, email, setEmail, password
   }
   return (
     <div style={{ position:"relative", width: full ? "100%" : "auto" }}>
-      <button onClick={()=>setAuthOpen(v=>!v)} style={{ background: accentGold, color:"#1B2430", border:"none", borderRadius:9, padding:"8px 12px", fontSize:12.5, fontWeight:600, cursor:"pointer", width: full ? "100%" : "auto" }}>
+      <button onClick={()=>setAuthOpen(v=>!v)} style={{ background: accentGold, color:"#FFFFFF", border:"none", borderRadius:9, padding:"8px 12px", fontSize:12.5, fontWeight:600, cursor:"pointer", width: full ? "100%" : "auto" }}>
         Sign in
       </button>
       {authOpen && (
         <div style={{ position: full ? "static" : "absolute", right:0, top: full ? "auto" : "calc(100% + 8px)", marginTop: full ? 8 : 0, background:panelBg, border:`1px solid ${borderCol}`, borderRadius:9, padding:12, width: full ? "100%" : 240, zIndex:20, boxSizing:"border-box" }}>
           <div style={{ display:"flex", gap:6, marginBottom:10 }}>
-            <button onClick={()=>{setAuthMode("signin"); }} style={{ flex:1, background: authMode==="signin" ? "rgba(201,162,39,0.15)" : "transparent", border:`1px solid ${authMode==="signin"?accentGold:borderCol}`, color: authMode==="signin"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
+            <button onClick={()=>{setAuthMode("signin"); }} style={{ flex:1, background: authMode==="signin" ? "rgba(226,105,75,0.15)" : "transparent", border:`1px solid ${authMode==="signin"?accentGold:borderCol}`, color: authMode==="signin"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
               Sign in
             </button>
-            <button onClick={()=>{setAuthMode("signup"); }} style={{ flex:1, background: authMode==="signup" ? "rgba(201,162,39,0.15)" : "transparent", border:`1px solid ${authMode==="signup"?accentGold:borderCol}`, color: authMode==="signup"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
+            <button onClick={()=>{setAuthMode("signup"); }} style={{ flex:1, background: authMode==="signup" ? "rgba(226,105,75,0.15)" : "transparent", border:`1px solid ${authMode==="signup"?accentGold:borderCol}`, color: authMode==="signup"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
               Sign up
             </button>
           </div>
@@ -748,7 +754,7 @@ function AuthControl({ session, authOpen, setAuthOpen, email, setEmail, password
           <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password"
             onKeyDown={(e)=>{ if(e.key==="Enter") submitAuth(); }}
             style={{ width:"100%", boxSizing:"border-box", padding:"8px 10px", borderRadius:6, border:`1px solid ${borderCol}`, background:"transparent", color:textMain, fontSize:13, marginBottom:8 }}/>
-          <button onClick={submitAuth} disabled={authLoading} style={{ width:"100%", background:accentGold, color:"#1B2430", border:"none", borderRadius:6, padding:"8px 10px", fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
+          <button onClick={submitAuth} disabled={authLoading} style={{ width:"100%", background:accentGold, color:"#FFFFFF", border:"none", borderRadius:6, padding:"8px 10px", fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
             {authLoading ? "…" : authMode==="signin" ? "Sign in" : "Create account"}
           </button>
           {authError && <div style={{ fontSize:11.5, color:"#E05B5B", marginTop:7 }}>{authError}</div>}
@@ -776,7 +782,7 @@ function MoveFeedbackPicker({ feedbackMode, setFeedbackModeState, textMuted, bor
         <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 9, padding: 8, zIndex: 20, minWidth: 150 }}>
           {MODES.map((m) => (
             <button key={m.key} onClick={() => { setFeedbackModeState(m.key); setOpen(false); }}
-              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", background: feedbackMode === m.key ? "rgba(201,162,39,0.12)" : "transparent", border: "none", borderRadius: 6, padding: "6px 8px", cursor: "pointer", textAlign: "left" }}>
+              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", background: feedbackMode === m.key ? "rgba(226,105,75,0.12)" : "transparent", border: "none", borderRadius: 6, padding: "6px 8px", cursor: "pointer", textAlign: "left" }}>
               <span style={{ fontSize: 14, lineHeight: 1 }}>{m.emoji}</span>
               <span style={{ fontSize: 12, color: feedbackMode === m.key ? accentGold : textMuted }}>{m.label}</span>
             </button>
@@ -802,7 +808,7 @@ function BoardThemePicker({ boardThemeKey, setBoardThemeKey, textMuted, borderCo
         <div style={{ position: "absolute", right: 0, top: "calc(100% + 8px)", background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 9, padding: 8, zIndex: 20, minWidth: 150 }}>
           {Object.entries(THEMES).map(([key, t]) => (
             <button key={key} onClick={() => { setBoardThemeKey(key); setOpen(false); }}
-              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", background: boardThemeKey === key ? "rgba(201,162,39,0.12)" : "transparent", border: "none", borderRadius: 6, padding: "6px 8px", cursor: "pointer", textAlign: "left" }}>
+              style={{ display: "flex", alignItems: "center", gap: 8, width: "100%", background: boardThemeKey === key ? "rgba(226,105,75,0.12)" : "transparent", border: "none", borderRadius: 6, padding: "6px 8px", cursor: "pointer", textAlign: "left" }}>
               <span style={{ width: 16, height: 16, borderRadius: 3, overflow: "hidden", display: "flex" }}>
                 <span style={{ width: 8, height: 16, background: t.light }} />
                 <span style={{ width: 8, height: 16, background: t.dark }} />
@@ -819,9 +825,9 @@ function BoardThemePicker({ boardThemeKey, setBoardThemeKey, textMuted, borderCo
 function NavBtn({children, active, onClick, textMain, accentGold, full}){
   return (
     <button onClick={onClick} style={{
-      background: active ? "rgba(201,162,39,0.12)" : "transparent",
+      background: active ? "rgba(226,105,75,0.12)" : "transparent",
       color: active ? accentGold : textMain,
-      border:"none", borderRadius:9, padding: full ? "10px 12px" : "8px 12px",
+      border:"none", borderRadius:20, padding: full ? "10px 14px" : "8px 14px",
       fontSize:13.5, fontWeight: active?600:500, cursor:"pointer",
       width: full ? "100%" : "auto", textAlign: full ? "left" : "center"
     }}>
@@ -852,7 +858,7 @@ function WalkthroughTooltip({ rect, step, stepNumber, totalSteps, isLast, onNext
         <button onClick={onSkip} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, cursor:"pointer", padding:0 }}>
           Skip tour
         </button>
-        <button onClick={onNext} style={{ background:accentGold, color:"#1B2430", border:"none", borderRadius:6, padding:"7px 13px", fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
+        <button onClick={onNext} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:6, padding:"7px 13px", fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
           {isLast ? "Got it" : "Next"}
         </button>
       </div>

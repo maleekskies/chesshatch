@@ -3,7 +3,7 @@ import { Chessboard } from "react-chessboard";
 import { Chess } from "chess.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
-const GOLD = "#C9A227";
+const GOLD = "#E2694B";
 
 // Thin wrapper around react-chessboard so every screen in the app uses
 // the same clean, standard Staunton piece set (the library's default,
@@ -107,8 +107,8 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
       for (const sq of selectedTargets) {
         const isCapture = chessRef && !!chessRef.get(sq);
         styles[sq] = isCapture
-          ? { boxShadow: `inset 0 0 0 4px rgba(201,162,39,0.75)` }
-          : { boxShadow: `inset 0 0 0 0px transparent`, backgroundImage: "radial-gradient(circle, rgba(201,162,39,0.55) 18%, transparent 20%)" };
+          ? { boxShadow: `inset 0 0 0 4px rgba(226,105,75,0.75)` }
+          : { boxShadow: `inset 0 0 0 0px transparent`, backgroundImage: "radial-gradient(circle, rgba(226,105,75,0.55) 18%, transparent 20%)" };
       }
     }
     return styles;
