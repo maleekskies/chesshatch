@@ -66,6 +66,246 @@ export const TIER1_LESSONS = [
     freePlay: true,
   },
   {
+    id: "pawn-move-blocked-and-capturing",
+    title: "Pawn: Blocked Ahead, Free to Capture",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A pawn that's blocked directly in front of it can't push forward at all, not even to capture, pawns never capture straight ahead. But diagonal captures work regardless of what's blocking the square in front. Here the white pawn can't advance, an enemy pawn sits right in its path, but it still has two enemy pieces it can capture diagonally. Try it and see which moves are actually available.",
+    fen: "7k/8/8/3rpn2/4P3/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "pawn-move-edge-file",
+    title: "Pawn: Fewer Options on the Edge",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A pawn on the a-file or h-file only has one diagonal capture available, not two, since there's no file beyond the edge of the board. Here the white pawn on the a-file can only ever capture toward the b-file. Try moving it and notice there's no capture available on the other side, because there is no other side.",
+    fen: "7k/8/1p6/8/P7/8/8/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "pawn-move-near-promotion",
+    title: "Pawn: Almost at the End of the Board",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A pawn this close to the last rank still moves exactly the same way, one square forward. The double-step option only ever exists on a pawn's very first move from its starting square, never again after that, no matter how far it's traveled. Push this pawn forward and see what happens when it reaches the end.",
+    fen: "7k/P7/8/8/8/8/8/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "pawn-move-already-advanced",
+    title: "Pawn: Single Steps Only, After the First Move",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "This pawn already left its starting square earlier in the game. From here on, it can only ever move one square at a time, the two-square option was a one-time offer available only from its original rank. Try moving it and confirm there's no double-step available anymore.",
+    fen: "7k/8/8/4P3/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "knight-move-corner",
+    title: "Knight: Boxed Into a Corner",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A knight in the corner has far fewer legal squares than one in the center, this is exactly why experienced players avoid parking a knight on the rim of the board early in the game. Move it around and notice how cramped it feels compared to the open-center knight lesson earlier.",
+    fen: "7k/8/8/8/8/8/8/N6K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "knight-move-near-edge",
+    title: "Knight: Restricted Near the Edge",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A knight doesn't need to be in the very corner to lose options, being anywhere near the edge of the board cuts down how many squares it can reach. This is a big part of why a centralized knight is considered strong and an edge knight is considered weak, even though it's the exact same piece.",
+    fen: "7k/8/8/8/N7/8/8/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "knight-move-capture",
+    title: "Knight: Spotting a Capture",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A knight captures by landing on the enemy piece's square, exactly like any other move it makes, there's no special capturing motion. If an enemy piece happens to sit on one of the knight's L-shaped destination squares, the knight can take it. See if you can find the capture available here.",
+    fen: "7k/2b5/8/3N4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "knight-move-blocked-by-own-piece",
+    title: "Knight: One Square Taken By Its Own Side",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "The knight jumps over anything in its path, but it still can't land on a square occupied by its own piece. One of this knight's usual eight squares is currently held by a friendly pawn, so that particular jump isn't available right now. Try moving the knight and see which square is off-limits.",
+    fen: "7k/8/1P6/3N4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "bishop-move-corner",
+    title: "Bishop: Only One Diagonal From the Corner",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A bishop in the center controls two full diagonals, but a bishop in the corner only has one available, there's no second diagonal to speak of from that square. Move it along the long diagonal and notice there's nowhere else for it to go.",
+    fen: "6k1/8/8/8/8/8/8/B6K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "bishop-move-blocked-by-own-pawn",
+    title: "Bishop: Cut Off by Its Own Pawn",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A friendly pawn sitting along one of this bishop's diagonals blocks that entire direction, not just the one square the pawn occupies, everything past it becomes unreachable too. This is one reason beginners are told not to block in their own bishops with their pawns too early. Try moving the bishop and see how much of that diagonal is now cut off.",
+    fen: "7k/5P2/8/3B4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "bishop-move-capture",
+    title: "Bishop: Spotting a Diagonal Capture",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Just like the knight, a bishop captures simply by landing on the enemy piece, as long as the path to it is clear and it's actually on one of the bishop's diagonals. See if you can find the capture available to this bishop.",
+    fen: "7k/1n6/8/3B4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "bishop-move-zero-mobility",
+    title: "Bishop: Completely Stuck",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Sometimes a piece has no legal moves at all from where it stands. This bishop is boxed in by its own pawns on both sides right from the start, a very common situation in the opening moves of a real game, and exactly why developing your pawns and pieces in the right order matters. Try clicking the bishop and see for yourself, there's genuinely nowhere for it to go yet.",
+    fen: "4k3/8/8/8/8/8/1P1P4/2B1K3 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "rook-move-blocked-both-ways",
+    title: "Rook: Squeezed Between Its Own Pawns",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "This rook has a pawn from its own side blocking it in two different directions, one along its file and one along its rank. It still has plenty of open squares in the other two directions, but notice how much smaller its range has become compared to a rook with nothing in its way.",
+    fen: "7k/8/8/3R1P2/8/3P4/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "rook-move-capture",
+    title: "Rook: Spotting a Capture Along the File",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A rook can capture anything sitting on its rank or file, as long as nothing else is in the way first. Find the capture this rook has available.",
+    fen: "7k/8/8/3R4/8/3b4/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "rook-move-undeveloped",
+    title: "Rook: Still Home, But Not Trapped",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "This rook hasn't moved from its starting square yet, and its own pawn still blocks it from moving up the file. But notice it isn't actually stuck, the entire rank in the other direction is wide open. Rooks often sit and wait like this early in a game until a file opens up for them.",
+    fen: "k7/8/8/8/7K/8/P7/R7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "rook-move-mixed-situation",
+    title: "Rook: Open, Blocked, and a Capture, All at Once",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Real positions are rarely as clean as a rook sitting alone on an empty board. Here, one direction is wide open, another is blocked by a friendly pawn, and a third has an enemy piece the rook can capture. Take a moment to work out, direction by direction, what this rook can and can't do.",
+    fen: "7k/3n4/8/3R2P1/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "queen-move-boxed-by-own-pawns",
+    title: "Queen: Hemmed In by Her Own Side",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Even the most powerful piece on the board can be crowded out by its own pawns. Three of this queen's eight directions are blocked immediately by friendly pawns, she still has plenty of squares available through the others, but nowhere near her full range from an open position.",
+    fen: "7k/8/3P4/2PQP3/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "queen-move-capture",
+    title: "Queen: Spotting a Capture at a Distance",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Because the queen combines the rook's and bishop's movement, she can often capture something from much farther away than either piece could alone. Find the capture available here.",
+    fen: "3r3k/8/8/3Q4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "queen-move-corner",
+    title: "Queen: Even the Queen Loses Options in the Corner",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A queen in the corner keeps her full rank and file, but loses an entire diagonal, there's simply no second diagonal to use from that square. She's still extremely powerful here, just noticeably less so than from the center.",
+    fen: "4k3/8/8/8/7K/8/8/Q7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "queen-move-backrank-boxed",
+    title: "Queen: Waiting for Her Pawns to Move",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "This is close to how a queen often looks at the very start of a real game, boxed in on her own back rank by a wall of her own pawns. She still has her full rank to move along, but almost nothing else, until those pawns clear out of the way. This is exactly why rushing the queen out too early usually doesn't work well, there's often nowhere useful for her to go yet anyway.",
+    fen: "k7/8/8/8/7K/8/2PPP3/3Q4 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "king-move-corner",
+    title: "King: As Few Options As It Gets",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "A king in the corner has the fewest legal squares it can possibly have. Move it around and notice how much smaller its world becomes compared to the open-center king lesson earlier.",
+    fen: "7k/8/8/8/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "king-move-capture",
+    title: "King: The King Can Capture Too",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "It's easy to forget, but the king can capture just like any other piece, as long as the square it's capturing on isn't defended by anything else. Here, nothing is protecting the enemy piece next to this king. Try taking it.",
+    fen: "7k/8/8/3n4/3K4/8/8/8 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "king-move-cant-enter-check",
+    title: "King: One Square Off-Limits",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "The king can never move onto a square an enemy piece attacks, even if nothing is currently checking it. One of this king's usual squares is being watched by the enemy rook on the far side of the board, so that square simply isn't a legal option, even though it looks empty and safe. Try moving the king around and see which square it refuses to go to.",
+    fen: "k3r3/8/8/8/3K4/8/8/8 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "king-move-crowded-by-own-pieces",
+    title: "King: Crowded by Its Own Pawns",
+    tier: 1,
+    category: "Rules & Movement",
+    explanation:
+      "Three of this king's eight neighboring squares are occupied by its own pawns, so those simply aren't available, a king can't capture or move onto its own pieces any more than it can move onto an attacked square. It still has several legal squares left, just fewer than it would on an open board.",
+    fen: "7k/8/8/3P4/2PKP3/8/8/8 w - - 0 1",
+    freePlay: true,
+  },
+  {
     id: "piece-values",
     title: "How Much Is Each Piece Worth",
     tier: 1,
@@ -202,6 +442,54 @@ export const TIER1_LESSONS = [
     solutionSquares: ["b4d5"],
     hint: "Look for a knight move that gives check while also lining up with the rook.",
   },
+  {
+    id: "motif-skewer",
+    title: "Tactic: The Skewer",
+    tier: 1,
+    category: "Tactics",
+    explanation:
+      "A skewer is like a pin in reverse: instead of a less valuable piece shielding a more valuable one, a more valuable piece is forced to move out of an attack, exposing a less valuable piece behind it on the same line. Here, moving your rook onto the a-file gives check to the king. The king has to move out of the way, and your rook will then be attacking the queen sitting right behind it.",
+    fen: "8/8/8/k7/8/8/8/1R5K w - - 0 1",
+    goal: "bestMove",
+    solutionSquares: ["b1a1"],
+    hint: "Look for a rook move that lines up with both the king and the queen on the same file.",
+  },
+  {
+    id: "motif-discovered-check",
+    title: "Tactic: Discovered Check",
+    tier: 1,
+    category: "Tactics",
+    explanation:
+      "A discovered check is a discovered attack where the revealed piece delivers check instead of just attacking something. Your own knight is currently blocking your rook's view straight down the file toward the black king. Move the knight anywhere legal, and watch what happens to the king the moment it steps aside.",
+    fen: "k7/8/8/8/N7/8/8/R6K w - - 0 1",
+    goal: "bestMove",
+    solutionSquares: ["a4b2", "a4b6", "a4c3", "a4c5"],
+    hint: "Your rook is aimed straight down the a-file. What's currently in the way?",
+  },
+  {
+    id: "tactic-removing-the-defender",
+    title: "Tactic: Removing the Defender",
+    tier: 1,
+    category: "Tactics",
+    explanation:
+      "Sometimes a piece is only safe because something else is defending it. If you can capture or chase away that defender, whatever it was protecting suddenly becomes vulnerable too. Here, the black knight is the only thing standing between your rook and the black queen on the same file. Capture the knight, and your rook will be aiming straight at the queen next.",
+    fen: "k3q3/8/8/4n3/8/8/8/K3R3 w - - 0 1",
+    goal: "bestMove",
+    solutionSquares: ["e1e5"],
+    hint: "What's the only black piece standing between your rook and the queen?",
+  },
+  {
+    id: "tactic-overloaded-piece",
+    title: "Tactic: The Overloaded Piece",
+    tier: 1,
+    category: "Tactics",
+    explanation:
+      "A piece is overloaded when it's the only thing defending two different pieces at once. It can only ever save one of them. Here, the black rook is defending both the knight on its file and the bishop on its rank, at the same time. Capture the knight: if the rook recaptures, it has to leave the rank, and the bishop it was also guarding becomes free to win next.",
+    fen: "b2r3k/8/8/3n4/8/1B6/8/7K w - - 0 1",
+    goal: "bestMove",
+    solutionSquares: ["b3d5"],
+    hint: "The black rook is protecting two pieces at once. What happens to one of them if it recaptures on the other?",
+  },
 ];
 
 // Puzzle set shown after a lesson (the "lesson-to-play loop" from the
@@ -269,6 +557,111 @@ export const TIER2_LESSONS = [
     explanation:
       "A weak square is one that can never be defended by a pawn, usually because the pawns that would guard it have already moved or been traded off. Weak squares right next to the enemy king are especially dangerous, since a piece parked there can support an attack for the rest of the game. Look at this position and notice the holes in front of Black's king.",
     fen: "5k2/4p3/8/8/8/8/4P3/5K2 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "tactic-trapped-piece",
+    title: "Tactic: The Trapped Piece",
+    tier: 2,
+    category: "Tactics",
+    explanation:
+      "A piece is trapped when it technically has legal moves, but every single one of them is covered by the opponent, so moving it just loses it somewhere else instead of where it stands right now. The black knight in the corner only ever has two possible squares to go to. Look at where the white bishop's diagonal reaches, and notice that both of those escape squares are already covered.",
+    fen: "n6k/8/8/B7/8/8/8/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "tactic-xray-attack",
+    title: "Tactic: The X-Ray",
+    tier: 2,
+    category: "Tactics",
+    explanation:
+      "An x-ray is when a piece's real influence continues right through another piece sitting in front of it, rather than stopping there. Your rook looks like it's aimed at a pawn, but it's actually contesting the entire file all the way to the black rook behind it. If that pawn is ever captured or pushed aside, the two rooks are immediately facing off directly. Strong players count x-ray pressure like this as real control of a file, even before anything is captured.",
+    fen: "3r3k/8/8/8/3p4/8/8/3R3K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "endgame-opposition",
+    title: "Endgame Idea: Opposition",
+    tier: 2,
+    category: "Endgame Ideas",
+    qa: true,
+    question:
+      "In a king and pawn endgame, the two kings often end up facing each other with exactly one empty square between them. Does it matter whose turn it is to move in that situation?",
+    answer:
+      "Yes, quite a lot. When the kings face each other like this, whichever side is not forced to move first is said to have the opposition, and that's usually a real advantage. The side forced to move has to step aside, letting the other king advance into the key squares it needs to support its pawn or invade the position. Strong players in the endgame will sometimes deliberately lose a tempo, like shuffling a king back and forth, specifically to hand the obligation to move back to their opponent and keep the opposition for themselves.",
+    fen: "8/8/8/8/4k3/8/4K3/8 w - - 0 1",
+  },
+  {
+    id: "endgame-zugzwang",
+    title: "Endgame Idea: Zugzwang",
+    tier: 2,
+    category: "Endgame Ideas",
+    qa: true,
+    question:
+      "Is it always good to have a move available? Could having to move ever actually hurt you?",
+    answer:
+      "In most of the game, yes, having options is good. But in some endgame positions, every single legal move available actually makes things worse, and you'd genuinely prefer to just pass if you could. That situation is called zugzwang, a German word roughly meaning compulsion to move. It comes up constantly in king and pawn endgames, where a king that would be perfectly safe standing still is instead forced to step away from a square it needed to defend, simply because it has to move something.",
+    fen: "8/4k3/8/4K3/8/8/8/8 w - - 0 1",
+  },
+  {
+    id: "positional-prophylaxis",
+    title: "Positional Idea: Prophylaxis",
+    tier: 2,
+    category: "Positional Ideas",
+    qa: true,
+    question:
+      "Does every good move have to directly attack something or improve your own position? Could a move be good purely because of what it stops your opponent from doing?",
+    answer:
+      "Yes, and that idea has a name: prophylaxis, which just means taking a preventative move. Instead of asking only what your best move is, strong players regularly ask what their opponent's best move would be if it were their turn, and then consider playing a move that denies them exactly that. A prophylactic move might not look active at all, sometimes it just quietly closes off a square or a plan, but preventing your opponent's best idea can be worth just as much as building your own.",
+  },
+  {
+    id: "positional-isolated-pawn",
+    title: "Positional Idea: The Isolated Pawn",
+    tier: 2,
+    category: "Positional Ideas",
+    explanation:
+      "A pawn is isolated when there are no friendly pawns on either of the files right next to it, which means no other pawn can ever step up to defend it. Isolated pawns can still be strong, they often control useful central squares, but they need constant piece support since they'll never get pawn support. Look at the white pawn here and notice there's nothing on the files to either side of it.",
+    fen: "k7/8/8/8/3P4/8/1P3P2/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "positional-doubled-pawns",
+    title: "Positional Idea: Doubled Pawns",
+    tier: 2,
+    category: "Positional Ideas",
+    explanation:
+      "Doubled pawns happen when two of your own pawns end up on the same file, usually from a capture. They can't defend each other the normal way pawns do, since pawns only defend diagonally, and they cover fewer squares between them than two pawns on separate files would. They're not always bad, sometimes they open a useful file for a rook, but they're generally considered a small structural weakness. Notice both white pawns share the same file here.",
+    fen: "k7/8/8/8/4P3/8/4P3/7K w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "positional-passed-pawn",
+    title: "Positional Idea: The Passed Pawn",
+    tier: 2,
+    category: "Positional Ideas",
+    explanation:
+      "A passed pawn has no enemy pawns left on its own file or on either file next to it, anywhere between it and the promotion square. That means no pawn can ever block it or capture it on the way to promoting, only pieces can stop it. A passed pawn tends to grow more dangerous as the game goes on and pieces get traded off, since there are fewer and fewer things left on the board that can actually deal with it. Look at the white pawn here and notice there's nothing standing between it and the end of the board.",
+    fen: "7k/p7/8/3P4/8/8/8/K7 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "endgame-kq-vs-k",
+    title: "Endgame Idea: King and Queen vs. King",
+    tier: 2,
+    category: "Endgame Ideas",
+    explanation:
+      "This is one of the most basic checkmates to actually deliver, and every player eventually needs to know it cold. The idea: use your queen to gradually shrink the space the enemy king can move in, keeping your own king close enough to support the queen, until the enemy king is pushed to the edge of the board and has nowhere left to go. Be careful not to bring the queen too close too early, a lone queen right next to the enemy king often just produces a stalemate instead of a checkmate, which is a draw, not a win. Move the pieces around and get a feel for how the queen restricts the king's space.",
+    fen: "8/6k1/8/8/2Q5/2K5/8/8 w - - 0 1",
+    freePlay: true,
+  },
+  {
+    id: "endgame-kr-vs-k",
+    title: "Endgame Idea: King and Rook vs. King",
+    tier: 2,
+    category: "Endgame Ideas",
+    explanation:
+      "The king and rook checkmate uses a different idea than the queen version: the rook cuts the enemy king off along an entire rank or file, like a wall it can never cross, while your own king walks up to help finish the job. The enemy king gets pushed to the edge of the board one cut-off line at a time, and delivering mate always happens with your own king right there supporting the rook. It's a slower process than the queen checkmate, but it's just as important to know, since a lone rook is exactly what many endgames come down to. Move the pieces around and notice how the rook controls an entire line the king can't cross.",
+    fen: "R7/4k3/8/3K4/8/8/8/8 w - - 0 1",
     freePlay: true,
   },
 ];

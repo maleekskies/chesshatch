@@ -237,7 +237,20 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
   const [showHint, setShowHint] = useState(false);
   const [solved, setSolved] = useState(false);
 
-  const puzzle = useMemo(() => SAMPLE_PUZZLES.find((p) => p.motif === "fork" || p.motif === "hanging piece"), []);
+  // Only show a follow-up puzzle when one genuinely matches what this
+  // lesson just taught. Previously this always showed the same fork
+  // puzzle after every single lesson, including movement demos and
+  // lessons on completely unrelated tactics, which read as the app
+  // randomly yanking you to an unrelated screen. As more puzzles get
+  // added, more lessons will pick up a real match here.
+  const LESSON_TO_PUZZLE_MOTIF = { "motif-fork": "fork" };
+  const puzzle = useMemo(() => {
+    if (lesson.freePlay) return null;
+    const wantedMotif = LESSON_TO_PUZZLE_MOTIF[lesson.id];
+    if (!wantedMotif) return null;
+    return SAMPLE_PUZZLES.find((p) => p.motif === wantedMotif) || null;
+  }, [lesson.id, lesson.freePlay]);
+  const hasMatchedPuzzle = !!puzzle;
 
   function onPieceDrop(from, to) {
     const move = chess.move({ from, to, promotion: "q" });
@@ -256,6 +269,17 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
       setTimeout(() => { safeLoad(chess, lesson.fen); setVersion((v) => v + 1); }, 900);
     }
     return true;
+  }
+
+  // Every lesson type funnels through here on "continue": always marks
+  // the lesson complete first (progress, badges), then either shows a
+  // genuinely matched puzzle, or, when there isn't one, returns
+  // straight to the lesson list instead of a mismatched puzzle. Free
+  // play lessons always return to the list, since there's nothing to
+  // solve there in the first place.
+  function handleContinue() {
+    onComplete();
+    if (lesson.freePlay || !hasMatchedPuzzle) onBack();
   }
 
   const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 440;
@@ -293,11 +317,11 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
             {showHint && <p style={{ fontSize: 12.5, color: accentGold, marginBottom: 12 }}>{lesson.hint}</p>}
 
             <button
-              onClick={onComplete}
+              onClick={handleContinue}
               disabled={!lesson.freePlay && !solved}
               style={{ width: "100%", background: (lesson.freePlay || solved) ? accentGold : borderCol, color: (lesson.freePlay || solved) ? "#FFFFFF" : textMuted, border: "none", borderRadius: 8, padding: "11px 16px", fontSize: 13.5, fontWeight: 600, cursor: (lesson.freePlay || solved) ? "pointer" : "not-allowed" }}
             >
-              {lesson.freePlay ? "Got it, continue" : solved ? "Continue to puzzle" : "Solve it first"}
+              {lesson.freePlay ? "Got it, continue" : !solved ? "Solve it first" : hasMatchedPuzzle ? "Continue to puzzle" : "Got it, continue"}
             </button>
           </div>
         </div>
