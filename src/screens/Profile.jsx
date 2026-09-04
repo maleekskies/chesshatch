@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Trophy, Flame, BookOpen, Target, Zap, Sparkles } from "lucide-react";
+import { Trophy, BookOpen, Target, Zap, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabaseClient.js";
 import { TIME_CONTROLS } from "../lib/glicko2.js";
 import { BADGES } from "../lib/badges.js";

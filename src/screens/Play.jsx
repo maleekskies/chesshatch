@@ -3,7 +3,7 @@ import { Chess } from "chess.js";
 import { Bot, Users, RotateCcw, MessageCircle, Undo2, Share2, Copy } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import PromotionPicker from "../components/PromotionPicker.jsx";
-import { analyzeMove, squareToRC } from "../lib/coach.js";
+import { analyzeMove } from "../lib/coach.js";
 import { createEngine, DIFFICULTY_PRESETS } from "../lib/stockfish.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
 
@@ -24,7 +24,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
   const [playerColor] = useState("w"); // player is always White vs computer, for simplicity
   const [shareOpen, setShareOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState(null);
-  const [pendingPromotion, setPendingPromotion] = useState(null); // { from, to, moverColor } | null
+  const [pendingPromotion, setPendingPromotion] = useState(null); // { from, to } | null
 
   useEffect(() => {
     if (mode === "computer" && !engineRef.current) {
@@ -91,7 +91,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     const moverColor = chess.turn();
     if (mode === "computer" && moverColor !== playerColor) return false;
     if (isPromotionMove(sourceSquare, targetSquare)) {
-      setPendingPromotion({ from: sourceSquare, to: targetSquare, moverColor });
+      setPendingPromotion({ from: sourceSquare, to: targetSquare });
       return true; // tentatively accept; PromotionPicker resolves the actual move
     }
     return completeMove(sourceSquare, targetSquare, null);
@@ -168,7 +168,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     <div style={{ display: "flex", gap: 24, flexWrap: "wrap", alignItems: "flex-start", justifyContent: "center" }}>
       <div style={{ flex: "0 0 auto", position: "relative" }}>
         {pendingPromotion && (
-          <PromotionPicker color={pendingPromotion.moverColor} onPick={resolvePromotion} panelBg={panelBg} borderCol={borderCol} textMain={textMain} accentGold={accentGold} />
+          <PromotionPicker onPick={resolvePromotion} panelBg={panelBg} borderCol={borderCol} textMain={textMain} accentGold={accentGold} />
         )}
         <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
 

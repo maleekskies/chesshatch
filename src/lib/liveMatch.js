@@ -34,11 +34,3 @@ export function joinMatchChannel(code, { onMove, onOpponentJoined, onPresenceSyn
 export function broadcastEvent(channel, event, payload) {
   channel.send({ type: "broadcast", event, payload });
 }
-
-export function sendMove(channel, { from, to, promotion }) {
-  channel.send({ type: "broadcast", event: "move", payload: { from, to, promotion } });
-}
-
-export function announceJoin(channel, role) {
-  channel.send({ type: "broadcast", event: "opponent-joined", payload: { role } });
-}

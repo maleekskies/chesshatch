@@ -46,7 +46,7 @@ export default function FeedbackButton({ session, currentScreen, textMain, textM
             style={{ width: "100%", background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 6, padding: "8px 10px", fontSize: 12.5, fontWeight: 600, cursor: message.trim() ? "pointer" : "not-allowed" }}>
             {status === "sending" ? "Sending…" : status === "sent" ? "Thanks, sent." : "Send"}
           </button>
-          {status === "error" && <div style={{ fontSize: 11, color: "#E05B5B", marginTop: 6 }}>Something went wrong, try again.</div>}
+          {status === "error" && <div style={{ fontSize: 11, color: "#E05B5B", marginTop: 6 }}>Couldn't send that, check your connection and try again.</div>}
         </div>
       )}
       <button onClick={() => setOpen((v) => !v)}

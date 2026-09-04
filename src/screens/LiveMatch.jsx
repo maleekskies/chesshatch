@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Chess } from "chess.js";
 import { Copy, Users, Flag, Handshake, XCircle, MessageCircle } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";

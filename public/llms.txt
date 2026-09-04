@@ -1,0 +1,35 @@
+# ChessLoop
+
+ChessLoop is a free chess learning platform for complete beginners
+through intermediate players. It is not monetized and is currently in
+closed beta.
+
+## What it does
+
+- A diagnostic quiz places a new user at a starting level using real
+  chess positions, not text trivia.
+- Step by step lessons cover how each piece moves, piece values,
+  trading, checkmate patterns, tactics, and endgame ideas, organized
+  into two tiers (complete beginner, intermediate).
+- A guided first game walks a total beginner through a short scripted
+  mini match with a live coach explaining each move.
+- Practice mode lets two people play on one device with live coach
+  feedback, or play against an offline computer opponent (Stockfish)
+  at one of twelve difficulty levels.
+- Live Match is real time chess between two signed in users, with
+  time controls and Glicko-2 ratings.
+- Puzzle Rush is a timed puzzle streak mode.
+- A glossary and a common beginner mistakes page are available as
+  standalone reference pages.
+
+## Technical notes
+
+Single page application built with React, Vite, and react-router.
+Chess logic runs on chess.js. The board is react-chessboard. The
+backend is Supabase (Postgres, Auth, Realtime). The computer opponent
+runs Stockfish entirely client side in a Web Worker.
+
+## Contact
+
+Feedback can be left directly in the app through the feedback button
+present on every screen.

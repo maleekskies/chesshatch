@@ -8,7 +8,7 @@ const PIECES = [
   { key: "n", label: "Knight" },
 ];
 
-export default function PromotionPicker({ color, onPick, panelBg, borderCol, textMain, accentGold }) {
+export default function PromotionPicker({ onPick, panelBg, borderCol, textMain, accentGold }) {
   return (
     <div style={{
       position: "absolute", inset: 0, background: "rgba(0,0,0,0.55)",

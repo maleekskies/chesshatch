@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+  <url><loc>https://chessloop.vercel.app/</loc></url>
+  <url><loc>https://chessloop.vercel.app/diagnostic</loc></url>
+  <url><loc>https://chessloop.vercel.app/lessons</loc></url>
+  <url><loc>https://chessloop.vercel.app/guided</loc></url>
+  <url><loc>https://chessloop.vercel.app/mistakes</loc></url>
+  <url><loc>https://chessloop.vercel.app/glossary</loc></url>
+  <url><loc>https://chessloop.vercel.app/play</loc></url>
+  <url><loc>https://chessloop.vercel.app/live</loc></url>
+  <url><loc>https://chessloop.vercel.app/rush</loc></url>
+  <url><loc>https://chessloop.vercel.app/privacy</loc></url>
+</urlset>

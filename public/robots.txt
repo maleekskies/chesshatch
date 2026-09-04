@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://chessloop.vercel.app/sitemap.xml

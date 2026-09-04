@@ -11,6 +11,7 @@ import Admin from "./screens/Admin.jsx";
 import Privacy from "./screens/Privacy.jsx";
 import GuidedGame from "./screens/GuidedGame.jsx";
 import BeginnerMistakes from "./screens/BeginnerMistakes.jsx";
+import NotFound from "./screens/NotFound.jsx";
 import Glossary from "./screens/Glossary.jsx";
 import { BADGES, awardBadge } from "./lib/badges.js";
 import FeedbackButton from "./components/FeedbackButton.jsx";
@@ -76,10 +77,10 @@ function dailyPuzzle() {
 
 // ================= Board themes (used by Play + Lessons boards) =================
 const THEMES = {
-  brown: { name: "Brown", light: "#F0D9B5", dark: "#B58863", accent: "#C9A227" },
-  blue: { name: "Blue", light: "#DEE3E6", dark: "#8CA2AD", accent: "#F2A65A" },
-  green: { name: "Green", light: "#EEEED2", dark: "#769656", accent: "#D97706" },
-  highContrast: { name: "Colorblind-safe", light: "#F0E9DA", dark: "#2B6CB0", accent: "#DD6B20" },
+  brown: { name: "Brown", light: "#F0D9B5", dark: "#B58863" },
+  blue: { name: "Blue", light: "#DEE3E6", dark: "#8CA2AD" },
+  green: { name: "Green", light: "#EEEED2", dark: "#769656" },
+  highContrast: { name: "Colorblind-safe", light: "#F0E9DA", dark: "#2B6CB0" },
 };
 // Brown and Blue match Lichess's actual published values; Green matches
 // the widely-used standard chess-board green palette; the accent UI
@@ -176,6 +177,26 @@ const SCREEN_TO_PATH = Object.fromEntries(
   Object.entries(PATH_TO_SCREEN).map(([path, screenName]) => [screenName, path])
 );
 
+// Title and meta description per screen, so a browser tab, history
+// entry, or bookmark for one page doesn't look identical to another.
+const SITE_HOST = "https://chessloop.vercel.app";
+const SCREEN_META = {
+  landing: { title: "ChessLoop", description: "Learn chess from your first move to real tactics, at your own pace." },
+  diagnostic: { title: "Diagnostic quiz, ChessLoop", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
+  results: { title: "Your results, ChessLoop", description: "Your diagnostic quiz results and recommended starting tier." },
+  lessons: { title: "Lessons, ChessLoop", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
+  "lessons-zk": { title: "Lesson 1, ChessLoop", description: "Start from the very beginning: how each piece moves, one step at a time." },
+  guided: { title: "Guided first game, ChessLoop", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
+  mistakes: { title: "Common beginner mistakes, ChessLoop", description: "The mistakes that decide most beginner games, and what to do instead." },
+  glossary: { title: "Glossary, ChessLoop", description: "Chess terms used across ChessLoop's lessons and coaching, in one place." },
+  play: { title: "Play, ChessLoop", description: "Play a practice game with a live coach, or play against the built in computer at any difficulty." },
+  live: { title: "Live match, ChessLoop", description: "Real time chess matches against another signed in player, with time controls and ratings." },
+  rush: { title: "Puzzle Rush, ChessLoop", description: "Solve as many puzzles as you can before the clock runs out." },
+  profile: { title: "Profile, ChessLoop", description: "Your ratings, lessons mastered, and earned badges." },
+  admin: { title: "Admin, ChessLoop", description: "Tester activity and feedback." },
+  privacy: { title: "Privacy, ChessLoop", description: "What ChessLoop collects and how it's used during the closed beta." },
+  notfound: { title: "Page not found, ChessLoop", description: "This page doesn't exist." },
+};
 
 // ================= App shell =================
 export default function ChessLoopApp(){
@@ -186,17 +207,31 @@ export default function ChessLoopApp(){
 
   const location = useLocation();
   const navigate = useNavigate();
-  const screen = PATH_TO_SCREEN[location.pathname] || "landing";
+  const screen = PATH_TO_SCREEN[location.pathname] || (location.pathname === "/" ? "landing" : "notfound");
   function setScreen(nextScreen) {
     const path = SCREEN_TO_PATH[nextScreen] || "/";
     if (path !== location.pathname) navigate(path);
   }
 
+  useEffect(() => {
+    const meta = SCREEN_META[screen] || SCREEN_META.landing;
+    document.title = meta.title;
+    const descTag = document.querySelector('meta[name="description"]');
+    if (descTag) descTag.setAttribute("content", meta.description);
+    const canonicalTag = document.querySelector('link[rel="canonical"]');
+    if (canonicalTag) canonicalTag.setAttribute("href", SITE_HOST + location.pathname);
+    const ogTitle = document.querySelector('meta[property="og:title"]');
+    if (ogTitle) ogTitle.setAttribute("content", meta.title);
+    const ogDesc = document.querySelector('meta[property="og:description"]');
+    if (ogDesc) ogDesc.setAttribute("content", meta.description);
+    const ogUrl = document.querySelector('meta[property="og:url"]');
+    if (ogUrl) ogUrl.setAttribute("content", SITE_HOST + location.pathname);
+  }, [screen, location.pathname]);
+
   const [qIndex, setQIndex] = useState(0);
   const [answers, setAnswers] = useState({});
   const [quizQuestions, setQuizQuestions] = useState(() => sampleQuizQuestions());
   const [navOpen, setNavOpen] = useState(false);
-  const [darkMode] = useState(false);
   const [completedIds, setCompletedIds] = useState(new Set());
   const [dailyPuzzleOpen, setDailyPuzzleOpen] = useState(false);
   const [boardThemeKey, setBoardThemeKey] = useState("brown");
@@ -349,11 +384,11 @@ export default function ChessLoopApp(){
     }
   }
 
-  const pageBg = darkMode ? "#1B2430" : "#FFF8EF";
-  const panelBg = darkMode ? "#232E3D" : "#FFFFFF";
-  const textMain = darkMode ? "#EDE6D6" : "#2B2620";
-  const textMuted = darkMode ? "#8791A1" : "#6B6355";
-  const borderCol = darkMode ? "#2E3A4C" : "#ECE4D6";
+  const pageBg = "#FFF8EF";
+  const panelBg = "#FFFFFF";
+  const textMain = "#2B2620";
+  const textMuted = "#6B6355";
+  const borderCol = "#ECE4D6";
   const accentGold = "#E2694B";
 
   const result = useMemo(()=> scoreQuiz(answers, quizQuestions), [answers, quizQuestions]);
@@ -707,6 +742,10 @@ export default function ChessLoopApp(){
 
         {screen==="privacy" && (
           <Privacy textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone} />
+        )}
+
+        {screen==="notfound" && (
+          <NotFound textMain={textMain} textMuted={textMuted} accentGold={accentGold} isPhone={isPhone} onGoHome={()=>setScreen("landing")} />
         )}
       </div>
 
