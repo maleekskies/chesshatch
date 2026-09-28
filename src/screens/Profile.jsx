@@ -36,7 +36,7 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
   }, [session]);
 
   if (!session?.user) {
-    return <p style={{ color: textMuted, fontSize: 13.5 }}>Sign in to see your profile.</p>;
+    return <p style={{ color: textMuted, fontSize: 13.5 }}>Accounts are switched off for now, so there's no profile to show yet.</p>;
   }
   if (loading) {
     return <p style={{ color: textMuted, fontSize: 13.5 }}>Loading…</p>;

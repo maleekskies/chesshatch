@@ -319,14 +319,11 @@ export default function ChessLoopApp(){
     else setWalkthroughStep(walkthroughStep + 1);
   }
 
-  // ---- Supabase auth (magic link) ----
+  // ---- Supabase auth ----
+  // The session is still tracked so a restored session keeps working (and
+  // so sign-in can be switched back on by restoring the auth UI), but no
+  // sign-in control is rendered for now.
   const [session, setSession] = useState(null);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [authMode, setAuthMode] = useState("signin"); // 'signin' | 'signup'
-  const [authError, setAuthError] = useState(null);
-  const [authLoading, setAuthLoading] = useState(false);
   const [savedThisResult, setSavedThisResult] = useState(false);
 
   useEffect(() => {
@@ -349,27 +346,6 @@ export default function ChessLoopApp(){
     });
     return () => listener.subscription.unsubscribe();
   }, []);
-
-  async function submitAuth() {
-    if (!email || !password) return;
-    setAuthLoading(true);
-    setAuthError(null);
-    const { error } =
-      authMode === "signin"
-        ? await supabase.auth.signInWithPassword({ email, password })
-        : await supabase.auth.signUp({ email, password });
-    setAuthLoading(false);
-    if (error) {
-      setAuthError(error.message);
-      return;
-    }
-    setAuthOpen(false);
-    setPassword("");
-  }
-  async function signOut() {
-    await supabase.auth.signOut();
-    setAuthOpen(false);
-  }
 
   async function markLessonComplete(lessonId) {
     const next = new Set(completedIds).add(lessonId);
@@ -457,10 +433,6 @@ export default function ChessLoopApp(){
               {session?.user?.email === "maleekade775@gmail.com" && (
                 <NavBtn active={screen==="admin"} onClick={()=>setScreen("admin")} textMain={textMain} accentGold={accentGold}>Admin</NavBtn>
               )}
-              <AuthControl session={session} authOpen={authOpen} setAuthOpen={setAuthOpen} email={email} setEmail={setEmail}
-                password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode}
-                authError={authError} authLoading={authLoading} submitAuth={submitAuth} signOut={signOut}
-                textMain={textMain} textMuted={textMuted} accentGold={accentGold} borderCol={borderCol} panelBg={panelBg}/>
             </div>
           )}
         </div>
@@ -486,12 +458,6 @@ export default function ChessLoopApp(){
             <div style={{ padding:"6px 12px", display:"flex", gap:8 }}>
               <BoardThemePicker boardThemeKey={boardThemeKey} setBoardThemeKey={setBoardThemeKey} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               <MoveFeedbackPicker feedbackMode={feedbackMode} setFeedbackModeState={updateFeedbackMode} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
-            </div>
-            <div style={{ marginTop:6 }}>
-              <AuthControl session={session} authOpen={authOpen} setAuthOpen={setAuthOpen} email={email} setEmail={setEmail}
-                password={password} setPassword={setPassword} authMode={authMode} setAuthMode={setAuthMode}
-                authError={authError} authLoading={authLoading} submitAuth={submitAuth} signOut={signOut}
-                textMain={textMain} textMuted={textMuted} accentGold={accentGold} borderCol={borderCol} panelBg={panelBg} full/>
             </div>
           </div>
         )}
@@ -665,13 +631,9 @@ export default function ChessLoopApp(){
             <p style={{ color:textMuted, fontSize:14, marginBottom:10 }}>
               {result.correct} of {result.total} correct. Each attempt draws a fresh, balanced set from a pool of over {DIAGNOSTIC_BEGINNER_POOL.length} verified positions, so retaking the quiz shows different questions.
             </p>
-            {session?.user ? (
+            {session?.user && (
               <p style={{ color: savedThisResult ? accentGold : textMuted, fontSize:12.5, marginBottom:20, fontFamily:"'IBM Plex Mono', monospace" }}>
                 {savedThisResult ? "Saved to your account." : "Saving…"}
-              </p>
-            ) : (
-              <p style={{ color:textMuted, fontSize:12.5, marginBottom:20 }}>
-                Sign in (top right) to save this result to your account.
               </p>
             )}
             <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:28 }}>
@@ -756,49 +718,6 @@ export default function ChessLoopApp(){
       </div>
 
       <FeedbackButton session={session} currentScreen={screen} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} />
-    </div>
-  );
-}
-
-function AuthControl({ session, authOpen, setAuthOpen, email, setEmail, password, setPassword, authMode, setAuthMode, authError, authLoading, submitAuth, signOut, textMain, textMuted, accentGold, borderCol, panelBg, full }) {
-  if (session?.user) {
-    return (
-      <div style={{ display:"flex", alignItems:"center", gap:8, width: full ? "100%" : "auto" }}>
-        <span style={{ fontSize:12, color:textMuted, fontFamily:"'IBM Plex Mono', monospace", overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap", maxWidth:140 }}>
-          {session.user.email}
-        </span>
-        <button onClick={signOut} style={{ background:"transparent", border:`1px solid ${borderCol}`, color:textMain, borderRadius:9, padding:"7px 10px", fontSize:12, cursor:"pointer" }}>
-          Sign out
-        </button>
-      </div>
-    );
-  }
-  return (
-    <div style={{ position:"relative", width: full ? "100%" : "auto" }}>
-      <button onClick={()=>setAuthOpen(v=>!v)} style={{ background: accentGold, color:"#FFFFFF", border:"none", borderRadius:9, padding:"8px 12px", fontSize:12.5, fontWeight:600, cursor:"pointer", width: full ? "100%" : "auto" }}>
-        Sign in
-      </button>
-      {authOpen && (
-        <div style={{ position: full ? "static" : "absolute", right:0, top: full ? "auto" : "calc(100% + 8px)", marginTop: full ? 8 : 0, background:panelBg, border:`1px solid ${borderCol}`, borderRadius:9, padding:12, width: full ? "100%" : 240, zIndex:20, boxSizing:"border-box" }}>
-          <div style={{ display:"flex", gap:6, marginBottom:10 }}>
-            <button onClick={()=>{setAuthMode("signin"); }} style={{ flex:1, background: authMode==="signin" ? "rgba(226,105,75,0.15)" : "transparent", border:`1px solid ${authMode==="signin"?accentGold:borderCol}`, color: authMode==="signin"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
-              Sign in
-            </button>
-            <button onClick={()=>{setAuthMode("signup"); }} style={{ flex:1, background: authMode==="signup" ? "rgba(226,105,75,0.15)" : "transparent", border:`1px solid ${authMode==="signup"?accentGold:borderCol}`, color: authMode==="signup"?accentGold:textMuted, borderRadius:6, padding:"5px 8px", fontSize:11.5, cursor:"pointer" }}>
-              Sign up
-            </button>
-          </div>
-          <input type="email" value={email} onChange={e=>setEmail(e.target.value)} placeholder="you@example.com"
-            style={{ width:"100%", boxSizing:"border-box", padding:"8px 10px", borderRadius:6, border:`1px solid ${borderCol}`, background:"transparent", color:textMain, fontSize:13, marginBottom:8 }}/>
-          <input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Password"
-            onKeyDown={(e)=>{ if(e.key==="Enter") submitAuth(); }}
-            style={{ width:"100%", boxSizing:"border-box", padding:"8px 10px", borderRadius:6, border:`1px solid ${borderCol}`, background:"transparent", color:textMain, fontSize:13, marginBottom:8 }}/>
-          <button onClick={submitAuth} disabled={authLoading} style={{ width:"100%", background:accentGold, color:"#FFFFFF", border:"none", borderRadius:6, padding:"8px 10px", fontSize:12.5, fontWeight:600, cursor:"pointer" }}>
-            {authLoading ? "…" : authMode==="signin" ? "Sign in" : "Create account"}
-          </button>
-          {authError && <div style={{ fontSize:11.5, color:"#E05B5B", marginTop:7 }}>{authError}</div>}
-        </div>
-      )}
     </div>
   );
 }

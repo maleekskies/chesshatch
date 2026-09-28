@@ -447,7 +447,7 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
         <div style={{ fontSize: 11, letterSpacing: "0.1em", textTransform: "uppercase", color: accentGold, marginBottom: 8 }}>Puzzle, {puzzle.motif}</div>
         <p style={{ color: textMuted, fontSize: 13.5, lineHeight: 1.6, marginBottom: 16 }}>Find the best move for White.</p>
         {!session?.user && (
-          <p style={{ color: textMuted, fontSize: 11.5, marginBottom: 12 }}>Sign in to have this scheduled for spaced review later.</p>
+          <p style={{ color: textMuted, fontSize: 11.5, marginBottom: 12 }}>Accounts are switched off for now, so this puzzle won't be scheduled for spaced review yet.</p>
         )}
         {result && (
           <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 14, background: result.good ? "rgba(226,105,75,0.1)" : "rgba(224,91,91,0.1)", border: `1px solid ${result.good ? accentGold : "#E05B5B"}`, fontSize: 13, color: textMain }}>

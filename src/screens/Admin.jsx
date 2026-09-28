@@ -44,7 +44,7 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
   }, [isAdmin]);
 
   if (!session?.user) {
-    return <p style={{ color: textMuted, fontSize: 13.5 }}>Sign in to view this page.</p>;
+    return <p style={{ color: textMuted, fontSize: 13.5 }}>The beta dashboard needs an account. Accounts are switched off for now.</p>;
   }
   if (!isAdmin) {
     return <p style={{ color: textMuted, fontSize: 13.5 }}>This page isn't available for your account.</p>;

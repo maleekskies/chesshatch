@@ -131,7 +131,7 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
         <h2 style={{ fontFamily: "'Poppins', sans-serif", fontSize: 24, fontWeight: 700, marginBottom: 8 }}>Run over</h2>
         <p style={{ color: textMain, fontSize: 16, marginBottom: 4 }}>Streak: <strong style={{ color: accentGold }}>{streak}</strong></p>
         {session?.user && <p style={{ color: textMuted, fontSize: 13, marginBottom: 20 }}>Best: {bestStreak}</p>}
-        {!session?.user && <p style={{ color: textMuted, fontSize: 12, marginBottom: 20 }}>Sign in to save your best streak.</p>}
+        {!session?.user && <p style={{ color: textMuted, fontSize: 12, marginBottom: 20 }}>Accounts are switched off for now, so this streak won't carry over to your next visit.</p>}
         <button onClick={start} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 8, padding: "11px 18px", fontSize: 13.5, fontWeight: 600, cursor: "pointer" }}>
           Try again
         </button>

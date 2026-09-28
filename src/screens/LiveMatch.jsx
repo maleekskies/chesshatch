@@ -242,7 +242,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
   const oppMs = role === "w" ? blackMs : whiteMs;
 
   if (!session?.user) {
-    return <p style={{ color: textMuted, fontSize: 13.5 }}>Sign in to play a live rated match against another tester.</p>;
+    return <p style={{ color: textMuted, fontSize: 13.5 }}>Live Match needs an account. Accounts are switched off for now, so this screen isn't available yet.</p>;
   }
 
   if (stage === "choose") {

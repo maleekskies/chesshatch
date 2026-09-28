@@ -1,0 +1,11 @@
+node_modules/
+dist/
+
+# Local secrets. README assumes this is ignored (the Supabase URL/key
+# live here and must never be committed), but no .gitignore existed.
+.env
+.env.local
+.env.*.local
+
+.DS_Store
+*.log
