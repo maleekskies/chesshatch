@@ -24,8 +24,31 @@ const GOLD = "#E2694B";
 // `onPieceDrop(from, to)` is called for both a valid drag-drop AND a
 // completed click-to-move sequence, every screen already implements
 // that one handler, so no screen needs to change to get either feature.
-export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white", theme, boardWidth = 420, arePiecesDraggable = true }) {
+//
+// Two opt-in extras for the beginner course, both additive so no existing
+// screen changes behavior:
+//   - `onSquareTap(square)`: fires for any tap that isn't being used to
+//     pick up or move a piece. That gives the square-naming lessons a way
+//     to ask "tap e4" without inventing a second board component.
+//   - `squareHighlights`: extra per-square styles (correct/incorrect
+//     feedback) merged on top of the selection styles.
+// Every board in the app is sized from window.innerWidth, and innerWidth can
+// briefly read 0 or 1 (a hidden tab, a zero-width iframe, some screenshot and
+// print paths). `innerWidth - 48` then goes negative, and react-chessboard
+// renders that straight through as negative SVG width/height attributes and
+// spams the console. Clamping here means no screen can ever hand the board a
+// width that isn't a real size.
+const MIN_BOARD_WIDTH = 200;
+const DEFAULT_BOARD_WIDTH = 420;
+
+export default function ChessBoard({
+  fen, onPieceDrop, boardOrientation = "white", theme, boardWidth = DEFAULT_BOARD_WIDTH,
+  arePiecesDraggable = true, onSquareTap, squareHighlights,
+}) {
   const [selectedSquare, setSelectedSquare] = useState(null);
+  const safeWidth = Number.isFinite(boardWidth) && boardWidth > 0
+    ? Math.max(MIN_BOARD_WIDTH, Math.round(boardWidth))
+    : DEFAULT_BOARD_WIDTH;
 
   // Rebuild the read-only validation instance whenever the position
   // changes, so legal-move highlighting and the snap-back check always
@@ -73,11 +96,20 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
     return accepted;
   }
 
+  // Can this tap be used to pick up or move a piece at all? On a board
+  // that isn't accepting moves (a lesson's "tap the square" step, or a
+  // read-only preview board) every tap is just a tap.
+  const canMovePieces = arePiecesDraggable && typeof onPieceDrop === "function" && !!chessRef;
+
   function handleSquareClick(square) {
-    if (!arePiecesDraggable || typeof onPieceDrop !== "function" || !chessRef) return;
+    if (!canMovePieces) {
+      onSquareTap?.(square);
+      return;
+    }
 
     if (!selectedSquare) {
       if (isOwnMovablePiece(square)) setSelectedSquare(square);
+      else onSquareTap?.(square);
       return;
     }
 
@@ -97,7 +129,9 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
     // Clicked a different square that isn't a legal target: if it's
     // another of the mover's own pieces, switch the selection to it;
     // otherwise just deselect.
-    setSelectedSquare(isOwnMovablePiece(square) ? square : null);
+    const ownPiece = isOwnMovablePiece(square);
+    setSelectedSquare(ownPiece ? square : null);
+    if (!ownPiece) onSquareTap?.(square);
   }
 
   const customSquareStyles = useMemo(() => {
@@ -111,8 +145,8 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
           : { boxShadow: `inset 0 0 0 0px transparent`, backgroundImage: "radial-gradient(circle, rgba(226,105,75,0.55) 18%, transparent 20%)" };
       }
     }
-    return styles;
-  }, [selectedSquare, selectedTargets, chessRef]);
+    return squareHighlights ? { ...styles, ...squareHighlights } : styles;
+  }, [selectedSquare, selectedTargets, chessRef, squareHighlights]);
 
   return (
     <Chessboard
@@ -120,7 +154,7 @@ export default function ChessBoard({ fen, onPieceDrop, boardOrientation = "white
       onPieceDrop={handlePieceDrop}
       onSquareClick={handleSquareClick}
       boardOrientation={boardOrientation}
-      boardWidth={boardWidth}
+      boardWidth={safeWidth}
       arePiecesDraggable={arePiecesDraggable}
       customSquareStyles={customSquareStyles}
       customBoardStyle={{

@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient.js";
 import Play from "./screens/Play.jsx";
 import Lessons, { PuzzleView } from "./screens/Lessons.jsx";
+import BeginnerCourse from "./screens/BeginnerCourse.jsx";
 import ChessBoard from "./components/ChessBoard.jsx";
 import LiveMatch from "./screens/LiveMatch.jsx";
 import PuzzleRush from "./screens/PuzzleRush.jsx";
@@ -19,7 +20,7 @@ import { SAMPLE_PUZZLES, TIER1_LESSONS } from "./data/lessons.js";
 import { DIAGNOSTIC_BEGINNER_POOL } from "./data/diagnosticPool.js";
 import { getFeedbackMode, setFeedbackMode as persistFeedbackMode } from "./lib/moveFeedback.js";
 import {
-  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Sparkles, Crown, Users
+  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Sparkles, Users
 } from "lucide-react";
 
 function useFonts() {
@@ -85,7 +86,7 @@ const THEMES = {
 // Brown and Blue match Lichess's actual published values; Green matches
 // the widely-used standard chess-board green palette; the accent UI
 // color (used for highlights/buttons, not the board itself) is
-// ChessLoop's own, not Lichess's.
+// Chess Hatch's own, not Lichess's.
 
 // ================= Diagnostic quiz content =================
 // The quiz draws from DIAGNOSTIC_BEGINNER_POOL (src/data/diagnosticPool.js),
@@ -179,27 +180,27 @@ const SCREEN_TO_PATH = Object.fromEntries(
 
 // Title and meta description per screen, so a browser tab, history
 // entry, or bookmark for one page doesn't look identical to another.
-const SITE_HOST = "https://chessloop.vercel.app";
+const SITE_HOST = "https://chesshatch.vercel.app";
 const SCREEN_META = {
-  landing: { title: "ChessLoop", description: "Learn chess from your first move to real tactics, at your own pace." },
-  diagnostic: { title: "Diagnostic quiz, ChessLoop", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
-  results: { title: "Your results, ChessLoop", description: "Your diagnostic quiz results and recommended starting tier." },
-  lessons: { title: "Lessons, ChessLoop", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
-  "lessons-zk": { title: "Lesson 1, ChessLoop", description: "Start from the very beginning: how each piece moves, one step at a time." },
-  guided: { title: "Guided first game, ChessLoop", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
-  mistakes: { title: "Common beginner mistakes, ChessLoop", description: "The mistakes that decide most beginner games, and what to do instead." },
-  glossary: { title: "Glossary, ChessLoop", description: "Chess terms used across ChessLoop's lessons and coaching, in one place." },
-  play: { title: "Play, ChessLoop", description: "Play a practice game with a live coach, or play against the built in computer at any difficulty." },
-  live: { title: "Live match, ChessLoop", description: "Real time chess matches against another signed in player, with time controls and ratings." },
-  rush: { title: "Puzzle Rush, ChessLoop", description: "Solve as many puzzles as you can before the clock runs out." },
-  profile: { title: "Profile, ChessLoop", description: "Your ratings, lessons mastered, and earned badges." },
-  admin: { title: "Admin, ChessLoop", description: "Tester activity and feedback." },
-  privacy: { title: "Privacy, ChessLoop", description: "What ChessLoop collects and how it's used during the closed beta." },
-  notfound: { title: "Page not found, ChessLoop", description: "This page doesn't exist." },
+  landing: { title: "Chess Hatch", description: "Learn chess from your first move to real tactics, at your own pace." },
+  diagnostic: { title: "Diagnostic quiz, Chess Hatch", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
+  results: { title: "Your results, Chess Hatch", description: "Your diagnostic quiz results and recommended starting tier." },
+  lessons: { title: "Lessons, Chess Hatch", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
+  "lessons-zk": { title: "Start from zero, Chess Hatch", description: "Twelve short, hands-on lessons for someone who has never played chess before." },
+  guided: { title: "Guided first game, Chess Hatch", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
+  mistakes: { title: "Common beginner mistakes, Chess Hatch", description: "The mistakes that decide most beginner games, and what to do instead." },
+  glossary: { title: "Glossary, Chess Hatch", description: "Chess terms used across Chess Hatch's lessons and coaching, in one place." },
+  play: { title: "Play, Chess Hatch", description: "Play a practice game with a live coach, or play against the built in computer at any difficulty." },
+  live: { title: "Live match, Chess Hatch", description: "Real time chess matches against another signed in player, with time controls and ratings." },
+  rush: { title: "Puzzle Rush, Chess Hatch", description: "Solve as many puzzles as you can before the clock runs out." },
+  profile: { title: "Profile, Chess Hatch", description: "Your ratings, lessons mastered, and earned badges." },
+  admin: { title: "Admin, Chess Hatch", description: "Tester activity and feedback." },
+  privacy: { title: "Privacy, Chess Hatch", description: "What Chess Hatch collects and how it's used during the closed beta." },
+  notfound: { title: "Page not found, Chess Hatch", description: "This page doesn't exist." },
 };
 
 // ================= App shell =================
-export default function ChessLoopApp(){
+export default function ChessHatchApp(){
   useFonts();
   const width = useWindowWidth();
   const streak = useStreak();
@@ -398,11 +399,15 @@ export default function ChessLoopApp(){
       {/* Nav */}
       <div role="navigation" aria-label="Main navigation" style={{ borderBottom:`1px solid ${borderCol}`, position:"sticky", top:0, background:pageBg, zIndex:10, paddingTop:"env(safe-area-inset-top)" }}>
         <div style={{ maxWidth:1080, margin:"0 auto", padding: isPhone ? "12px 16px" : "14px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
-          <div onClick={()=>setScreen("landing")} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:8 }}>
-            <div style={{ width:26, height:26, borderRadius:8, background:accentGold, display:"flex", alignItems:"center", justifyContent:"center" }}>
-              <Crown size={16} color="#FFFFFF"/>
-            </div>
-            <span style={{ fontFamily:"'Poppins', sans-serif", fontWeight:600, fontSize:17 }}>ChessLoop</span>
+          <div onClick={()=>setScreen("landing")} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:9, minWidth:0 }}>
+            <img
+              src="/logo-mark.png"
+              alt=""
+              width={32}
+              height={32}
+              style={{ width: isPhone ? 28 : 32, height: isPhone ? 28 : 32, display:"block", flexShrink:0 }}
+            />
+            <span style={{ fontFamily:"'Poppins', sans-serif", fontWeight:700, fontSize: isPhone ? 16 : 17.5, letterSpacing:"-0.01em", whiteSpace:"nowrap" }}>Chess Hatch</span>
           </div>
 
           {isPhone ? (
@@ -518,10 +523,10 @@ export default function ChessLoopApp(){
                 </div>
                 <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I'm new to chess</div>
                 <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
-                  Start from the very beginning: how each piece moves, one gentle step at a time.
+                  Start from zero: twelve short, hands-on lessons, beginning with the board itself and moving one idea at a time.
                 </p>
                 <button onClick={()=>setScreen("lessons-zk")} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
-                  Start with the basics <ChevronRight size={15}/>
+                  Start from zero <ChevronRight size={15}/>
                 </button>
                 <button onClick={()=>setScreen("guided")} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:12, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
                   Or try a short guided first game
@@ -566,7 +571,7 @@ export default function ChessLoopApp(){
 
             <div style={{ marginTop: isPhone?40:56, paddingTop: isPhone?28:36, borderTop:`1px solid ${borderCol}` }}>
               <p style={{ fontSize:13, fontWeight:600, color:textMuted, marginBottom:16 }}>
-                Why ChessLoop feels different
+                Why Chess Hatch feels different
               </p>
               <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:16 }}>
                 {[
@@ -664,9 +669,14 @@ export default function ChessLoopApp(){
           </div>
         )}
 
-        {(screen==="lessons"||screen==="lessons-zk") && (
+        {screen==="lessons-zk" && (
+          <BeginnerCourse theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
+            session={session} onExit={()=>setScreen("landing")} onEarnBadge={celebrateBadge} />
+        )}
+
+        {screen==="lessons" && (
           <Lessons theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
-            onLessonComplete={markLessonComplete} completedIds={completedIds} session={session} autoOpenFirstLesson={screen==="lessons-zk"} onShowMistakes={()=>setScreen("mistakes")} onShowGlossary={()=>setScreen("glossary")} onEarnBadge={celebrateBadge} />
+            onLessonComplete={markLessonComplete} completedIds={completedIds} session={session} onShowMistakes={()=>setScreen("mistakes")} onShowGlossary={()=>setScreen("glossary")} onEarnBadge={celebrateBadge} />
         )}
 
         {screen==="mistakes" && (

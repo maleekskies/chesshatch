@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://chessloop.vercel.app/sitemap.xml
+Sitemap: https://chesshatch.vercel.app/sitemap.xml

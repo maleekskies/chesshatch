@@ -3,7 +3,7 @@
 // "rating period" with one result), which is the standard simplification
 // for real-time/incremental rating systems rather than batched periods.
 // this is a well-documented approach, not a shortcut specific to
-// ChessHatch. Reference: Glickman, "Example of the Glicko-2 system".
+// Chess Hatch. Reference: Glickman, "Example of the Glicko-2 system".
 
 const SCALE = 173.7178;
 const TAU = 0.5; // system volatility constraint, Glickman's recommended default range is 0.3-1.2

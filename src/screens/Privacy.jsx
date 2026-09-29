@@ -9,7 +9,7 @@ export default function Privacy({ textMain, textMuted, panelBg, borderCol, accen
         Privacy, what we collect and why
       </h2>
       <p style={{ color: textMuted, fontSize: 13, marginBottom: 24 }}>
-        Last updated for the closed beta. ChessLoop is not monetized and your data is never sold or used for advertising.
+        Last updated for the closed beta. Chess Hatch is not monetized and your data is never sold or used for advertising.
       </p>
 
       <Section title="What we collect" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>

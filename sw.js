@@ -1,7 +1,7 @@
 // A deliberately simple, hand-rolled service worker, there's no
 // vite-plugin-pwa here (no network access to install it in this
 // sandbox), so this is plain runtime caching rather than a build-time
-// precache manifest. Practical effect: ChessHatch becomes installable
+// precache manifest. Practical effect: Chess Hatch becomes installable
 // immediately, and becomes usable offline once you've opened it while
 // online at least once (the shell + whatever pages you've visited get
 // cached as you go), not offline-capable from a completely fresh
@@ -30,7 +30,7 @@ self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
-  // Only ever cache ChessHatch's own same-origin static assets, never
+  // Only ever cache Chess Hatch's own same-origin static assets, never
   // Supabase API calls or anything cross-origin. That guarantees you
   // always see live account/game data, never a stale cached response
   // for anything that matters.

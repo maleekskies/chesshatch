@@ -11,7 +11,7 @@ export default function NotFound({ textMain, textMuted, accentGold, isPhone, onG
         The link you followed might be broken, or the page may have moved.
       </p>
       <button onClick={onGoHome} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 16, padding: "12px 22px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
-        Back to ChessHatch
+        Back to Chess Hatch
       </button>
     </div>
   );

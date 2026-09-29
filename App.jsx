@@ -85,7 +85,7 @@ const THEMES = {
 // Brown and Blue match Lichess's actual published values; Green matches
 // the widely-used standard chess-board green palette; the accent UI
 // color (used for highlights/buttons, not the board itself) is
-// ChessHatch's own, not Lichess's.
+// Chess Hatch's own, not Lichess's.
 
 // ================= Diagnostic quiz content =================
 // The quiz draws from DIAGNOSTIC_BEGINNER_POOL (src/data/diagnosticPool.js),
@@ -181,21 +181,21 @@ const SCREEN_TO_PATH = Object.fromEntries(
 // entry, or bookmark for one page doesn't look identical to another.
 const SITE_HOST = "https://chesshatch.vercel.app";
 const SCREEN_META = {
-  landing: { title: "ChessHatch", description: "Learn chess from your first move to real tactics, at your own pace." },
-  diagnostic: { title: "Diagnostic quiz, ChessHatch", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
-  results: { title: "Your results, ChessHatch", description: "Your diagnostic quiz results and recommended starting tier." },
-  lessons: { title: "Lessons, ChessHatch", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
-  "lessons-zk": { title: "Lesson 1, ChessHatch", description: "Start from the very beginning: how each piece moves, one step at a time." },
-  guided: { title: "Guided first game, ChessHatch", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
-  mistakes: { title: "Common beginner mistakes, ChessHatch", description: "The mistakes that decide most beginner games, and what to do instead." },
-  glossary: { title: "Glossary, ChessHatch", description: "Chess terms used across ChessHatch's lessons and coaching, in one place." },
-  play: { title: "Play, ChessHatch", description: "Play a practice game with a live coach, or play against the built in computer at any difficulty." },
-  live: { title: "Live match, ChessHatch", description: "Real time chess matches against another signed in player, with time controls and ratings." },
-  rush: { title: "Puzzle Rush, ChessHatch", description: "Solve as many puzzles as you can before the clock runs out." },
-  profile: { title: "Profile, ChessHatch", description: "Your ratings, lessons mastered, and earned badges." },
-  admin: { title: "Admin, ChessHatch", description: "Tester activity and feedback." },
-  privacy: { title: "Privacy, ChessHatch", description: "What ChessHatch collects and how it's used during the closed beta." },
-  notfound: { title: "Page not found, ChessHatch", description: "This page doesn't exist." },
+  landing: { title: "Chess Hatch", description: "Learn chess from your first move to real tactics, at your own pace." },
+  diagnostic: { title: "Diagnostic quiz, Chess Hatch", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
+  results: { title: "Your results, Chess Hatch", description: "Your diagnostic quiz results and recommended starting tier." },
+  lessons: { title: "Lessons, Chess Hatch", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
+  "lessons-zk": { title: "Lesson 1, Chess Hatch", description: "Start from the very beginning: how each piece moves, one step at a time." },
+  guided: { title: "Guided first game, Chess Hatch", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
+  mistakes: { title: "Common beginner mistakes, Chess Hatch", description: "The mistakes that decide most beginner games, and what to do instead." },
+  glossary: { title: "Glossary, Chess Hatch", description: "Chess terms used across Chess Hatch's lessons and coaching, in one place." },
+  play: { title: "Play, Chess Hatch", description: "Play a practice game with a live coach, or play against the built in computer at any difficulty." },
+  live: { title: "Live match, Chess Hatch", description: "Real time chess matches against another signed in player, with time controls and ratings." },
+  rush: { title: "Puzzle Rush, Chess Hatch", description: "Solve as many puzzles as you can before the clock runs out." },
+  profile: { title: "Profile, Chess Hatch", description: "Your ratings, lessons mastered, and earned badges." },
+  admin: { title: "Admin, Chess Hatch", description: "Tester activity and feedback." },
+  privacy: { title: "Privacy, Chess Hatch", description: "What Chess Hatch collects and how it's used during the closed beta." },
+  notfound: { title: "Page not found, Chess Hatch", description: "This page doesn't exist." },
 };
 
 // ================= App shell =================
@@ -426,7 +426,7 @@ export default function ChessHatchApp(){
             <div style={{ width:26, height:26, borderRadius:8, background:accentGold, display:"flex", alignItems:"center", justifyContent:"center" }}>
               <Crown size={16} color="#FFFFFF"/>
             </div>
-            <span style={{ fontFamily:"'Poppins', sans-serif", fontWeight:600, fontSize:17 }}>ChessHatch</span>
+            <span style={{ fontFamily:"'Poppins', sans-serif", fontWeight:600, fontSize:17 }}>Chess Hatch</span>
           </div>
 
           {isPhone && (
@@ -607,7 +607,7 @@ export default function ChessHatchApp(){
 
             <div style={{ marginTop: isPhone?40:56, paddingTop: isPhone?28:36, borderTop:`1px solid ${borderCol}` }}>
               <p style={{ fontSize:13, fontWeight:600, color:textMuted, marginBottom:16 }}>
-                Why ChessHatch feels different
+                Why Chess Hatch feels different
               </p>
               <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:16 }}>
                 {[

@@ -14,7 +14,7 @@ if (!supabaseUrl || !supabaseAnonKey) {
   // with no clue why. Warn instead, and let the app render; auth/save
   // features just won't work until the env vars are set.
   console.warn(
-    "[ChessLoop] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
+    "[Chess Hatch] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. " +
     "Sign-in and saving results won't work until these are set " +
     "(locally in .env.local, or as environment variables in your " +
     "hosting platform's dashboard for a deployed site)."

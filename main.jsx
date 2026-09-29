@@ -20,7 +20,7 @@ class ErrorBoundary extends React.Component {
     if (this.state.error) {
       return (
         <div style={{ padding: 24, fontFamily: "monospace", color: "#F2F2F5", background: "#060B14", minHeight: "100vh" }}>
-          <h2 style={{ color: "#E05B5B" }}>ChessHatch crashed on load</h2>
+          <h2 style={{ color: "#E05B5B" }}>Chess Hatch crashed on load</h2>
           <p>{String(this.state.error?.message || this.state.error)}</p>
           <p style={{ color: "#8791A1", fontSize: 13, marginTop: 16 }}>
             Check the browser console (F12) for the full stack trace. If this

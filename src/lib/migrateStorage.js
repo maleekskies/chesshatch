@@ -1,6 +1,6 @@
 // One-time migration from the old "chesspath_*" localStorage key names
 // to "chessloop_*", after the app was renamed from ChessPath to
-// ChessLoop. Copies each old key's value across (without overwriting
+// Chess Hatch. Copies each old key's value across (without overwriting
 // an existing new-key value, in case this somehow runs twice) and
 // removes the old key, so testers who already used the app keep their
 // streak, badges, and preferences instead of the rename silently

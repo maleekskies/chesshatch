@@ -1,4 +1,4 @@
-# ChessHatch
+# Chess Hatch
 
 A free chess learning platform for complete beginners through advanced
 players, learning-first rather than play-first. Vite + React frontend,
@@ -50,6 +50,13 @@ any dev environment with npm.)
 
 ### Screens (`src/screens/`)
 
+- `BeginnerCourse.jsx`: the "Start from zero" beginner course — a
+  12-lesson hub plus a board-first lesson runner. One idea per lesson,
+  an interactive board as the primary element, immediate feedback on
+  every move, a hint and a "Show me" reveal, and per-step progress that
+  is saved so a returning learner resumes where they left off. Every
+  move a learner makes is validated against the live position with
+  chess.js, so an illegal move is refused and never advances the lesson.
 - `Lessons.jsx`: Tier 1 (18 lessons) and Tier 2 (4 lessons) flow.
   Movement lessons and Q&A lessons end straight in a "got it, continue."
   Puzzle-based lessons flow into a matched puzzle. Also owns the
@@ -94,6 +101,14 @@ any dev environment with npm.)
 
 ### Core logic (`src/lib/`)
 
+- `lessonEngine.js`: move validation for the beginner course. It judges
+  a dropped move against the step's `accept` spec (from/to square,
+  piece, capture/no-capture, check, mate) using chess.js rather than
+  comparing raw coordinates to a script, so a step can never accept a
+  move that isn't legal in the position on the board.
+- `../data/beginnerCourse.js`: the beginner course content itself — 12
+  lessons / 43 steps, each step a FEN, a task, a validated `accept`
+  spec, and optional scripted opponent replies.
 - `coach.js`: after every move, checks whether the piece that just
   moved is attacked and undefended, and flags unfavorable trades.
   Independent of chess.js's turn-based move generator on purpose,
@@ -171,6 +186,14 @@ migrations:
 
 ### Other
 
+- `scripts/verify-beginner-course.mjs`: offline verifier for the
+  beginner course. It replays every scripted move against chess.js,
+  checks that each lesson's expected answer is actually legal in its
+  FEN, and asserts the rule edge cases the course teaches (check,
+  castling including castling through/out of check, en passant,
+  promotion, stalemate). Run it with
+  `node scripts/verify-beginner-course.mjs` — it currently reports 47
+  checks, 0 failures.
 - `scripts/import-lichess-puzzles.mjs`: replaces the small hand-
   verified puzzle sample with the full tagged Lichess open puzzle
   database (CC0). See "Honest limitations" below for why it hasn't
@@ -223,12 +246,10 @@ These are real, current constraints, not disclaimers to skip over:
   There are landmark roles and an `aria-live` region on the coach's
   messages, but full keyboard chess-move input is a genuinely larger
   piece of work not built yet.
-- **URL-based routing has not been added yet.** Every screen is still
-  a JavaScript state variable rather than a real URL, so the browser's
-  back and forward buttons don't move between screens inside the app,
-  and refreshing the page always returns to the landing screen.
-  `react-router-dom` is already a project dependency but isn't wired
-  up yet.
+- **Routing is client-side (`react-router-dom`).** Screens have real
+  URLs, back and forward move between them inside the app, and a
+  refresh keeps you on the current screen; a deep link relies on the
+  host's SPA fallback.
 - **Everything chess-related that ships here was independently
   verified before being written.** Lesson FENs, the guided game's
   moves, the Glicko-2 math, all using hand-rolled checkers where no
@@ -240,8 +261,8 @@ These are real, current constraints, not disclaimers to skip over:
 
 ## Next steps
 
-- Real URL-based routing with `react-router-dom`, so back and forward
-  work and a refresh doesn't drop the person back at the landing page
+- Grow the beginner course (currently 12 lessons / 43 steps) and add
+  spaced-repetition review of the concepts a learner gets wrong
 - Build the diagnostic quiz out toward genuinely verified,
   position-based questions at real scale, rather than the current
   small set of text trivia questions

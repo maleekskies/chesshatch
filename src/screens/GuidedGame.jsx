@@ -129,7 +129,7 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
               <p style={{ fontSize: 12.5, color: textMuted, lineHeight: 1.5, marginBottom: 12 }}>{GUIDED_FIRST_GAME.outro}</p>
               <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                 <button onClick={onGoToLessons} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 7, padding: "9px 14px", fontSize: 12.5, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 5 }}>
-                  Start Tier 1 lessons <ChevronRight size={13} />
+                  Start the beginner course <ChevronRight size={13} />
                 </button>
                 <button onClick={onGoToPlay} style={{ background: "transparent", color: textMain, border: `1px solid ${borderCol}`, borderRadius: 7, padding: "9px 14px", fontSize: 12.5, cursor: "pointer" }}>
                   Play freely

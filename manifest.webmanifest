@@ -1,6 +1,6 @@
 {
-  "name": "ChessHatch",
-  "short_name": "ChessHatch",
+  "name": "Chess Hatch",
+  "short_name": "Chess Hatch",
   "description": "Learn chess from your first move to real tactics, at your own pace.",
   "start_url": "/",
   "display": "standalone",

@@ -1,4 +1,4 @@
-// ChessHatch live coach, rule-based move feedback for beginners.
+// Chess Hatch live coach, rule-based move feedback for beginners.
 // Deliberately independent of chess.js's turn-based legal-move generator,
 // because "is this square attacked/defended" needs to be checked for
 // EITHER color regardless of whose turn it is. Works directly off the

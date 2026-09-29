@@ -29,7 +29,7 @@ export default function Glossary({ textMain, textMuted, panelBg, borderCol, acce
         </h2>
       </div>
       <p style={{ color: textMuted, fontSize: 13.5, lineHeight: 1.6, marginBottom: 18, maxWidth: 560 }}>
-        Every chess term used across ChessHatch's lessons and coaching, in one place, the same definitions you'll see if you hover a highlighted word mid-lesson.
+        Every chess term used across Chess Hatch's lessons and coaching, in one place, the same definitions you'll see if you hover a highlighted word mid-lesson.
       </p>
 
       <div style={{ marginBottom: 20 }}>

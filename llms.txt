@@ -1,6 +1,6 @@
-# ChessHatch
+# Chess Hatch
 
-ChessHatch is a free chess learning platform for complete beginners
+Chess Hatch is a free chess learning platform for complete beginners
 through intermediate players. It is not monetized and is currently in
 closed beta.
 

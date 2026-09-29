@@ -1,4 +1,4 @@
-# ChessHatch Beta: Tester Onboarding Plan
+# Chess Hatch Beta: Tester Onboarding Plan
 
 A real testing plan, not just "here's a link, try it." The point of
 testing across skill levels is to learn different things from each
