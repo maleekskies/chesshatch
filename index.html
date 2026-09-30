@@ -6,7 +6,6 @@
     <title>Chess Hatch</title>
     <meta name="description" content="Learn chess from your first move to real tactics, at your own pace." />
     <link rel="canonical" href="https://chesshatch.vercel.app/" />
-    <meta name="theme-color" content="#FFF8EF" />
     <link rel="manifest" href="/manifest.webmanifest" />
     <link rel="icon" href="/logo-mark.png" type="image/png" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -23,10 +22,34 @@
     <meta name="twitter:image" content="https://chesshatch.vercel.app/icon-512.png" />
 
     <style>
-      /* Inline, loads instantly. Prevents a white flash before the
-         bundled CSS/JS finishes loading, especially on a slower connection. */
-      html, body { margin: 0; padding: 0; background: #FFF8EF; }
+      /* Inline, loads instantly. Prevents a flash of the wrong theme
+         before the bundled CSS/JS finishes loading, especially on a
+         slower connection. --ch-bg is stamped by the script below. */
+      html, body { margin: 0; padding: 0; background: var(--ch-bg, #FFF8EF); }
     </style>
+    <script>
+      /* Same palette and same localStorage key as src/lib/theme.js.
+         Runs before first paint so a dark-theme visitor never sees the
+         cream app flash white-to-dark on reload. */
+      (function () {
+        try {
+          var stored = localStorage.getItem("chesshatch_theme") || localStorage.getItem("chessloop_theme");
+          var mode = stored === "light" || stored === "dark"
+            ? stored
+            : (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+          var bg = mode === "dark" ? "#17110D" : "#FFF8EF";
+          var root = document.documentElement;
+          root.setAttribute("data-theme", mode);
+          root.style.colorScheme = mode;
+          root.style.setProperty("--ch-bg", bg);
+          root.style.backgroundColor = bg;
+          var meta = document.createElement("meta");
+          meta.setAttribute("name", "theme-color");
+          meta.setAttribute("content", bg);
+          document.head.appendChild(meta);
+        } catch (e) { /* private mode: stay on the light default */ }
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>

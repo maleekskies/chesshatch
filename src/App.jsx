@@ -21,9 +21,21 @@ import { SAMPLE_PUZZLES, TIER1_LESSONS } from "./data/lessons.js";
 import { TACTIC_SERIES } from "./data/tacticSeries.js";
 import { BOT_LADDER, readUnlockedCount } from "./lib/botLadder.js";
 import { getFeedbackMode, setFeedbackMode as persistFeedbackMode } from "./lib/moveFeedback.js";
+import { THEME_TOKENS, useThemeMode, useThemedTransition } from "./lib/theme.js";
 import {
-  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Users
+  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Users, Sun, Moon
 } from "lucide-react";
+
+// Turn a palette hex into an rgba tint. Lets a themed colour be used as a
+// soft background/glow at a chosen opacity, so tinted accents read
+// correctly on both the cream and the dark surfaces without a second set
+// of hardcoded values.
+function tint(hex, alpha) {
+  const clean = String(hex).replace("#", "");
+  const full = clean.length === 3 ? clean.split("").map((c) => c + c).join("") : clean;
+  const n = parseInt(full, 16);
+  return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, ${alpha})`;
+}
 
 function useFonts() {
   useEffect(() => {
@@ -161,6 +173,12 @@ export default function ChessHatchApp(){
   const width = useWindowWidth();
   const streak = useStreak();
   const isPhone = width < 560;
+
+  // Light / dark. The choice lives on the document (so the pre-paint
+  // script in index.html and this state agree), and the same six tokens
+  // every screen already consumes just change value.
+  const { mode: themeMode, toggle: toggleTheme } = useThemeMode();
+  useThemedTransition(themeMode);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -313,12 +331,15 @@ export default function ChessHatchApp(){
     }
   }
 
-  const pageBg = "#FFF8EF";
-  const panelBg = "#FFFFFF";
-  const textMain = "#2B2620";
-  const textMuted = "#6B6355";
-  const borderCol = "#ECE4D6";
-  const accentGold = "#E2694B";
+  // One palette per mode, handed to every screen through the same six
+  // prop names the app already used, so nothing downstream changes.
+  const { pageBg, panelBg, textMain, textMuted, borderCol, accentGold } = THEME_TOKENS[themeMode];
+  const isDarkTheme = themeMode === "dark";
+  // The landing cards lean on two secondary accents (a green for
+  // Intermediate, a blue for Play). Lifted brighter on dark so they keep
+  // their contrast against the dark surface.
+  const accentGreen = isDarkTheme ? "#8FC46B" : "#4E7A3A";
+  const accentBlue = isDarkTheme ? "#8FA5EE" : "#4A63C2";
 
   // Recomputed whenever the screen changes so the landing card's
   // "N of 9 unlocked" line is fresh after a ladder game or a reset,
@@ -326,7 +347,7 @@ export default function ChessHatchApp(){
   const botsUnlockedCount = useMemo(() => readUnlockedCount(), [screen]);
 
   return (
-    <div style={{ minHeight:"100%", background:pageBg, color:textMain, fontFamily:"'Inter', system-ui, sans-serif", overflowX:"hidden" }}>
+    <div style={{ minHeight:"100%", background:`radial-gradient(120% 70% at 50% -12%, ${panelBg} 0%, ${pageBg} 58%)`, backgroundColor:pageBg, color:textMain, fontFamily:"'Inter', system-ui, sans-serif", overflowX:"hidden" }}>
       {/* Nav */}
       <div role="navigation" aria-label="Main navigation" className="ch-navbar"
         style={{ "--ch-border": borderCol, paddingTop:"env(safe-area-inset-top)" }}>
@@ -368,6 +389,7 @@ export default function ChessHatchApp(){
                 )}
               </div>
               <span className="ch-navshell-divider" aria-hidden="true" />
+              <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
               <BoardThemePicker boardThemeKey={boardThemeKey} setBoardThemeKey={setBoardThemeKey} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               <MoveFeedbackPicker feedbackMode={feedbackMode} setFeedbackModeState={updateFeedbackMode} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               {session?.user?.email === "maleekade775@gmail.com" && (
@@ -395,7 +417,8 @@ export default function ChessHatchApp(){
                 {session?.user && <NavBtn full active={screen==="profile"} onClick={()=>{setScreen("profile"); setNavOpen(false);}} textMain={textMain} accentGold={accentGold}>Profile</NavBtn>}
               </>
             )}
-            <div style={{ padding:"6px 12px", display:"flex", gap:8 }}>
+            <div style={{ padding:"6px 12px", display:"flex", gap:8, alignItems:"center" }}>
+              <ThemeToggle mode={themeMode} onToggle={toggleTheme} />
               <BoardThemePicker boardThemeKey={boardThemeKey} setBoardThemeKey={setBoardThemeKey} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               <MoveFeedbackPicker feedbackMode={feedbackMode} setFeedbackModeState={updateFeedbackMode} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
             </div>
@@ -453,7 +476,7 @@ export default function ChessHatchApp(){
 
             <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:18 }}>
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
-                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(226,105,75,0.14)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                <div style={{ width:46, height:46, borderRadius:16, background:tint(accentGold, isDarkTheme ? 0.20 : 0.14), display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
                   <BookOpen size={20} color={accentGold}/>
                 </div>
                 <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I'm new to chess</div>
@@ -469,8 +492,8 @@ export default function ChessHatchApp(){
               </div>
 
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
-                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(78,122,58,0.12)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
-                  <TrendingUp size={20} color="#4E7A3A"/>
+                <div style={{ width:46, height:46, borderRadius:16, background:tint(accentGreen, isDarkTheme ? 0.18 : 0.12), display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                  <TrendingUp size={20} color={accentGreen}/>
                 </div>
                 <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>Intermediate</div>
                 <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:14, flexGrow:1 }}>
@@ -481,7 +504,7 @@ export default function ChessHatchApp(){
                   {TACTIC_SERIES.map((tactic) => (
                     <span key={tactic.id} title={tactic.tagline} style={{
                       display:"inline-flex", alignItems:"center", fontSize:10.5,
-                      color:textMain, background:"rgba(226,105,75,0.12)",
+                      color:textMain, background:tint(accentGold, isDarkTheme ? 0.18 : 0.12),
                       border:`1px solid ${borderCol}`,
                       borderRadius:20, padding:"3px 8px", whiteSpace:"nowrap",
                     }}>
@@ -498,14 +521,14 @@ export default function ChessHatchApp(){
               </div>
 
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
-                <div style={{ width:46, height:46, borderRadius:16, background:"rgba(74,99,194,0.12)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
-                  <Users size={20} color="#4A63C2"/>
+                <div style={{ width:46, height:46, borderRadius:16, background:tint(accentBlue, isDarkTheme ? 0.18 : 0.12), display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
+                  <Users size={20} color={accentBlue}/>
                 </div>
                 <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I just want to play</div>
                 <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
                   Jump straight into a game against a friend or the computer, no setup needed.
                 </p>
-                <button onClick={()=>setScreen("play")} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                <button onClick={()=>setScreen("play")} style={{ background:isDarkTheme ? "#2E231C" : "#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
                   Start a game <ChevronRight size={15}/>
                 </button>
                 <button onClick={()=>{ setDailyPuzzleOpen(true); setScreen("landing"); }} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:12, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
@@ -669,6 +692,36 @@ function BoardThemePicker({ boardThemeKey, setBoardThemeKey, textMuted, borderCo
         </div>
       )}
     </div>
+  );
+}
+
+// The light/dark switch. Deliberately the boldest small control in the
+// nav: a glossy two-tone capsule with a sliding knob, one bright icon per
+// side, and a warm glow on the active side. The active side inverts
+// between themes (sun on light, moon on dark) but the capsule itself
+// keeps the same dark, high-contrast chrome in both, so it always reads
+// as "the theme switch" instead of blending into the background.
+function ThemeToggle({ mode, onToggle }){
+  const isDark = mode === "dark";
+  return (
+    <button
+      type="button"
+      className="ch-themetoggle"
+      data-mode={mode}
+      onClick={onToggle}
+      aria-label={isDark ? "Switch to light theme" : "Switch to dark theme"}
+      aria-pressed={isDark}
+      title={isDark ? "Light theme" : "Dark theme"}
+    >
+      <span className="ch-themetoggle-glow" aria-hidden="true" />
+      <span className="ch-themetoggle-track">
+        <span className="ch-themetoggle-icon is-sun" aria-hidden="true"><Sun size={14} strokeWidth={2.4}/></span>
+        <span className="ch-themetoggle-icon is-moon" aria-hidden="true"><Moon size={13.5} strokeWidth={2.4}/></span>
+      </span>
+      <span className="ch-themetoggle-knob" aria-hidden="true">
+        {isDark ? <Moon size={12.5} strokeWidth={2.6}/> : <Sun size={12.5} strokeWidth={2.6}/>}
+      </span>
+    </button>
   );
 }
 
