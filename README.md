@@ -43,6 +43,12 @@ any dev environment with npm.)
 
 ### App shell
 
+- Routing split (`src/main.jsx`): `/` is the motion landing page
+  (`src/screens/MotionLanding.jsx`) — the looping hero clip with the
+  reference's top-right menu, and nothing else. Every other path is the
+  app, unchanged. The app's own home screen moved from `/` to `/home`,
+  so an in-app Home button returns to the app rather than to the
+  landing page.
 - `src/App.jsx`: nav, landing page, diagnostic quiz, results screen,
   routing, the first-visit nav walkthrough, and the badge-earned toast.
 - `src/main.jsx`: entry point, crash error boundary, service worker
@@ -50,6 +56,15 @@ any dev environment with npm.)
 
 ### Screens (`src/screens/`)
 
+- `MotionLanding.jsx`: the first screen at `/`. Muted, looping,
+  `playsInline` autoplay with no player chrome, a poster frame
+  underneath it, a still-frame fallback for `prefers-reduced-motion`,
+  and a retry-on-first-interaction if autoplay is refused. The clip's
+  own frame already contains a mock menu card in its right quarter, so
+  the page only ever shows the left 552px of the 736x400 frame and
+  renders the real, clickable menu on top. Wide viewports get the clip
+  full-bleed; portrait viewports get a full-width uncropped band with
+  the menu beneath it.
 - `BeginnerCourse.jsx`: the "Start from zero" beginner course — a
   12-lesson hub plus a board-first lesson runner. One idea per lesson,
   an interactive board as the primary element, immediate feedback on
@@ -249,7 +264,8 @@ These are real, current constraints, not disclaimers to skip over:
 - **Routing is client-side (`react-router-dom`).** Screens have real
   URLs, back and forward move between them inside the app, and a
   refresh keeps you on the current screen; a deep link relies on the
-  host's SPA fallback.
+  host's SPA fallback. `/` is the motion landing page and the app's home
+  is `/home`.
 - **Everything chess-related that ships here was independently
   verified before being written.** Lesson FENs, the guided game's
   moves, the Glicko-2 math, all using hand-rolled checkers where no

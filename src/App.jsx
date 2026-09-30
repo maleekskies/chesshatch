@@ -159,7 +159,10 @@ function scoreQuiz(answers, questions){
 // and `setScreen` below is a thin wrapper around the router's
 // `navigate`, so nothing else in this file has to change.
 const PATH_TO_SCREEN = {
-  "/": "landing",
+  // "/" is the motion landing page (see src/main.jsx); the app's own
+  // home screen lives at "/home" so in-app Home buttons never send a
+  // visitor back to the landing page.
+  "/home": "landing",
   "/diagnostic": "diagnostic",
   "/results": "results",
   "/lessons": "lessons",
@@ -208,7 +211,7 @@ export default function ChessHatchApp(){
 
   const location = useLocation();
   const navigate = useNavigate();
-  const screen = PATH_TO_SCREEN[location.pathname] || (location.pathname === "/" ? "landing" : "notfound");
+  const screen = PATH_TO_SCREEN[location.pathname] || "notfound";
   function setScreen(nextScreen) {
     const path = SCREEN_TO_PATH[nextScreen] || "/";
     if (path !== location.pathname) navigate(path);

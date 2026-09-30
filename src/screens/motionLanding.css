@@ -1,0 +1,215 @@
+/* Motion landing page.
+   Everything here is namespaced under .ml-* and only ever rendered by
+   MotionLanding, so none of it can leak into the existing app screens. */
+
+/* index.css paints the body cream for the app; the landing page is a
+   dark screen, and this class is added/removed with the page. */
+.ml-body {
+  background: #0b0a0a;
+}
+
+.ml-stage {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #0b0a0a;
+}
+
+/* The clip's own frame is 736x400 and the mock menu card in it is baked
+   into the right ~25% of the pixels. We always show only the left 552px
+   of the frame, so that fake card can never sit behind the real menu.
+   In "wide" mode the media is laid out at full frame size and the layer
+   crops it; 552/400 = 0.7246 means the media must be at least 72.46vw
+   tall for the visible slice to stay inside those 552px. */
+.ml-media-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ml-media {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: max(100vh, calc(100vw * 400 / 552));
+  height: max(100dvh, calc(100vw * 400 / 552));
+  width: auto;
+  display: block;
+  pointer-events: none; /* the clip is scenery, never a play/pause target */
+  opacity: 0;
+  transition: opacity 0.7s ease;
+}
+
+.ml-media.is-ready {
+  opacity: 1;
+  transition: none;
+}
+
+/* The still frame sits underneath the video: it is what a visitor sees
+   before the first frame decodes, if autoplay is blocked, and instead of
+   the video entirely when they have asked for reduced motion. */
+.ml-poster {
+  opacity: 1;
+  transition: none;
+}
+
+.ml-ui {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: clamp(14px, 2vw, 26px);
+}
+
+.ml-menu {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(14, 13, 13, 0.55);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(14px) saturate(1.1);
+  -webkit-backdrop-filter: blur(14px) saturate(1.1);
+}
+
+.ml-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 52px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 1px solid transparent;
+  text-decoration: none;
+  color: #cbc5bd;
+  font-family: Poppins, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.18s ease, color 0.18s ease, border-color 0.18s ease;
+}
+
+.ml-item svg {
+  flex: 0 0 auto;
+  color: #b8b2aa;
+  transition: color 0.18s ease;
+}
+
+.ml-item span {
+  flex: 1 1 auto;
+  text-align: left;
+}
+
+.ml-item .ml-chev {
+  flex: 0 0 auto;
+  color: #8e8880;
+  opacity: 0.9;
+}
+
+/* The reference highlights the middle row; it stays the featured entry
+   into the site. */
+.ml-item.is-featured {
+  color: #e8be85;
+  border-color: rgba(232, 190, 133, 0.75);
+  background: linear-gradient(180deg, rgba(232, 190, 133, 0.1), rgba(232, 190, 133, 0.03));
+  box-shadow: 0 0 0 1px rgba(232, 190, 133, 0.16), 0 6px 22px rgba(232, 190, 133, 0.1);
+}
+
+.ml-item.is-featured svg,
+.ml-item.is-featured .ml-chev {
+  color: #e8be85;
+}
+
+@media (hover: hover) {
+  .ml-item:hover {
+    background-color: rgba(255, 255, 255, 0.06);
+    color: #f2ede6;
+  }
+  .ml-item:hover svg {
+    color: #ded8d0;
+  }
+  .ml-item.is-featured:hover {
+    border-color: rgba(240, 206, 155, 0.95);
+    background: linear-gradient(180deg, rgba(232, 190, 133, 0.16), rgba(232, 190, 133, 0.05));
+    box-shadow: 0 0 0 1px rgba(232, 190, 133, 0.3), 0 8px 26px rgba(232, 190, 133, 0.16);
+  }
+}
+
+.ml-item:active {
+  background-color: rgba(255, 255, 255, 0.1);
+  transform: translateY(1px);
+}
+
+.ml-item.is-featured:active {
+  background: rgba(232, 190, 133, 0.22);
+}
+
+.ml-item:focus-visible {
+  outline: 2px solid rgba(232, 190, 133, 0.9);
+  outline-offset: 2px;
+}
+
+/* Portrait / squarish viewports: a 1.84:1 clip cannot fill a phone
+   screen without either a heavy crop or a 2x upscale, so instead of
+   shrinking the desktop treatment the video becomes a full-width,
+   uncropped band and the menu sits beneath it. */
+@media (max-aspect-ratio: 1.2/1) {
+  .ml-stage {
+    position: relative;
+    min-height: 100vh;
+    min-height: 100dvh;
+    overflow-x: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ml-media-layer {
+    position: relative;
+    inset: auto;
+    width: 100%;
+    aspect-ratio: 552 / 400;
+    flex: 0 0 auto;
+  }
+
+  .ml-media {
+    position: absolute;
+    left: 0;
+    top: 0;
+    transform: none;
+    height: 100%;
+    width: 100%;
+    object-fit: cover;
+    object-position: left center;
+  }
+
+  .ml-ui {
+    position: relative;
+    inset: auto;
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 22px 18px calc(22px + env(safe-area-inset-bottom, 0px));
+  }
+
+  .ml-menu {
+    width: 100%;
+    max-width: 460px;
+  }
+
+  .ml-item {
+    height: 56px;
+  }
+}
+
+/* Someone who has asked their system for less motion gets a still frame
+   instead of six seconds of looping video; the menu works either way. */
+@media (prefers-reduced-motion: reduce) {
+  .ml-media {
+    transition: none;
+  }
+}
