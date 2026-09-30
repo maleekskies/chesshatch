@@ -6,6 +6,7 @@ import PromotionPicker from "../components/PromotionPicker.jsx";
 import { analyzeMove } from "../lib/coach.js";
 import { createEngine, DIFFICULTY_PRESETS } from "../lib/stockfish.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // Play screen: two modes.
 //  - "practice": pass-and-play, with the live coach commenting after
@@ -159,9 +160,14 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     });
   }
 
+  // Sized against the height of the window as well as the width: on a
+  // 1366x768 laptop the old 560px board plus the nav and the status row
+  // ran past the bottom of the screen, which is what made the page feel
+  // zoomed in. `max` still caps it at the original 560 on a big screen.
+  const { width: viewportW, height: viewportH } = useViewport();
   const boardWidth = isPhone
-    ? Math.min(340, window.innerWidth - 48)
-    : Math.min(560, Math.max(420, window.innerWidth - 560));
+    ? fitBoard({ viewportW, viewportH, max: 340, reserveW: 48, reserveH: 190 })
+    : fitBoard({ viewportW, viewportH, max: 560, min: 380, reserveW: 560, reserveH: 200 });
   const historySAN = chess.history();
 
   return (

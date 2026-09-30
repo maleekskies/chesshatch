@@ -43,7 +43,7 @@ const DEFAULT_BOARD_WIDTH = 420;
 
 export default function ChessBoard({
   fen, onPieceDrop, boardOrientation = "white", theme, boardWidth = DEFAULT_BOARD_WIDTH,
-  arePiecesDraggable = true, onSquareTap, squareHighlights,
+  arePiecesDraggable = true, onSquareTap, squareHighlights, animationDuration = 300,
 }) {
   const [selectedSquare, setSelectedSquare] = useState(null);
   const safeWidth = Number.isFinite(boardWidth) && boardWidth > 0
@@ -155,6 +155,7 @@ export default function ChessBoard({
       onSquareClick={handleSquareClick}
       boardOrientation={boardOrientation}
       boardWidth={safeWidth}
+      animationDuration={animationDuration}
       arePiecesDraggable={arePiecesDraggable}
       customSquareStyles={customSquareStyles}
       customBoardStyle={{

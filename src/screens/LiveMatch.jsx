@@ -9,6 +9,7 @@ import { applyRatingUpdate, saveOwnRating, getRating } from "../lib/ratings.js";
 import { analyzeMove } from "../lib/coach.js";
 import { supabase } from "../lib/supabaseClient.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // Real-time match between two signed-in testers, with time controls,
 // clocks, resign/draw/abort, and Glicko-2 rating updates.
@@ -45,7 +46,10 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
   const [reviewNotes, setReviewNotes] = useState([]);
 
   const isPhoneW = isPhone;
-  const boardWidth = isPhoneW ? Math.min(340, window.innerWidth - 48) : 460;
+  const { width: viewportW, height: viewportH } = useViewport();
+  const boardWidth = isPhoneW
+    ? fitBoard({ viewportW, viewportH, max: 340, reserveW: 48, reserveH: 240 })
+    : fitBoard({ viewportW, viewportH, max: 460, min: 320, reserveW: 480, reserveH: 260 });
 
   useEffect(() => () => { channelRef.current?.unsubscribe(); clearInterval(tickRef.current); }, []);
 

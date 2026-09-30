@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { supabase } from "../lib/supabaseClient.js";
 
 // A real look at how the beta is going, not the tester-facing progress
-// dashboard from the blueprint, but YOUR view: how many testers, what
-// tiers they're landing in, where progress drops off, and raw feedback.
+// dashboard from the blueprint, but YOUR view: how many testers, where
+// lesson progress drops off, and raw feedback.
 // Gated to a known admin email so testers don't stumble into it.
 const ADMIN_EMAIL = "maleekade775@gmail.com";
 
@@ -17,15 +17,11 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
   useEffect(() => {
     if (!isAdmin) return;
     (async () => {
-      const [{ data: profiles }, { data: results }, { data: progress }, { data: fb }] = await Promise.all([
+      const [{ data: profiles }, { data: progress }, { data: fb }] = await Promise.all([
         supabase.from("profiles").select("id"),
-        supabase.from("diagnostic_results").select("tier"),
         supabase.from("progress").select("node_key, status"),
         supabase.from("feedback").select("message, page, created_at").order("created_at", { ascending: false }).limit(30),
       ]);
-
-      const tierCounts = {};
-      (results || []).forEach((r) => { tierCounts[r.tier] = (tierCounts[r.tier] || 0) + 1; });
 
       const lessonCounts = {};
       (progress || []).forEach((p) => {
@@ -34,8 +30,6 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
 
       setStats({
         testerCount: profiles?.length || 0,
-        diagnosticCount: results?.length || 0,
-        tierCounts,
         lessonCounts,
       });
       setFeedback(fb || []);
@@ -61,19 +55,8 @@ export default function Admin({ session, textMain, textMuted, panelBg, borderCol
 
       <div style={{ display: "grid", gridTemplateColumns: isPhone ? "1fr 1fr" : "repeat(4, 1fr)", gap: 10, marginBottom: 26 }}>
         <StatCard label="Signed-in testers" value={stats.testerCount} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
-        <StatCard label="Diagnostics taken" value={stats.diagnosticCount} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
         <StatCard label="Lesson completions" value={Object.values(stats.lessonCounts).reduce((a, b) => a + b, 0)} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
         <StatCard label="Feedback items" value={feedback.length} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
-      </div>
-
-      <SectionHeading title="Diagnostic tier distribution" accentGold={accentGold} />
-      <div style={{ marginBottom: 24 }}>
-        {Object.keys(stats.tierCounts).length === 0 && <p style={{ color: textMuted, fontSize: 13 }}>No diagnostics taken yet.</p>}
-        {Object.entries(stats.tierCounts).map(([tier, count]) => (
-          <div key={tier} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: `1px solid ${borderCol}`, fontSize: 13, color: textMain }}>
-            <span>{tier}</span><span style={{ fontFamily: "'IBM Plex Mono', monospace", color: textMuted }}>{count}</span>
-          </div>
-        ))}
       </div>
 
       <SectionHeading title="Lesson completion, where people drop off" accentGold={accentGold} />

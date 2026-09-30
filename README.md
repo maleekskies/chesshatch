@@ -43,28 +43,31 @@ any dev environment with npm.)
 
 ### App shell
 
-- Routing split (`src/main.jsx`): `/` is the motion landing page
-  (`src/screens/MotionLanding.jsx`) — the looping hero clip with the
-  reference's top-right menu, and nothing else. Every other path is the
-  app, unchanged. The app's own home screen moved from `/` to `/home`,
-  so an in-app Home button returns to the app rather than to the
-  landing page.
-- `src/App.jsx`: nav, landing page, diagnostic quiz, results screen,
-  routing, the first-visit nav walkthrough, and the badge-earned toast.
+- Routing split (`src/main.jsx`): `/` is the intro screen
+  (`src/screens/MotionLanding.jsx`) — a four-second chess opening, then
+  an automatic hand-off. Every other path is the app, unchanged. The
+  app's own home screen lives at `/home`, so an in-app Home button
+  returns to the app rather than replaying the intro.
+- `src/App.jsx`: nav, home screen, routing, the first-visit nav
+  walkthrough, and the badge-earned toast.
 - `src/main.jsx`: entry point, crash error boundary, service worker
   registration.
 
 ### Screens (`src/screens/`)
 
-- `MotionLanding.jsx`: the first screen at `/`. Muted, looping,
-  `playsInline` autoplay with no player chrome, a poster frame
-  underneath it, a still-frame fallback for `prefers-reduced-motion`,
-  and a retry-on-first-interaction if autoplay is refused. The clip's
-  own frame already contains a mock menu card in its right quarter, so
-  the page only ever shows the left 552px of the 736x400 frame and
-  renders the real, clickable menu on top. Wide viewports get the clip
-  full-bleed; portrait viewports get a full-width uncropped band with
-  the menu beneath it.
+- `MotionLanding.jsx`: the intro at `/`. It plays 1. e4 e5 2. Nf3 Nc6
+  3. Bc4 on a real board — each move is played through chess.js and the
+  resulting position is what gets rendered, so the board can never show
+  an unreachable position — then cross-fades into `/home` after about
+  four seconds. No video file, no click required, and it plays once per
+  page entry. `prefers-reduced-motion` skips the animation but keeps
+  the hand-off.
+- `Bots.jsx`: the "Intermediate" bot ladder. Nine levels from Beginner
+  to Grandmaster, unlocked strictly in order by winning against the
+  current one, with progress persisted per browser in localStorage.
+  Games run on the same chess.js rules and the same offline Stockfish
+  worker as `Play.jsx`; an illegal move is never accepted and an
+  illegal engine suggestion is discarded rather than played.
 - `BeginnerCourse.jsx`: the "Start from zero" beginner course — a
   12-lesson hub plus a board-first lesson runner. One idea per lesson,
   an interactive board as the primary element, immediate feedback on
@@ -89,13 +92,13 @@ any dev environment with npm.)
   post-game coach review.
 - `PuzzleRush.jsx`: 90-second timed puzzle streak.
 - `Profile.jsx`: ratings, lessons mastered, best Puzzle Rush streak,
-  latest diagnostic tier, and the badges grid (earned badges in color,
+  bot ladder progress, and the badges grid (earned badges in color,
   unearned ones grayed out).
 - `BeginnerMistakes.jsx`: a static reference page of 8 common beginner
   mistakes (what it is, why it hurts, what to do instead).
 - `Glossary.jsx`: a searchable, alphabetized version of the same term
   definitions that already power the inline hover tooltips.
-- `Admin.jsx`: tester counts, tier distribution, feedback, gated to one
+- `Admin.jsx`: tester counts, lesson drop-off, feedback, gated to one
   admin email.
 - `Privacy.jsx`: plain-language privacy statement.
 
@@ -193,7 +196,7 @@ any dev environment with npm.)
 `supabase/schema.sql`, already applied to the live project as
 migrations:
 
-- `profiles`, `diagnostic_results`, `progress`, `puzzle_attempts` (with
+- `profiles`, `progress`, `puzzle_attempts` (with
   `next_review_at`, `interval_days`, and `ease` for spaced repetition),
   `feedback`, `imported_puzzles`, `ratings`, `games`,
   `puzzle_rush_scores`, `badges_earned`. RLS enabled on every table,
@@ -240,14 +243,12 @@ These are real, current constraints, not disclaimers to skip over:
   (`scripts/import-lichess-puzzles.mjs`) actually runs. It's real and
   complete but needs internet access and a Supabase service-role key,
   neither available in the environment this was built in.
-- **The diagnostic quiz is text-based multiple choice**, not yet the
-  100-plus verified chess positions per level that were requested.
-  Building and independently verifying hundreds of unique tactical
-  positions, at the same rigor as every FEN elsewhere in this project,
-  is a genuinely large content undertaking well beyond what a single
-  working session can responsibly deliver without cutting corners on
-  verification. That work has not been started yet rather than being
-  faked with unverified content.
+- **The bot ladder names are progression labels, not strength claims.**
+  "Intermediate" through "Grandmaster" describe rungs on this app's own
+  ladder. They are not FIDE ratings or titles, and beating the
+  Grandmaster bot means nothing more than beating the hardest engine
+  setting here. The ladder's difficulty spread is also coarse: the
+  steps are Stockfish skill levels, not a calibrated rating curve.
 - **"vs Computer" mode has no clock.** Time controls were built where
   they matter most first, for human-vs-human ratings, and haven't been
   retrofitted everywhere yet.
@@ -264,7 +265,7 @@ These are real, current constraints, not disclaimers to skip over:
 - **Routing is client-side (`react-router-dom`).** Screens have real
   URLs, back and forward move between them inside the app, and a
   refresh keeps you on the current screen; a deep link relies on the
-  host's SPA fallback. `/` is the motion landing page and the app's home
+  host's SPA fallback. `/` is the intro screen and the app's home
   is `/home`.
 - **Everything chess-related that ships here was independently
   verified before being written.** Lesson FENs, the guided game's
@@ -279,9 +280,9 @@ These are real, current constraints, not disclaimers to skip over:
 
 - Grow the beginner course (currently 12 lessons / 43 steps) and add
   spaced-repetition review of the concepts a learner gets wrong
-- Build the diagnostic quiz out toward genuinely verified,
-  position-based questions at real scale, rather than the current
-  small set of text trivia questions
+- Calibrate the bot ladder against real player results, so each rung
+  means roughly the same amount of improvement, instead of the current
+  straight mapping onto Stockfish skill levels
 - Run the Lichess puzzle import to replace the small hand-verified
   sample with the full tagged puzzle database
 - Server-side (Supabase Edge Function) rating and badge verification,

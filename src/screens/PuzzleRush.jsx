@@ -4,6 +4,7 @@ import { Zap, Trophy } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import { SAMPLE_PUZZLES } from "../data/lessons.js";
 import { supabase } from "../lib/supabaseClient.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 const RUSH_SECONDS = 90;
 
@@ -101,7 +102,10 @@ export default function PuzzleRush({ session, theme, textMain, textMuted, panelB
     return true;
   }
 
-  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 400;
+  const { width: viewportW, height: viewportH } = useViewport();
+  const boardWidth = isPhone
+    ? fitBoard({ viewportW, viewportH, max: 320, reserveW: 48, reserveH: 240 })
+    : fitBoard({ viewportW, viewportH, max: 400, min: 300, reserveW: 460, reserveH: 250 });
 
   if (stage === "idle") {
     return (

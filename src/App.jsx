@@ -2,9 +2,9 @@ import { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "./lib/supabaseClient.js";
 import Play from "./screens/Play.jsx";
+import Bots from "./screens/Bots.jsx";
 import Lessons, { PuzzleView } from "./screens/Lessons.jsx";
 import BeginnerCourse from "./screens/BeginnerCourse.jsx";
-import ChessBoard from "./components/ChessBoard.jsx";
 import LiveMatch from "./screens/LiveMatch.jsx";
 import PuzzleRush from "./screens/PuzzleRush.jsx";
 import Profile from "./screens/Profile.jsx";
@@ -17,10 +17,10 @@ import Glossary from "./screens/Glossary.jsx";
 import { BADGES, awardBadge } from "./lib/badges.js";
 import FeedbackButton from "./components/FeedbackButton.jsx";
 import { SAMPLE_PUZZLES, TIER1_LESSONS } from "./data/lessons.js";
-import { DIAGNOSTIC_BEGINNER_POOL } from "./data/diagnosticPool.js";
+import { BOT_LADDER, readUnlockedCount } from "./lib/botLadder.js";
 import { getFeedbackMode, setFeedbackMode as persistFeedbackMode } from "./lib/moveFeedback.js";
 import {
-  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Sparkles, Users
+  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Users, Lock
 } from "lucide-react";
 
 function useFonts() {
@@ -88,39 +88,6 @@ const THEMES = {
 // color (used for highlights/buttons, not the board itself) is
 // Chess Hatch's own, not Lichess's.
 
-// ================= Diagnostic quiz content =================
-// The quiz draws from DIAGNOSTIC_BEGINNER_POOL (src/data/diagnosticPool.js),
-// a pool of over 100 real chess positions rather than a fixed set of
-// text trivia questions. Each attempt samples a fresh, balanced subset
-// (see sampleQuizQuestions below), so retaking the quiz shows genuinely
-// different questions, not the same six every time.
-const QUIZ_LENGTH = 12;
-const CATS = ["rules","tactics","endgame","positional"];
-const CAT_LABEL = { rules:"Rules", tactics:"Tactics", endgame:"Endgames", positional:"Positional" };
-
-function shuffleArray(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-
-// Draws a balanced sample across all 4 categories (3 from each, for a
-// 12-question quiz) rather than a purely random draw, since a purely
-// random draw would skew toward whichever category happens to have the
-// most entries in the underlying pool.
-function sampleQuizQuestions() {
-  const perCat = Math.floor(QUIZ_LENGTH / CATS.length);
-  let sampled = [];
-  CATS.forEach((cat) => {
-    const catPool = DIAGNOSTIC_BEGINNER_POOL.filter((q) => q.cat === cat);
-    sampled = sampled.concat(shuffleArray(catPool).slice(0, perCat));
-  });
-  return shuffleArray(sampled);
-}
-
 // ================= First-visit nav walkthrough =================
 // A short, dismissible tour that points at the three nav items a brand
 // new visitor most needs to notice. Shown once per browser (localStorage
@@ -128,26 +95,10 @@ function sampleQuizQuestions() {
 // counter above.
 const WALKTHROUGH_DISMISSED_KEY = "chessloop_walkthrough_dismissed";
 const WALKTHROUGH_STEPS = [
-  { key:"diagnostic", label:"Diagnostic", text:"Not sure where to start? A short quiz places you at the right level." },
+  { key:"bots", label:"Bots", text:"Start at Beginner and work up: beat each bot to unlock the next level." },
   { key:"lessons", label:"Lessons", text:"Step-by-step lessons, from how pieces move up to real tactics, with a live coach watching your moves." },
   { key:"play", label:"Play", text:"Play freely against a friend on the same device, or against the built-in computer at any difficulty." },
 ];
-
-function scoreQuiz(answers, questions){
-  const perCat = {}; CATS.forEach(c=>perCat[c]={correct:0,total:0});
-  let correct=0;
-  questions.forEach(q=>{
-    perCat[q.cat].total += 1;
-    if(answers[q.id]===q.answer){ correct+=1; perCat[q.cat].correct+=1; }
-  });
-  const total = questions.length || 1;
-  const pct = correct/total;
-  let tier = "Complete Beginner";
-  if(pct>0.8) tier="Advanced";
-  else if(pct>0.5) tier="Intermediate";
-  else if(pct>0.25) tier="Casual Improver";
-  return { correct, total, pct, perCat, tier };
-}
 
 // ================= Real URL routing =================
 // Every screen gets an actual URL rather than living only in memory, so
@@ -159,12 +110,11 @@ function scoreQuiz(answers, questions){
 // and `setScreen` below is a thin wrapper around the router's
 // `navigate`, so nothing else in this file has to change.
 const PATH_TO_SCREEN = {
-  // "/" is the motion landing page (see src/main.jsx); the app's own
-  // home screen lives at "/home" so in-app Home buttons never send a
-  // visitor back to the landing page.
+  // "/" is the intro screen (see src/main.jsx); the app's own home
+  // screen lives at "/home" so an in-app Home button never sends a
+  // visitor back through the intro.
   "/home": "landing",
-  "/diagnostic": "diagnostic",
-  "/results": "results",
+  "/bots": "bots",
   "/lessons": "lessons",
   "/lessons/start": "lessons-zk",
   "/guided": "guided",
@@ -186,8 +136,7 @@ const SCREEN_TO_PATH = Object.fromEntries(
 const SITE_HOST = "https://chesshatch.vercel.app";
 const SCREEN_META = {
   landing: { title: "Chess Hatch", description: "Learn chess from your first move to real tactics, at your own pace." },
-  diagnostic: { title: "Diagnostic quiz, Chess Hatch", description: "A short quiz that places you at the right starting level, across rules, tactics, endgames, and positional play." },
-  results: { title: "Your results, Chess Hatch", description: "Your diagnostic quiz results and recommended starting tier." },
+  bots: { title: "Intermediate, Chess Hatch", description: "A nine level bot ladder: start at Beginner and unlock the next level with every win." },
   lessons: { title: "Lessons, Chess Hatch", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
   "lessons-zk": { title: "Start from zero, Chess Hatch", description: "Twelve short, hands-on lessons for someone who has never played chess before." },
   guided: { title: "Guided first game, Chess Hatch", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
@@ -232,9 +181,6 @@ export default function ChessHatchApp(){
     if (ogUrl) ogUrl.setAttribute("content", SITE_HOST + location.pathname);
   }, [screen, location.pathname]);
 
-  const [qIndex, setQIndex] = useState(0);
-  const [answers, setAnswers] = useState({});
-  const [quizQuestions, setQuizQuestions] = useState(() => sampleQuizQuestions());
   const [navOpen, setNavOpen] = useState(false);
   const [completedIds, setCompletedIds] = useState(new Set());
   const [dailyPuzzleOpen, setDailyPuzzleOpen] = useState(false);
@@ -328,7 +274,6 @@ export default function ChessHatchApp(){
   // so sign-in can be switched back on by restoring the auth UI), but no
   // sign-in control is rendered for now.
   const [session, setSession] = useState(null);
-  const [savedThisResult, setSavedThisResult] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => setSession(data.session));
@@ -371,37 +316,16 @@ export default function ChessHatchApp(){
   const borderCol = "#ECE4D6";
   const accentGold = "#E2694B";
 
-  const result = useMemo(()=> scoreQuiz(answers, quizQuestions), [answers, quizQuestions]);
-
-  useEffect(() => {
-    if (screen === "results" && session?.user && !savedThisResult) {
-      supabase.from("diagnostic_results").insert({
-        user_id: session.user.id,
-        tier: result.tier,
-        score_tactics: result.perCat.tactics.correct,
-        score_endgames: result.perCat.endgame.correct,
-        score_positional: result.perCat.positional.correct,
-        score_rules: result.perCat.rules.correct,
-        raw_answers: answers,
-      }).then(({ error }) => { if (!error) setSavedThisResult(true); });
-    }
-  }, [screen, session, result, answers, savedThisResult]);
-
-  function selectAnswer(qid, idx){
-    setAnswers(a=>({...a,[qid]:idx}));
-    setTimeout(()=>{
-      if(qIndex < quizQuestions.length-1) setQIndex(i=>i+1);
-      else setScreen("results");
-    }, 250);
-  }
-
-  function startQuiz(){ setAnswers({}); setQIndex(0); setQuizQuestions(sampleQuizQuestions()); setScreen("diagnostic"); setSavedThisResult(false); }
+  // Recomputed whenever the screen changes so the landing card's
+  // "N of 9 unlocked" line is fresh after a ladder game or a reset,
+  // without needing the progression to live in React state here.
+  const botsUnlockedCount = useMemo(() => readUnlockedCount(), [screen]);
 
   return (
     <div style={{ minHeight:"100%", background:pageBg, color:textMain, fontFamily:"'Inter', system-ui, sans-serif", overflowX:"hidden" }}>
       {/* Nav */}
       <div role="navigation" aria-label="Main navigation" style={{ borderBottom:`1px solid ${borderCol}`, position:"sticky", top:0, background:pageBg, zIndex:10, paddingTop:"env(safe-area-inset-top)" }}>
-        <div style={{ maxWidth:1080, margin:"0 auto", padding: isPhone ? "12px 16px" : "14px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
+        <div style={{ maxWidth:1080, margin:"0 auto", padding: isPhone ? "10px 16px" : "10px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div onClick={()=>setScreen("landing")} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:9, minWidth:0 }}>
             <img
               src="/logo-mark.png"
@@ -420,8 +344,8 @@ export default function ChessHatchApp(){
           ) : (
             <div style={{ display:"flex", gap:8, alignItems:"center" }}>
               <NavBtn active={screen==="landing"} onClick={()=>setScreen("landing")} textMain={textMain} accentGold={accentGold}>Home</NavBtn>
-              <div ref={registerWalkthroughRef("diagnostic")} style={{ display:"inline-flex" }}>
-                <NavBtn active={screen==="diagnostic"||screen==="results"} onClick={startQuiz} textMain={textMain} accentGold={accentGold}>Diagnostic</NavBtn>
+              <div ref={registerWalkthroughRef("bots")} style={{ display:"inline-flex" }}>
+                <NavBtn active={screen==="bots"} onClick={()=>setScreen("bots")} textMain={textMain} accentGold={accentGold}>Bots</NavBtn>
               </div>
               <div ref={registerWalkthroughRef("lessons")} style={{ display:"inline-flex" }}>
                 <NavBtn active={screen==="lessons"||screen==="lessons-zk"} onClick={()=>setScreen("lessons")} textMain={textMain} accentGold={accentGold}>Lessons</NavBtn>
@@ -447,8 +371,8 @@ export default function ChessHatchApp(){
         {isPhone && navOpen && (
           <div style={{ padding:"0 16px 14px", display:"flex", flexDirection:"column", gap:6 }}>
             <NavBtn full active={screen==="landing"} onClick={()=>{setScreen("landing"); setNavOpen(false);}} textMain={textMain} accentGold={accentGold}>Home</NavBtn>
-            <div ref={registerWalkthroughRef("diagnostic")}>
-              <NavBtn full active={screen==="diagnostic"||screen==="results"} onClick={()=>{startQuiz(); setNavOpen(false);}} textMain={textMain} accentGold={accentGold}>Diagnostic</NavBtn>
+            <div ref={registerWalkthroughRef("bots")}>
+              <NavBtn full active={screen==="bots"} onClick={()=>{setScreen("bots"); setNavOpen(false);}} textMain={textMain} accentGold={accentGold}>Bots</NavBtn>
             </div>
             <div ref={registerWalkthroughRef("lessons")}>
               <NavBtn full active={screen==="lessons"||screen==="lessons-zk"} onClick={()=>{setScreen("lessons"); setNavOpen(false);}} textMain={textMain} accentGold={accentGold}>Lessons</NavBtn>
@@ -490,7 +414,7 @@ export default function ChessHatchApp(){
           textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} />
       )}
 
-      <div style={{ maxWidth:1200, margin:"0 auto", padding: isPhone ? "24px 16px 48px" : "40px 24px 64px" }}>
+      <div style={{ maxWidth:1200, margin:"0 auto", padding: isPhone ? "20px 16px 40px" : "28px 24px 48px" }}>
 
         {screen==="landing" && dailyPuzzleOpen && (
           <div style={{ maxWidth: 700 }}>
@@ -507,7 +431,7 @@ export default function ChessHatchApp(){
             <div style={{ display:"inline-block", background:"rgba(78,122,58,0.12)", color:"#4E7A3A", fontFamily:"'Poppins', sans-serif", fontSize:12, fontWeight:600, padding:"6px 14px", borderRadius:20, marginBottom:18 }}>
               Learn, play, master
             </div>
-            <h1 style={{ fontFamily:"'Poppins', sans-serif", fontWeight:700, fontSize: isPhone?28:42, lineHeight:1.25, margin:0, maxWidth:600 }}>
+            <h1 style={{ fontFamily:"'Poppins', sans-serif", fontWeight:700, fontSize: isPhone?27:36, lineHeight:1.25, margin:0, maxWidth:600 }}>
               A calm, clear way to actually get better at chess.
             </h1>
             <p style={{ color:textMuted, fontSize: isPhone?14:16, lineHeight:1.7, marginTop:16, maxWidth:540 }}>
@@ -538,15 +462,37 @@ export default function ChessHatchApp(){
 
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
                 <div style={{ width:46, height:46, borderRadius:16, background:"rgba(78,122,58,0.12)", display:"flex", alignItems:"center", justifyContent:"center", marginBottom:16 }}>
-                  <Target size={20} color="#4E7A3A"/>
+                  <TrendingUp size={20} color="#4E7A3A"/>
                 </div>
-                <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>I already know the rules</div>
-                <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:20, flexGrow:1 }}>
-                  Take a short, friendly quiz so lessons can start at the right level for you, not too easy, not too hard.
+                <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>Intermediate</div>
+                <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:14, flexGrow:1 }}>
+                  Bot ranking and progression. You start at Beginner and win your
+                  way up: nine levels, each one unlocking after you beat the last.
                 </p>
-                <button onClick={startQuiz} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
-                  Find my level <ChevronRight size={15}/>
+                <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:16 }}>
+                  {BOT_LADDER.map((level, i) => {
+                    const unlocked = i < botsUnlockedCount;
+                    const isCurrent = i === botsUnlockedCount - 1;
+                    return (
+                      <span key={level.key} title={level.name} style={{
+                        display:"inline-flex", alignItems:"center", gap:4, fontSize:10.5,
+                        color: unlocked ? textMain : textMuted,
+                        background: unlocked ? "rgba(226,105,75,0.12)" : "#F4F2EC",
+                        border:`1px solid ${isCurrent ? accentGold : borderCol}`,
+                        borderRadius:20, padding:"3px 8px", whiteSpace:"nowrap",
+                      }}>
+                        {!unlocked && <Lock size={10}/>}{level.name}
+                      </span>
+                    );
+                  })}
+                </div>
+                <button onClick={()=>setScreen("bots")} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                  Play Bot <ChevronRight size={15}/>
                 </button>
+                <div style={{ color:textMuted, fontSize:11, marginTop:10, lineHeight:1.5 }}>
+                  {botsUnlockedCount} of {BOT_LADDER.length} unlocked. Progression
+                  names for the app, not official ratings or titles.
+                </div>
               </div>
 
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
@@ -578,7 +524,7 @@ export default function ChessHatchApp(){
               </p>
               <div style={{ display:"grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap:16 }}>
                 {[
-                  { icon:<Target size={18} color={accentGold}/>, title:"Placed at your level", desc:"A short quiz finds where you really are across tactics, endgames, and rules, so nothing feels too easy or too hard." },
+                  { icon:<Target size={18} color={accentGold}/>, title:"A clear way up", desc:"Start at Beginner and unlock each stronger bot level by winning, so there's always an obvious next step." },
                   { icon:<BookOpen size={18} color={accentGold}/>, title:"Real lessons, not just puzzles", desc:"Piece movement, mate patterns, and tactics, explained one calm step at a time, with a live coach watching your moves." },
                   { icon:<TrendingUp size={18} color={accentGold}/>, title:"Practice that sticks", desc:"Every lesson ends with a matched puzzle, so what you just learned actually stays with you." },
                 ].map((f,i)=>(
@@ -589,85 +535,6 @@ export default function ChessHatchApp(){
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        )}
-
-        {screen==="diagnostic" && quizQuestions[qIndex] && (
-          <div style={{ maxWidth:560, margin:"0 auto" }}>
-            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:18 }}>
-              <span style={{ fontSize:12, color:textMuted, fontFamily:"'IBM Plex Mono', monospace" }}>
-                Question {qIndex+1} of {quizQuestions.length}
-              </span>
-              <span style={{ fontSize:11, color:accentGold, fontFamily:"'IBM Plex Mono', monospace", textTransform:"uppercase", letterSpacing:"0.06em" }}>
-                {CAT_LABEL[quizQuestions[qIndex].cat]}
-              </span>
-            </div>
-            <div style={{ height:4, background:borderCol, borderRadius:2, marginBottom:26, overflow:"hidden" }}>
-              <div style={{ height:"100%", width:`${((qIndex)/quizQuestions.length)*100}%`, background:accentGold, transition:"width 0.3s ease" }}/>
-            </div>
-            <h2 style={{ fontFamily:"'Poppins', sans-serif", fontSize: isPhone?19:22, fontWeight:600, lineHeight:1.4, marginBottom: quizQuestions[qIndex].fen ? 18 : 22 }}>
-              {quizQuestions[qIndex].prompt}
-            </h2>
-            {quizQuestions[qIndex].fen && (
-              <div style={{ display:"flex", justifyContent:"center", marginBottom:22 }}>
-                <ChessBoard
-                  fen={quizQuestions[qIndex].fen}
-                  theme={THEMES[boardThemeKey]}
-                  boardWidth={isPhone ? Math.min(280, window.innerWidth - 64) : 320}
-                  arePiecesDraggable={false}
-                />
-              </div>
-            )}
-            <div style={{ display:"flex", flexDirection:"column", gap:10 }}>
-              {quizQuestions[qIndex].options.map((opt,idx)=>(
-                <button key={idx} onClick={()=>selectAnswer(quizQuestions[qIndex].id, idx)}
-                  style={{ textAlign:"left", padding:"13px 16px", borderRadius:9, border:`1px solid ${borderCol}`, background:panelBg, color:textMain, fontSize:14.5, cursor:"pointer" }}>
-                  {opt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {screen==="results" && (
-          <div style={{ maxWidth:560, margin:"0 auto" }}>
-            <div style={{ fontSize:12, letterSpacing:"0.14em", textTransform:"uppercase", color:accentGold, marginBottom:8, display:"flex", alignItems:"center", gap:6 }}>
-              <Sparkles size={14}/> Your placement
-            </div>
-            <h2 style={{ fontFamily:"'Poppins', sans-serif", fontSize: isPhone?26:32, fontWeight:700, margin:"0 0 8px" }}>{result.tier}</h2>
-            <p style={{ color:textMuted, fontSize:14, marginBottom:10 }}>
-              {result.correct} of {result.total} correct. Each attempt draws a fresh, balanced set from a pool of over {DIAGNOSTIC_BEGINNER_POOL.length} verified positions, so retaking the quiz shows different questions.
-            </p>
-            {session?.user && (
-              <p style={{ color: savedThisResult ? accentGold : textMuted, fontSize:12.5, marginBottom:20, fontFamily:"'IBM Plex Mono', monospace" }}>
-                {savedThisResult ? "Saved to your account." : "Saving…"}
-              </p>
-            )}
-            <div style={{ display:"flex", flexDirection:"column", gap:14, marginBottom:28 }}>
-              {CATS.map(cat=>{
-                const c = result.perCat[cat];
-                const pct = c.total ? (c.correct/c.total)*100 : 0;
-                return (
-                  <div key={cat}>
-                    <div style={{ display:"flex", justifyContent:"space-between", fontSize:12.5, marginBottom:5 }}>
-                      <span style={{ color:textMain }}>{CAT_LABEL[cat]}</span>
-                      <span style={{ color:textMuted, fontFamily:"'IBM Plex Mono', monospace" }}>{c.correct}/{c.total}</span>
-                    </div>
-                    <div style={{ height:7, background:borderCol, borderRadius:4, overflow:"hidden" }}>
-                      <div style={{ height:"100%", width:`${pct}%`, background:accentGold, borderRadius:4 }}/>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-            <div style={{ display:"flex", gap:10, flexWrap:"wrap" }}>
-              <button onClick={()=>setScreen("lessons")} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:8, padding:"12px 18px", fontSize:14, fontWeight:600, cursor:"pointer" }}>
-                Start Tier 1 lessons
-              </button>
-              <button onClick={startQuiz} style={{ background:"transparent", color:textMain, border:`1px solid ${borderCol}`, borderRadius:8, padding:"12px 18px", fontSize:14, cursor:"pointer" }}>
-                Retake
-              </button>
             </div>
           </div>
         )}
@@ -692,6 +559,11 @@ export default function ChessHatchApp(){
 
         {screen==="play" && (
           <Play theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone} onEarnBadge={celebrateBadge} />
+        )}
+
+        {screen==="bots" && (
+          <Bots theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
+            onBack={()=>setScreen("landing")} onEarnBadge={celebrateBadge} />
         )}
 
         {screen==="guided" && (

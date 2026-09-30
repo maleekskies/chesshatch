@@ -13,8 +13,8 @@ export default function Privacy({ textMain, textMuted, panelBg, borderCol, accen
       </p>
 
       <Section title="What we collect" textMain={textMain} textMuted={textMuted} accentGold={accentGold}>
-        Your email (for magic-link sign-in only, no password stored), your diagnostic quiz results,
-        which lessons and puzzles you've completed, and any feedback you submit through the feedback
+        Your email (for magic-link sign-in only, no password stored), which lessons and puzzles
+        you've completed, and any feedback you submit through the feedback
         button. We don't collect anything beyond what's needed to make the app work and to see how
         the beta is going.
       </Section>

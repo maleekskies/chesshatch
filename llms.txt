@@ -6,8 +6,10 @@ closed beta.
 
 ## What it does
 
-- A diagnostic quiz places a new user at a starting level using real
-  chess positions, not text trivia.
+- An "Intermediate" bot ladder gives a new player a progression path:
+  start at Beginner and unlock each stronger bot level by winning
+  against the current one. The level names are game progression
+  labels, not official FIDE ratings or titles.
 - Step by step lessons cover how each piece moves, piece values,
   trading, checkmate patterns, tactics, and endgame ideas, organized
   into two tiers (complete beginner, intermediate).

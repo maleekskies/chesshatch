@@ -1,29 +1,49 @@
-// The motion landing page: the first thing a visitor sees at "/".
+// The intro at "/": a four-second opening sequence, then straight into
+// the app.
 //
-// It is deliberately outside the app shell (see src/main.jsx), so the
-// existing Chess Hatch screens, nav and styling are untouched. Entering
-// the site from here navigates to "/home", which is where the original
-// home screen now lives, so the landing page is never re-entered by an
-// in-app Home button.
-import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+// This replaced the old looping video landing page. It is deliberately
+// still outside the app shell (see src/main.jsx) so nothing about the
+// existing screens had to change.
+//
+// The moves are not hand-animated or faked. They are played through
+// chess.js one at a time, exactly like every other board in the app,
+// and only the resulting FEN is handed to the board. `buildPositions`
+// throws at import time if any move in the list were illegal, so a typo
+// in the opening can never ship as a board that silently shows a
+// position that isn't reachable.
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Chess } from "chess.js";
+import ChessBoard from "../components/ChessBoard.jsx";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 import "./motionLanding.css";
 
-const VIDEO_SRC = "/chess-motion-landing.mp4";
-const POSTER_SRC = "/chess-motion-poster.jpg";
 const HOME_PATH = "/home";
+const DESCRIPTION = "Learn chess from your first move to real tactics, at your own pace.";
 const FONT_HREF =
   "https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap";
-const DESCRIPTION =
-  "Learn chess from your first move to real tactics, at your own pace.";
 
-/* The reference card carries three entries and highlights the middle
-   one; each one now leads into the real site rather than nowhere. */
-const MENU_ITEMS = [
-  { key: "home", label: "Home", to: HOME_PATH },
-  { key: "play", label: "Play a Game", to: "/play", featured: true },
-  { key: "dashboard", label: "Dashboard", to: "/lessons" },
-];
+// 1. e4 e5 2. Nf3 Nc6 3. Bc4, in standard algebraic notation.
+const OPENING = ["e4", "e5", "Nf3", "Nc6", "Bc4"];
+const STEP_MS = 600; // one move per step: start 0.0s, e4 0.6s, ... Bc4 3.0s
+const HOLD_MS = 1000; // hold the final position, handing over at 4.0s
+const FADE_MS = 420; // cross-fade into the app
+const REDUCED_MOTION_HOLD_MS = 1000;
+
+function buildPositions() {
+  const game = new Chess();
+  const positions = [game.fen()];
+  const sans = [];
+  for (const san of OPENING) {
+    const move = game.move(san);
+    if (!move) throw new Error(`Chess Hatch intro: "${san}" is not a legal move in this position`);
+    positions.push(game.fen());
+    sans.push(move.san);
+  }
+  return { positions, sans };
+}
+
+const OPENING_SEQUENCE = buildPositions();
 
 function usePrefersReducedMotion() {
   const [reduced, setReduced] = useState(() =>
@@ -45,62 +65,19 @@ function usePrefersReducedMotion() {
   return reduced;
 }
 
-function HomeIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <path d="M11.3 2.7a1 1 0 0 1 1.4 0l8.5 7.8a1 1 0 0 1-1.4 1.5l-.8-.8v8.6a2 2 0 0 1-2 2h-3.6v-6.3h-4.8v6.3H5a2 2 0 0 1-2-2v-8.6l-.8.8a1 1 0 0 1-1.4-1.5z" />
-    </svg>
-  );
-}
-
-function PawnIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <circle cx="12" cy="6.6" r="3.6" />
-      <path d="M9.3 11.6h5.4l-1.1 4.9H10.4z" />
-      <path d="M7.3 17.2h9.4a1.1 1.1 0 0 1 1.1 1.1v1.5a1.1 1.1 0 0 1-1.1 1.1H7.3a1.1 1.1 0 0 1-1.1-1.1v-1.5a1.1 1.1 0 0 1 1.1-1.1z" />
-    </svg>
-  );
-}
-
-function BarsIcon() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-      <rect x="2.6" y="14.6" width="3.4" height="6" rx="1.1" />
-      <rect x="7.5" y="11.6" width="3.4" height="9" rx="1.1" />
-      <rect x="12.4" y="8.6" width="3.4" height="12" rx="1.1" />
-      <rect x="17.3" y="4.6" width="3.4" height="16" rx="1.1" />
-    </svg>
-  );
-}
-
-function ChevronIcon() {
-  return (
-    <svg
-      className="ml-chev"
-      width="16"
-      height="16"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="m9 5 7 7-7 7" />
-    </svg>
-  );
-}
+const BOARD_THEME = { light: "#F0D9B5", dark: "#B58863" };
 
 export default function MotionLanding() {
+  const navigate = useNavigate();
+  const { width: viewportW, height: viewportH } = useViewport();
   const reducedMotion = usePrefersReducedMotion();
-  const videoRef = useRef(null);
-  const [playing, setPlaying] = useState(false);
 
-  // Page-level metadata for the one screen that lives outside App.jsx,
-  // plus a dark body/theme color so no cream page background peeks out
-  // behind or below the footage. All of it is undone on the way out.
+  const [ply, setPly] = useState(0);
+  const [leaving, setLeaving] = useState(false);
+  const leftRef = useRef(false);
+
+  // Page-level metadata for the one screen that lives outside App.jsx.
+  // All of it is restored on the way out.
   useEffect(() => {
     const previousTitle = document.title;
     document.title = "Chess Hatch";
@@ -108,10 +85,6 @@ export default function MotionLanding() {
     const descTag = document.querySelector('meta[name="description"]');
     const prevDesc = descTag ? descTag.getAttribute("content") : null;
     if (descTag) descTag.setAttribute("content", DESCRIPTION);
-
-    const themeTag = document.querySelector('meta[name="theme-color"]');
-    const prevTheme = themeTag ? themeTag.getAttribute("content") : null;
-    if (themeTag) themeTag.setAttribute("content", "#0B0A0A");
 
     const fontLink = document.createElement("link");
     fontLink.rel = "stylesheet";
@@ -123,113 +96,80 @@ export default function MotionLanding() {
     return () => {
       document.title = previousTitle;
       if (descTag && prevDesc !== null) descTag.setAttribute("content", prevDesc);
-      if (themeTag && prevTheme !== null) themeTag.setAttribute("content", prevTheme);
       if (fontLink.parentNode) fontLink.parentNode.removeChild(fontLink);
       document.body.classList.remove("ml-body");
     };
   }, []);
 
-  useEffect(() => {
-    if (reducedMotion) return;
-    const video = videoRef.current;
-    if (!video) return;
-    // Restore the source if a previous cleanup detached it. React
-    // StrictMode mounts, cleans up and remounts every effect in
-    // development, and the cleanup below deliberately drops the source,
-    // so without this the clip would silently never load.
-    if (video.getAttribute("src") !== VIDEO_SRC) video.setAttribute("src", VIDEO_SRC);
-    const attempt = video.play();
-    if (attempt && typeof attempt.catch === "function") attempt.catch(() => {});
-  }, [reducedMotion]);
+  // Leaving is one-way: the intro plays once per page entry and then
+  // hands over. `leftRef` makes that true even if the timer, the skip
+  // button and an unmount all race each other.
+  const leave = useCallback(() => {
+    if (leftRef.current) return;
+    leftRef.current = true;
+    setLeaving(true);
+    window.setTimeout(() => navigate(HOME_PATH, { replace: true }), FADE_MS);
+  }, [navigate]);
 
-  // Autoplay can be refused (strict power-saving modes, some in-app
-  // browsers). The poster stays on screen and the landing page keeps
-  // working; the first tap or key press gives playback another chance.
   useEffect(() => {
-    if (reducedMotion || playing) return;
-    const retry = () => {
-      const video = videoRef.current;
-      if (!video) return;
-      const attempt = video.play();
-      if (attempt && typeof attempt.catch === "function") attempt.catch(() => {});
-    };
-    window.addEventListener("pointerdown", retry, { once: true });
-    window.addEventListener("touchstart", retry, { once: true });
-    window.addEventListener("keydown", retry, { once: true });
-    return () => {
-      window.removeEventListener("pointerdown", retry);
-      window.removeEventListener("touchstart", retry);
-      window.removeEventListener("keydown", retry);
-    };
-  }, [reducedMotion, playing]);
+    const timers = [];
+    // Someone who has asked their system for less motion gets the
+    // starting position for a beat instead of the animation, then the
+    // same hand-off. The intro never simply blocks them.
+    if (reducedMotion) {
+      timers.push(window.setTimeout(leave, REDUCED_MOTION_HOLD_MS));
+      return () => timers.forEach(window.clearTimeout);
+    }
+    for (let step = 1; step <= OPENING.length; step++) {
+      timers.push(window.setTimeout(() => setPly(step), STEP_MS * step));
+    }
+    timers.push(window.setTimeout(leave, STEP_MS * OPENING.length + HOLD_MS));
+    return () => timers.forEach(window.clearTimeout);
+  }, [reducedMotion, leave]);
 
-  // Leaving for the main site unmounts this screen; pause and drop the
-  // source explicitly so the clip never keeps playing or holding its
-  // decoder and buffers behind the app.
-  useEffect(
-    () => () => {
-      const video = videoRef.current;
-      if (!video) return;
-      try {
-        video.pause();
-        video.removeAttribute("src");
-        video.load();
-      } catch {
-        /* nothing to clean up if the element is already gone */
-      }
-    },
-    []
-  );
+  const isPhone = viewportW < 560;
+  const isShort = viewportH < 560;
+  const boardWidth = fitBoard({
+    viewportW,
+    viewportH,
+    max: isPhone ? 380 : 440,
+    min: 200,
+    reserveW: isPhone ? 40 : 80,
+    reserveH: isShort ? 130 : 190,
+  });
 
   return (
-    <main className="ml-stage">
-      <div className="ml-media-layer">
-        <img
-          className="ml-media ml-poster"
-          src={POSTER_SRC}
-          alt=""
-          aria-hidden="true"
-          decoding="async"
-          fetchpriority="high"
-        />
-        {!reducedMotion && (
-          <video
-            ref={videoRef}
-            className={"ml-media" + (playing ? " is-ready" : "")}
-            src={VIDEO_SRC}
-            poster={POSTER_SRC}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="auto"
-            controls={false}
-            controlsList="nodownload noplaybackrate noremoteplayback"
-            disablePictureInPicture
-            disableRemotePlayback
-            onPlaying={() => setPlaying(true)}
-            aria-hidden="true"
-            tabIndex={-1}
-          />
-        )}
-      </div>
+    <main className={"ml-stage" + (leaving ? " is-leaving" : "")} aria-label="Chess Hatch intro: a short chess opening">
+      <div className="ml-inner">
+        <div className="ml-brand">
+          <img src="/logo-mark.png" alt="" width={30} height={30} aria-hidden="true" />
+          <span>Chess Hatch</span>
+        </div>
 
-      <div className="ml-ui">
-        <nav className="ml-menu" aria-label="Enter Chess Hatch">
-          {MENU_ITEMS.map((item) => (
-            <Link
-              key={item.key}
-              to={item.to}
-              className={"ml-item" + (item.featured ? " is-featured" : "")}
-            >
-              {item.key === "home" && <HomeIcon />}
-              {item.key === "play" && <PawnIcon />}
-              {item.key === "dashboard" && <BarsIcon />}
-              <span>{item.label}</span>
-              <ChevronIcon />
-            </Link>
-          ))}
-        </nav>
+        <div className="ml-board" aria-hidden="true">
+          <ChessBoard
+            fen={OPENING_SEQUENCE.positions[ply]}
+            theme={BOARD_THEME}
+            boardWidth={boardWidth}
+            arePiecesDraggable={false}
+            animationDuration={reducedMotion ? 0 : 380}
+          />
+        </div>
+
+        <div className="ml-caption">
+          <ol className="ml-moves">
+            {OPENING_SEQUENCE.sans.map((san, i) => (
+              <li key={san} className={i < ply ? "is-played" : i === ply ? "is-next" : ""}>
+                {i % 2 === 0 && <span className="ml-num">{i / 2 + 1}.</span>}
+                <span className="ml-san">{san}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+
+        <button type="button" className="ml-skip" onClick={leave}>
+          Skip intro
+        </button>
       </div>
     </main>
   );

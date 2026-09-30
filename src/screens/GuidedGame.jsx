@@ -4,6 +4,7 @@ import { MessageCircle, RotateCcw, ChevronRight, Sparkles } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import { GUIDED_FIRST_GAME } from "../data/guidedGame.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 const STEPS = GUIDED_FIRST_GAME.steps;
 
@@ -74,9 +75,10 @@ export default function GuidedGame({ theme, textMain, textMuted, panelBg, border
     setVersion((v) => v + 1);
   }
 
+  const { width: viewportW, height: viewportH } = useViewport();
   const boardWidth = isPhone
-    ? Math.min(340, window.innerWidth - 48)
-    : Math.min(520, Math.max(380, window.innerWidth - 560));
+    ? fitBoard({ viewportW, viewportH, max: 340, reserveW: 48, reserveH: 230 })
+    : fitBoard({ viewportW, viewportH, max: 520, min: 360, reserveW: 560, reserveH: 230 });
 
   return (
     <div>

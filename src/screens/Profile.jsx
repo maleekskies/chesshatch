@@ -1,17 +1,17 @@
 import { useState, useEffect } from "react";
-import { Trophy, BookOpen, Target, Zap, Sparkles } from "lucide-react";
+import { Trophy, BookOpen, TrendingUp, Zap, Sparkles } from "lucide-react";
 import { supabase } from "../lib/supabaseClient.js";
 import { TIME_CONTROLS } from "../lib/glicko2.js";
 import { BADGES } from "../lib/badges.js";
+import { BOT_LADDER, readUnlockedCount } from "../lib/botLadder.js";
 
 // A real profile page, aggregates data already being collected
-// (ratings, lessons completed, diagnostic tier, puzzle rush best) into
+// (ratings, lessons completed, bot ladder progress, puzzle rush best) into
 // one view for the tester themselves, rather than only existing in the
 // Admin dashboard for you to see.
 export default function Profile({ session, textMain, textMuted, panelBg, borderCol, accentGold, isPhone }) {
   const [ratings, setRatings] = useState([]);
   const [lessonsCompleted, setLessonsCompleted] = useState(0);
-  const [latestTier, setLatestTier] = useState(null);
   const [rushBest, setRushBest] = useState(0);
   const [earnedBadgeKeys, setEarnedBadgeKeys] = useState(new Set());
   const [loading, setLoading] = useState(true);
@@ -19,16 +19,14 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
   useEffect(() => {
     if (!session?.user) return;
     (async () => {
-      const [{ data: r }, { data: prog }, { data: diag }, { data: rush }, { data: badges }] = await Promise.all([
+      const [{ data: r }, { data: prog }, { data: rush }, { data: badges }] = await Promise.all([
         supabase.from("ratings").select("*").eq("user_id", session.user.id),
         supabase.from("progress").select("node_key").eq("user_id", session.user.id).eq("status", "mastered"),
-        supabase.from("diagnostic_results").select("tier").eq("user_id", session.user.id).order("created_at", { ascending: false }).limit(1),
         supabase.from("puzzle_rush_scores").select("best_streak").eq("user_id", session.user.id).maybeSingle(),
         supabase.from("badges_earned").select("badge_key").eq("user_id", session.user.id),
       ]);
       setRatings(r || []);
       setLessonsCompleted(prog?.length || 0);
-      setLatestTier(diag?.[0]?.tier || null);
       setRushBest(rush?.best_streak || 0);
       setEarnedBadgeKeys(new Set((badges || []).map((b) => b.badge_key)));
       setLoading(false);
@@ -74,7 +72,7 @@ export default function Profile({ session, textMain, textMuted, panelBg, borderC
 
       <div style={{ display: "grid", gridTemplateColumns: isPhone ? "1fr" : "repeat(3, 1fr)", gap: 12 }}>
         <StatBlock icon={<BookOpen size={16} color={accentGold} />} label="Lessons mastered" value={lessonsCompleted} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
-        <StatBlock icon={<Target size={16} color={accentGold} />} label="Diagnostic tier" value={latestTier || "Not taken yet"} small textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
+        <StatBlock icon={<TrendingUp size={16} color={accentGold} />} label="Bot ladder" value={`${BOT_LADDER[readUnlockedCount() - 1].name}`} small textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
         <StatBlock icon={<Zap size={16} color={accentGold} />} label="Best Puzzle Rush streak" value={rushBest} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} />
       </div>
 

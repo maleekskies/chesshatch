@@ -7,6 +7,7 @@ import { BEGINNER_COURSE, BEGINNER_COURSE_TOTAL } from "../data/beginnerCourse.j
 import { judgeMove, solutionMove, position } from "../lib/lessonEngine.js";
 import { supabase } from "../lib/supabaseClient.js";
 import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // "Start from zero.": the total-beginner path, and the only part of the app
 // that assumes no chess knowledge at all.
@@ -226,13 +227,16 @@ export default function BeginnerCourse({ theme, textMain, textMuted, panelBg, bo
     acceptStep(solution.to);
   }
 
-  // Same guard as ChessBoard: innerWidth can momentarily read 0/1, which would
-  // turn these into negative numbers.
-  const viewportWidth = Math.max(typeof window === "undefined" ? 0 : window.innerWidth || 0, 360);
+  // Fit to the real viewport (both axes, and reactively) rather than to
+  // a one-off innerWidth read, so the board never runs off the bottom
+  // of a short laptop window.
+  const { width: viewportWidth, height: viewportHeight } = useViewport();
   const boardWidth = isPhone
-    ? Math.min(360, viewportWidth - 40)
-    : Math.min(520, Math.max(380, viewportWidth - 660));
-  const previewWidth = isPhone ? Math.min(300, viewportWidth - 80) : 300;
+    ? fitBoard({ viewportW: viewportWidth, viewportH: viewportHeight, max: 360, reserveW: 40, reserveH: 240 })
+    : fitBoard({ viewportW: viewportWidth, viewportH: viewportHeight, max: 520, min: 340, reserveW: 660, reserveH: 240 });
+  const previewWidth = isPhone
+    ? fitBoard({ viewportW: viewportWidth, viewportH: viewportHeight, max: 300, reserveW: 80, reserveH: 240 })
+    : 300;
 
   // ---------------------------------------------------------------- hub ----
   if (!lesson) {

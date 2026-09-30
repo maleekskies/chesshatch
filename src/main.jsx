@@ -40,8 +40,9 @@ ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
     <ErrorBoundary>
       <BrowserRouter>
-        {/* "/" is the motion landing page; every other path is the
-            existing app, which keeps its own routing untouched. */}
+        {/* "/" is the intro screen (a short chess opening that hands off
+            on its own); every other path is the existing app, which
+            keeps its own routing untouched. */}
         <Routes>
           <Route path="/" element={<MotionLanding />} />
           <Route path="*" element={<App />} />

@@ -9,19 +9,6 @@ create table if not exists profiles (
   created_at timestamptz default now()
 );
 
--- Diagnostic test results
-create table if not exists diagnostic_results (
-  id uuid default gen_random_uuid() primary key,
-  user_id uuid references profiles(id) on delete cascade,
-  tier text not null,               -- e.g. 'Complete Beginner', 'Intermediate'
-  score_tactics numeric,
-  score_endgames numeric,
-  score_positional numeric,
-  score_rules numeric,
-  raw_answers jsonb,
-  created_at timestamptz default now()
-);
-
 -- Skill tree progress
 create table if not exists progress (
   id uuid default gen_random_uuid() primary key,
@@ -45,12 +32,10 @@ create table if not exists puzzle_attempts (
 
 -- Basic row-level security so testers only see their own data
 alter table profiles enable row level security;
-alter table diagnostic_results enable row level security;
 alter table progress enable row level security;
 alter table puzzle_attempts enable row level security;
 
 create policy "own profile" on profiles for all using (auth.uid() = id);
-create policy "own diagnostic results" on diagnostic_results for all using (auth.uid() = user_id);
 create policy "own progress" on progress for all using (auth.uid() = user_id);
 create policy "own puzzle attempts" on puzzle_attempts for all using (auth.uid() = user_id);
 

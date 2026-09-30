@@ -7,6 +7,7 @@ import { TIER1_LESSONS, TIER2_LESSONS, SAMPLE_PUZZLES } from "../data/lessons.js
 import { GLOSSARY } from "../data/glossary.js";
 import { nextReview } from "../lib/spacedRepetition.js";
 import { supabase } from "../lib/supabaseClient.js";
+import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // Builds a Chess instance from a FEN without ever throwing. A bad FEN
 // (malformed data, a missing king, anything chess.js's own validator
@@ -62,7 +63,7 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
   const lessonsForTier = activeTier === 1 ? TIER1_LESSONS : TIER2_LESSONS;
 
   // Zero-knowledge entry point: someone who has never played before can
-  // skip the diagnostic and the lesson list entirely and land straight
+  // skip the lesson list entirely and land straight
   // in Tier 1, Lesson 1. Only runs once, on mount, this component
   // remounts fresh each time the "Never played before?" button is
   // clicked from the landing page, so it won't re-trigger on ordinary
@@ -282,7 +283,10 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
     if (lesson.freePlay || !hasMatchedPuzzle) onBack();
   }
 
-  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 440;
+  const { width: viewportW, height: viewportH } = useViewport();
+  const boardWidth = isPhone
+    ? fitBoard({ viewportW, viewportH, max: 320, reserveW: 48, reserveH: 220 })
+    : fitBoard({ viewportW, viewportH, max: 440, min: 320, reserveW: 480, reserveH: 220 });
 
   return (
     <div>
@@ -339,7 +343,10 @@ function LessonView({ lesson, theme, textMain, textMuted, panelBg, borderCol, ac
 // isn't draggable, since there's nothing to solve here.
 function QAView({ lesson, theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onBack, onComplete, termProps }) {
   const [revealed, setRevealed] = useState(false);
-  const boardWidth = isPhone ? Math.min(300, window.innerWidth - 48) : 360;
+  const { width: viewportW, height: viewportH } = useViewport();
+  const boardWidth = isPhone
+    ? fitBoard({ viewportW, viewportH, max: 300, reserveW: 48, reserveH: 220 })
+    : fitBoard({ viewportW, viewportH, max: 360, min: 280, reserveW: 480, reserveH: 220 });
 
   return (
     <div>
@@ -393,7 +400,10 @@ export function PuzzleView({ puzzle, theme, textMain, textMuted, accentGold, bor
   const [version, setVersion] = useState(0);
   const [result, setResult] = useState(null);
 
-  const boardWidth = isPhone ? Math.min(320, window.innerWidth - 48) : 440;
+  const { width: viewportW, height: viewportH } = useViewport();
+  const boardWidth = isPhone
+    ? fitBoard({ viewportW, viewportH, max: 320, reserveW: 48, reserveH: 220 })
+    : fitBoard({ viewportW, viewportH, max: 440, min: 320, reserveW: 480, reserveH: 220 });
 
   async function recordAttempt(correct) {
     if (!session?.user) return;
