@@ -8,7 +8,7 @@ import { formatClock, isLowTime, msFromMinutes } from "../lib/clock.js";
 import { applyRatingUpdate, saveOwnRating, getRating } from "../lib/ratings.js";
 import { analyzeMove } from "../lib/coach.js";
 import { supabase } from "../lib/supabaseClient.js";
-import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { giveMoveFeedback, giveCheckmateFeedback } from "../lib/moveFeedback.js";
 import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // Real-time match between two signed-in testers, with time controls,
@@ -70,6 +70,7 @@ export default function LiveMatch({ session, theme, textMain, textMuted, panelBg
 
   function checkGameOverAfterMove() {
     if (chess.isCheckmate()) {
+      giveCheckmateFeedback();
       const winner = chess.turn() === "w" ? "black" : "white";
       endGame(winner, "checkmate");
     } else if (chess.isStalemate() || chess.isDraw()) {

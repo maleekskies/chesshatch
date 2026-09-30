@@ -4,9 +4,10 @@ import { Bot, Check, ChevronLeft, Lock, RotateCcw, Trophy } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import PromotionPicker from "../components/PromotionPicker.jsx";
 import { createEngine } from "../lib/stockfish.js";
-import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { giveMoveFeedback, giveCheckmateFeedback } from "../lib/moveFeedback.js";
+import { judgeMove } from "../lib/lessonEngine.js";
 import { BOT_LADDER, PLAYER_COLOR, outcomeOf, readUnlockedCount, writeUnlockedCount, resetBotProgress } from "../lib/botLadder.js";
-import { useViewport, fitBoard } from "../lib/boardSize.js";
+import { fitBoard } from "../lib/boardSize.js";
 
 // The bot progression screen behind the "Intermediate" section.
 //
@@ -21,21 +22,34 @@ import { useViewport, fitBoard } from "../lib/boardSize.js";
 // On the ladder itself: progress is a count of unlocked rungs, so a
 // level can only be reached by winning the one before it. Selecting a
 // locked level is not possible, the button isn't rendered.
+//
+// Two things the game screen deliberately does:
+//   - It fixes the board size when the game starts and never resizes it
+//     while the game is running, so the board and the panel around it stay
+//     completely still while moves are being played.
+//   - It allows exactly ONE premove, queued while the bot is thinking. A
+//     second one simply replaces the first, so there is never a queue, and
+//     a premove that is no longer legal once the bot replies is discarded
+//     rather than played.
 export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onBack, onEarnBadge }) {
-  const { width: viewportW, height: viewportH } = useViewport();
-
   const [unlockedCount, setUnlockedCount] = useState(() => readUnlockedCount());
   const [activeKey, setActiveKey] = useState(null); // null = showing the ladder
   const [fen, setFen] = useState(null);
   const [engineThinking, setEngineThinking] = useState(false);
   const [outcome, setOutcome] = useState(null); // null | { type, unlocked }
   const [pendingPromotion, setPendingPromotion] = useState(null); // { from, to } | null
+  const [premove, setPremove] = useState(null); // one queued premove, or null
+  // The board size is decided once, when the game starts, so nothing about
+  // the board or the layout around it can shift while the game is running.
+  const [gameBoardWidth, setGameBoardWidth] = useState(0);
 
   const chessRef = useRef(null);
   const engineRef = useRef(null);
   const activeKeyRef = useRef(null);
   const unlockedRef = useRef(unlockedCount);
+  const premoveRef = useRef(null);
   unlockedRef.current = unlockedCount;
+  premoveRef.current = premove;
 
   useEffect(() => () => {
     if (engineRef.current) { engineRef.current.destroy(); engineRef.current = null; }
@@ -54,6 +68,7 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
   function settle(chess) {
     const type = outcomeOf(chess);
     if (!type) return;
+    if (chess.isCheckmate()) giveCheckmateFeedback();
     const index = BOT_LADDER.findIndex((l) => l.key === activeKeyRef.current);
     const next = BOT_LADDER[index + 1] || null;
     if (type === "win") {
@@ -89,8 +104,36 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
       giveMoveFeedback();
       setFen(chess.fen());
       settle(chess);
+
+      // One premove, and only if it is still legal in the position the
+      // bot's reply actually produced. Anything else is dropped, never
+      // queued and never played on a position it does not fit.
+      const queued = premoveRef.current;
+      if (queued) {
+        setPremove(null);
+        premoveRef.current = null;
+        const verdict = judgeMove(chess, queued.from, queued.to, { anyLegal: true });
+        if (verdict.ok && !chess.isGameOver()) {
+          chess.move({ from: queued.from, to: queued.to, promotion: "q" });
+          giveMoveFeedback();
+          setFen(chess.fen());
+          settle(chess);
+          const level = BOT_LADDER.find((l) => l.key === activeKeyRef.current);
+          if (level && !chess.isGameOver()) setTimeout(() => requestEngineMove(level), 250);
+        }
+      }
     });
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // The board size is captured when the game starts and then left alone for
+  // the whole game, so the board never resizes or shifts while playing.
+  function gameBoardSize() {
+    const vw = typeof window !== "undefined" ? window.innerWidth || 1200 : 1200;
+    const vh = typeof window !== "undefined" ? window.innerHeight || 800 : 800;
+    return vw < 560
+      ? fitBoard({ viewportW: vw, viewportH: vh, max: 340, reserveW: 48, reserveH: 230 })
+      : fitBoard({ viewportW: vw, viewportH: vh, max: 520, min: 320, reserveW: 420, reserveH: 270 });
+  }
 
   function startGame(levelKey) {
     const index = BOT_LADDER.findIndex((l) => l.key === levelKey);
@@ -103,7 +146,10 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
     setFen(chess.fen());
     setOutcome(null);
     setPendingPromotion(null);
+    setPremove(null);
+    premoveRef.current = null;
     setEngineThinking(false);
+    setGameBoardWidth(gameBoardSize());
     if (!engineRef.current) engineRef.current = createEngine();
     engineRef.current.setSkillLevel(level.skillLevel);
   }
@@ -115,6 +161,8 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
     setFen(null);
     setOutcome(null);
     setPendingPromotion(null);
+    setPremove(null);
+    premoveRef.current = null;
     setEngineThinking(false);
   }
 
@@ -160,9 +208,9 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
 
   // ------------------------------------------------------------------ game ----
   if (activeLevel && fen) {
-    const boardWidth = isPhone
-      ? fitBoard({ viewportW, viewportH, max: 340, reserveW: 48, reserveH: 230 })
-      : fitBoard({ viewportW, viewportH, max: 520, min: 320, reserveW: 420, reserveH: 270 });
+    // Fixed for the whole game: captured when the game started, never
+    // recomputed from a viewport that a phone browser resizes on scroll.
+    const boardWidth = gameBoardWidth || (isPhone ? 320 : 460);
 
     const finished = !!outcome;
     const status = finished
@@ -186,9 +234,13 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
               onPieceDrop={onPieceDrop}
               theme={theme}
               boardWidth={boardWidth}
-              arePiecesDraggable={!finished && !engineThinking && !pendingPromotion}
+              playerColor={PLAYER_COLOR}
+              premoveEnabled={!finished}
+              premove={premove}
+              onPremove={(from, to) => setPremove({ from, to })}
+              arePiecesDraggable={!finished && !pendingPromotion}
             />
-            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
+            <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap", minHeight: 30 }}>
               <span style={{ fontSize: 12.5, color: textMuted, fontFamily: "'IBM Plex Mono', monospace" }}>{status}</span>
               <button onClick={() => startGame(activeLevel.key)}
                 style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: `1px solid ${borderCol}`, color: textMuted, borderRadius: 6, padding: "5px 9px", fontSize: 11.5, cursor: "pointer" }}>
@@ -197,7 +249,7 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
             </div>
           </div>
 
-          <div style={{ flex: "1 1 280px", minWidth: 260, maxWidth: 320, background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 10, padding: 16 }}>
+          <div style={{ flex: "1 1 280px", minWidth: 260, maxWidth: 320, minHeight: isPhone ? undefined : 300, background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 10, padding: 16 }}>
             <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 10 }}>
               <Bot size={15} color={accentGold} />
               <span style={{ fontSize: 12.5, fontWeight: 600, color: textMain }}>vs {activeLevel.name}</span>
@@ -206,6 +258,13 @@ export default function Bots({ theme, textMain, textMuted, panelBg, borderCol, a
               Level {activeIndex + 1} of {BOT_LADDER.length}. Win this game to unlock{" "}
               {nextLevel ? nextLevel.name : "the top of the ladder"}.
             </div>
+            {!finished && (
+              <div style={{ fontSize: 11.5, color: textMuted, lineHeight: 1.6, marginBottom: 14 }}>
+                {premove
+                  ? "Premove queued: it plays automatically if it is still legal when the bot replies. Move another piece to replace it."
+                  : "While the bot is thinking you can queue one premove (the blue squares). Only one, and it is dropped if it stops being legal."}
+              </div>
+            )}
 
             {finished ? (
               <div role="status" aria-live="polite" style={{ border: `1px solid ${outcome.type === "win" ? accentGold : borderCol}`, background: outcome.type === "win" ? "rgba(226,105,75,0.08)" : "transparent", borderRadius: 8, padding: "12px 14px" }}>

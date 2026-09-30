@@ -57,6 +57,46 @@ function playSynthesizedClick() {
   osc.stop(now + 0.1);
 }
 
+// Checkmate gets its own cue: a short, warm three-note chord that decays
+// away, rather than the dry click a normal move makes. Same synthesized
+// approach as the move sound above, and the same honest limitation: this is
+// a shaped tone, not a sampled recording of a chess set.
+function playSynthesizedCheckmate() {
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  if (ctx.state === "suspended") ctx.resume().catch(() => {});
+
+  const now = ctx.currentTime;
+  const master = ctx.createGain();
+  master.gain.setValueAtTime(0.0001, now);
+  master.gain.exponentialRampToValueAtTime(0.22, now + 0.05);
+  master.gain.exponentialRampToValueAtTime(0.0001, now + 1.05);
+  master.connect(ctx.destination);
+
+  // C5, E5, G5, then a low C4 underneath: a settled, "finished" sound
+  // instead of a fanfare, which would be too much for a board this quiet.
+  const notes = [
+    { freq: 523.25, delay: 0, dur: 0.85, type: "triangle" },
+    { freq: 659.25, delay: 0.05, dur: 0.8, type: "triangle" },
+    { freq: 783.99, delay: 0.1, dur: 0.75, type: "triangle" },
+    { freq: 261.63, delay: 0.02, dur: 1.0, type: "sine" },
+  ];
+  for (const note of notes) {
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    const start = now + note.delay;
+    osc.type = note.type;
+    osc.frequency.setValueAtTime(note.freq, start);
+    gain.gain.setValueAtTime(0.0001, start);
+    gain.gain.exponentialRampToValueAtTime(note.type === "sine" ? 0.5 : 0.8, start + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, start + note.dur);
+    osc.connect(gain);
+    gain.connect(master);
+    osc.start(start);
+    osc.stop(start + note.dur + 0.02);
+  }
+}
+
 function triggerVibration() {
   if (typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
     navigator.vibrate(30);
@@ -74,4 +114,15 @@ export function giveMoveFeedback() {
   const mode = getFeedbackMode();
   if (mode === "sound") playSynthesizedClick();
   else if (mode === "vibration") triggerVibration();
+}
+
+// Call this once, at the moment the game ends in checkmate. Respects the
+// same feedback preference: silent stays silent, vibration gets a longer
+// buzz where the platform supports it.
+export function giveCheckmateFeedback() {
+  const mode = getFeedbackMode();
+  if (mode === "sound") playSynthesizedCheckmate();
+  else if (mode === "vibration" && typeof navigator !== "undefined" && typeof navigator.vibrate === "function") {
+    navigator.vibrate([40, 60, 90]);
+  }
 }

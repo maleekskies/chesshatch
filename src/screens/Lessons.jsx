@@ -4,6 +4,7 @@ import { ChevronLeft, CheckCircle2, Lightbulb, Clock } from "lucide-react";
 import ChessBoard from "../components/ChessBoard.jsx";
 import Term from "../components/Term.jsx";
 import { TIER1_LESSONS, TIER2_LESSONS, SAMPLE_PUZZLES } from "../data/lessons.js";
+import { TACTIC_SERIES, TACTIC_TOTAL_LESSONS } from "../data/tacticSeries.js";
 import { GLOSSARY } from "../data/glossary.js";
 import { nextReview } from "../lib/spacedRepetition.js";
 import { supabase } from "../lib/supabaseClient.js";
@@ -54,7 +55,7 @@ function ExplanationText({ text, ...termProps }) {
   );
 }
 
-export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onLessonComplete, completedIds, session, autoOpenFirstLesson, onShowMistakes, onShowGlossary, onEarnBadge }) {
+export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol, accentGold, isPhone, onLessonComplete, completedIds, session, autoOpenFirstLesson, onShowMistakes, onShowGlossary, onEarnBadge, onOpenTactics }) {
   const [activeLesson, setActiveLesson] = useState(null);
   const [showPuzzle, setShowPuzzle] = useState(false);
   const [reviewPuzzle, setReviewPuzzle] = useState(null); // set when opening from "due for review"
@@ -148,8 +149,31 @@ export default function Lessons({ theme, textMain, textMuted, panelBg, borderCol
         <p style={{ color: textMuted, fontSize: 13.5, marginBottom: 18, maxWidth: 520 }}>
           {activeTier === 1
             ? "Start here if you're new to chess. Each lesson ends with a puzzle to lock in what you just learned."
-            : "Once the basics are solid, deeper tactics and the positional ideas that separate a casual player from a strong one."}
+            : "Once the basics are solid, the tactics and positional ideas that separate a casual player from a strong one."}
         </p>
+
+        {activeTier === 2 && onOpenTactics && (
+          <div style={{ background: "rgba(226,105,75,0.06)", border: `1px solid ${accentGold}`, borderRadius: 12, padding: "14px 16px", marginBottom: 22 }}>
+            <div style={{ fontSize: 14, fontWeight: 700, color: textMain, marginBottom: 6 }}>
+              Intermediate tactics, taught in series
+            </div>
+            <p style={{ color: textMuted, fontSize: 12.5, lineHeight: 1.6, margin: "0 0 10px" }}>
+              Each tactic below is a mini series of up to five progressive lessons, not a single puzzle:
+              identify it, understand the pattern, find the move, use it in a different position, then
+              play the whole combination.
+            </p>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 12 }}>
+              {TACTIC_SERIES.map((t) => (
+                <span key={t.id} title={t.tagline} style={{ fontSize: 11, color: textMain, background: panelBg, border: `1px solid ${borderCol}`, borderRadius: 20, padding: "3px 10px" }}>
+                  {t.name}
+                </span>
+              ))}
+            </div>
+            <button onClick={onOpenTactics} style={{ background: accentGold, color: "#FFFFFF", border: "none", borderRadius: 9, padding: "10px 16px", fontSize: 13, fontWeight: 600, cursor: "pointer" }}>
+              Open {TACTIC_TOTAL_LESSONS} tactic lessons →
+            </button>
+          </div>
+        )}
 
         {/* Mastery per category */}
         <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 22 }}>

@@ -5,7 +5,8 @@ import ChessBoard from "../components/ChessBoard.jsx";
 import PromotionPicker from "../components/PromotionPicker.jsx";
 import { analyzeMove } from "../lib/coach.js";
 import { createEngine, DIFFICULTY_PRESETS } from "../lib/stockfish.js";
-import { giveMoveFeedback } from "../lib/moveFeedback.js";
+import { giveMoveFeedback, giveCheckmateFeedback } from "../lib/moveFeedback.js";
+import { judgeMove } from "../lib/lessonEngine.js";
 import { useViewport, fitBoard } from "../lib/boardSize.js";
 
 // Play screen: two modes.
@@ -26,6 +27,9 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
   const [shareOpen, setShareOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState(null);
   const [pendingPromotion, setPendingPromotion] = useState(null); // { from, to } | null
+  const [premove, setPremove] = useState(null); // one queued premove vs the computer
+  const premoveRef = useRef(null);
+  premoveRef.current = premove;
 
   useEffect(() => {
     if (mode === "computer" && !engineRef.current) {
@@ -62,7 +66,20 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
       setEngineThinking(false);
       setVersion((v) => v + 1);
       runCoach("b", to);
+      if (chess.isCheckmate()) giveCheckmateFeedback();
       if (chess.isGameOver()) onEarnBadge?.("first_game");
+
+      // At most one premove, and only if it is still legal in the position
+      // the engine's reply actually produced. Otherwise it is dropped.
+      const queued = premoveRef.current;
+      if (queued && !chess.isGameOver()) {
+        setPremove(null);
+        premoveRef.current = null;
+        const verdict = judgeMove(chess, queued.from, queued.to, { anyLegal: true });
+        if (verdict.ok) {
+          completeMove(queued.from, queued.to, null);
+        }
+      }
     });
   }, [difficulty]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -80,7 +97,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     setSelectedPly(null);
     setVersion((v) => v + 1);
     runCoach(moverColor, to);
-    if (chess.isCheckmate()) onEarnBadge?.("first_checkmate");
+    if (chess.isCheckmate()) { onEarnBadge?.("first_checkmate"); giveCheckmateFeedback(); }
     if (chess.isGameOver()) onEarnBadge?.("first_game");
     if (mode === "computer" && !chess.isGameOver()) {
       setTimeout(requestEngineMove, 300);
@@ -91,6 +108,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
   function onPieceDrop(sourceSquare, targetSquare) {
     const moverColor = chess.turn();
     if (mode === "computer" && moverColor !== playerColor) return false;
+    setPremove(null);
     if (isPromotionMove(sourceSquare, targetSquare)) {
       setPendingPromotion({ from: sourceSquare, to: targetSquare });
       return true; // tentatively accept; PromotionPicker resolves the actual move
@@ -108,6 +126,7 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
     chess.reset();
     setCoachMsg(null);
     setSelectedPly(null);
+    setPremove(null);
     setVersion((v) => v + 1);
   }
 
@@ -176,7 +195,16 @@ export default function Play({ theme, textMain, textMuted, panelBg, borderCol, a
         {pendingPromotion && (
           <PromotionPicker onPick={resolvePromotion} panelBg={panelBg} borderCol={borderCol} textMain={textMain} accentGold={accentGold} />
         )}
-        <ChessBoard fen={chess.fen()} onPieceDrop={onPieceDrop} theme={theme} boardWidth={boardWidth} />
+        <ChessBoard
+          fen={chess.fen()}
+          onPieceDrop={onPieceDrop}
+          theme={theme}
+          boardWidth={boardWidth}
+          playerColor={playerColor}
+          premoveEnabled={mode === "computer" && !chess.isGameOver()}
+          premove={premove}
+          onPremove={(from, to) => setPremove({ from, to })}
+        />
 
         <div style={{ marginTop: 14, display: "flex", alignItems: "center", gap: 10, flexWrap: "wrap" }}>
           <span style={{ fontSize: 12.5, color: textMuted, fontFamily: "'IBM Plex Mono', monospace" }}>

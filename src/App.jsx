@@ -14,13 +14,15 @@ import GuidedGame from "./screens/GuidedGame.jsx";
 import BeginnerMistakes from "./screens/BeginnerMistakes.jsx";
 import NotFound from "./screens/NotFound.jsx";
 import Glossary from "./screens/Glossary.jsx";
+import TacticSeries from "./screens/TacticSeries.jsx";
 import { BADGES, awardBadge } from "./lib/badges.js";
 import FeedbackButton from "./components/FeedbackButton.jsx";
 import { SAMPLE_PUZZLES, TIER1_LESSONS } from "./data/lessons.js";
+import { TACTIC_SERIES } from "./data/tacticSeries.js";
 import { BOT_LADDER, readUnlockedCount } from "./lib/botLadder.js";
 import { getFeedbackMode, setFeedbackMode as persistFeedbackMode } from "./lib/moveFeedback.js";
 import {
-  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Users, Lock
+  Menu, X, ChevronRight, Target, BookOpen, TrendingUp, Users
 } from "lucide-react";
 
 function useFonts() {
@@ -115,6 +117,7 @@ const PATH_TO_SCREEN = {
   // visitor back through the intro.
   "/home": "landing",
   "/bots": "bots",
+  "/tactics": "tactics",
   "/lessons": "lessons",
   "/lessons/start": "lessons-zk",
   "/guided": "guided",
@@ -137,6 +140,7 @@ const SITE_HOST = "https://chesshatch.vercel.app";
 const SCREEN_META = {
   landing: { title: "Chess Hatch", description: "Learn chess from your first move to real tactics, at your own pace." },
   bots: { title: "Intermediate, Chess Hatch", description: "A nine level bot ladder: start at Beginner and unlock the next level with every win." },
+  tactics: { title: "Intermediate tactics, Chess Hatch", description: "Ten intermediate tactics, each a mini series of up to five lessons, played on a real board." },
   lessons: { title: "Lessons, Chess Hatch", description: "Step by step chess lessons from complete beginner through intermediate tactics and endgames." },
   "lessons-zk": { title: "Start from zero, Chess Hatch", description: "Twelve short, hands-on lessons for someone who has never played chess before." },
   guided: { title: "Guided first game, Chess Hatch", description: "A short scripted mini match with a live coach explaining every move, for a first hands on game." },
@@ -324,7 +328,8 @@ export default function ChessHatchApp(){
   return (
     <div style={{ minHeight:"100%", background:pageBg, color:textMain, fontFamily:"'Inter', system-ui, sans-serif", overflowX:"hidden" }}>
       {/* Nav */}
-      <div role="navigation" aria-label="Main navigation" style={{ borderBottom:`1px solid ${borderCol}`, position:"sticky", top:0, background:pageBg, zIndex:10, paddingTop:"env(safe-area-inset-top)" }}>
+      <div role="navigation" aria-label="Main navigation" className="ch-navbar"
+        style={{ "--ch-border": borderCol, paddingTop:"env(safe-area-inset-top)" }}>
         <div style={{ maxWidth:1080, margin:"0 auto", padding: isPhone ? "10px 16px" : "10px 24px", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
           <div onClick={()=>setScreen("landing")} style={{ cursor:"pointer", display:"flex", alignItems:"center", gap:9, minWidth:0 }}>
             <img
@@ -342,24 +347,27 @@ export default function ChessHatchApp(){
               {navOpen ? <X size={22}/> : <Menu size={22}/>}
             </button>
           ) : (
-            <div style={{ display:"flex", gap:8, alignItems:"center" }}>
-              <NavBtn active={screen==="landing"} onClick={()=>setScreen("landing")} textMain={textMain} accentGold={accentGold}>Home</NavBtn>
-              <div ref={registerWalkthroughRef("bots")} style={{ display:"inline-flex" }}>
-                <NavBtn active={screen==="bots"} onClick={()=>setScreen("bots")} textMain={textMain} accentGold={accentGold}>Bots</NavBtn>
+            <div className="ch-navshell">
+              <div style={{ display:"flex", gap:2, alignItems:"center" }}>
+                <NavBtn active={screen==="landing"} onClick={()=>setScreen("landing")} textMain={textMain} accentGold={accentGold}>Home</NavBtn>
+                <div ref={registerWalkthroughRef("bots")} style={{ display:"inline-flex" }}>
+                  <NavBtn active={screen==="bots"} onClick={()=>setScreen("bots")} textMain={textMain} accentGold={accentGold}>Bots</NavBtn>
+                </div>
+                <div ref={registerWalkthroughRef("lessons")} style={{ display:"inline-flex" }}>
+                  <NavBtn active={screen==="lessons"||screen==="lessons-zk"} onClick={()=>setScreen("lessons")} textMain={textMain} accentGold={accentGold}>Lessons</NavBtn>
+                </div>
+                <div ref={registerWalkthroughRef("play")} style={{ display:"inline-flex" }}>
+                  <NavBtn active={screen==="play"} onClick={()=>setScreen("play")} textMain={textMain} accentGold={accentGold}>Play</NavBtn>
+                </div>
+                {completedIds.size > 0 && (
+                  <>
+                    <NavBtn active={screen==="live"} onClick={()=>setScreen("live")} textMain={textMain} accentGold={accentGold}>Live</NavBtn>
+                    <NavBtn active={screen==="rush"} onClick={()=>setScreen("rush")} textMain={textMain} accentGold={accentGold}>Rush</NavBtn>
+                    {session?.user && <NavBtn active={screen==="profile"} onClick={()=>setScreen("profile")} textMain={textMain} accentGold={accentGold}>Profile</NavBtn>}
+                  </>
+                )}
               </div>
-              <div ref={registerWalkthroughRef("lessons")} style={{ display:"inline-flex" }}>
-                <NavBtn active={screen==="lessons"||screen==="lessons-zk"} onClick={()=>setScreen("lessons")} textMain={textMain} accentGold={accentGold}>Lessons</NavBtn>
-              </div>
-              <div ref={registerWalkthroughRef("play")} style={{ display:"inline-flex" }}>
-                <NavBtn active={screen==="play"} onClick={()=>setScreen("play")} textMain={textMain} accentGold={accentGold}>Play</NavBtn>
-              </div>
-              {completedIds.size > 0 && (
-                <>
-                  <NavBtn active={screen==="live"} onClick={()=>setScreen("live")} textMain={textMain} accentGold={accentGold}>Live</NavBtn>
-                  <NavBtn active={screen==="rush"} onClick={()=>setScreen("rush")} textMain={textMain} accentGold={accentGold}>Rush</NavBtn>
-                  {session?.user && <NavBtn active={screen==="profile"} onClick={()=>setScreen("profile")} textMain={textMain} accentGold={accentGold}>Profile</NavBtn>}
-                </>
-              )}
+              <span className="ch-navshell-divider" aria-hidden="true" />
               <BoardThemePicker boardThemeKey={boardThemeKey} setBoardThemeKey={setBoardThemeKey} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               <MoveFeedbackPicker feedbackMode={feedbackMode} setFeedbackModeState={updateFeedbackMode} textMuted={textMuted} borderCol={borderCol} panelBg={panelBg} accentGold={accentGold} />
               {session?.user?.email === "maleekade775@gmail.com" && (
@@ -466,33 +474,27 @@ export default function ChessHatchApp(){
                 </div>
                 <div style={{ fontWeight:700, fontSize:16.5, marginBottom:8 }}>Intermediate</div>
                 <p style={{ color:textMuted, fontSize:13.5, lineHeight:1.6, marginBottom:14, flexGrow:1 }}>
-                  Bot ranking and progression. You start at Beginner and win your
-                  way up: nine levels, each one unlocking after you beat the last.
+                  Ten tactic mini series: skewer, fork, pin, x-ray, discovered attacks
+                  and more. Up to five short lessons each, played on a real board.
                 </p>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:5, marginBottom:16 }}>
-                  {BOT_LADDER.map((level, i) => {
-                    const unlocked = i < botsUnlockedCount;
-                    const isCurrent = i === botsUnlockedCount - 1;
-                    return (
-                      <span key={level.key} title={level.name} style={{
-                        display:"inline-flex", alignItems:"center", gap:4, fontSize:10.5,
-                        color: unlocked ? textMain : textMuted,
-                        background: unlocked ? "rgba(226,105,75,0.12)" : "#F4F2EC",
-                        border:`1px solid ${isCurrent ? accentGold : borderCol}`,
-                        borderRadius:20, padding:"3px 8px", whiteSpace:"nowrap",
-                      }}>
-                        {!unlocked && <Lock size={10}/>}{level.name}
-                      </span>
-                    );
-                  })}
+                  {TACTIC_SERIES.map((tactic) => (
+                    <span key={tactic.id} title={tactic.tagline} style={{
+                      display:"inline-flex", alignItems:"center", fontSize:10.5,
+                      color:textMain, background:"rgba(226,105,75,0.12)",
+                      border:`1px solid ${borderCol}`,
+                      borderRadius:20, padding:"3px 8px", whiteSpace:"nowrap",
+                    }}>
+                      {tactic.name}
+                    </span>
+                  ))}
                 </div>
-                <button onClick={()=>setScreen("bots")} style={{ background:"#F4F2EC", color:textMain, border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
-                  Play Bot <ChevronRight size={15}/>
+                <button onClick={()=>setScreen("tactics")} style={{ background:accentGold, color:"#FFFFFF", border:"none", borderRadius:16, padding:"13px 16px", fontSize:14, fontWeight:600, cursor:"pointer", display:"flex", alignItems:"center", justifyContent:"center", gap:6 }}>
+                  Learn intermediate tactics <ChevronRight size={15}/>
                 </button>
-                <div style={{ color:textMuted, fontSize:11, marginTop:10, lineHeight:1.5 }}>
-                  {botsUnlockedCount} of {BOT_LADDER.length} unlocked. Progression
-                  names for the app, not official ratings or titles.
-                </div>
+                <button onClick={()=>setScreen("bots")} style={{ background:"transparent", border:"none", color:textMuted, fontSize:12, padding:0, marginTop:12, cursor:"pointer", textDecoration:"underline", textUnderlineOffset:3 }}>
+                  Or play the bot ladder ({botsUnlockedCount} of {BOT_LADDER.length} unlocked)
+                </button>
               </div>
 
               <div style={{ background:panelBg, borderRadius:24, padding: isPhone ? 22 : 26, display:"flex", flexDirection:"column", boxShadow:"0 4px 18px rgba(43,38,32,0.06)" }}>
@@ -546,7 +548,7 @@ export default function ChessHatchApp(){
 
         {screen==="lessons" && (
           <Lessons theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
-            onLessonComplete={markLessonComplete} completedIds={completedIds} session={session} onShowMistakes={()=>setScreen("mistakes")} onShowGlossary={()=>setScreen("glossary")} onEarnBadge={celebrateBadge} />
+            onLessonComplete={markLessonComplete} completedIds={completedIds} session={session} onShowMistakes={()=>setScreen("mistakes")} onShowGlossary={()=>setScreen("glossary")} onEarnBadge={celebrateBadge} onOpenTactics={()=>setScreen("tactics")} />
         )}
 
         {screen==="mistakes" && (
@@ -564,6 +566,11 @@ export default function ChessHatchApp(){
         {screen==="bots" && (
           <Bots theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
             onBack={()=>setScreen("landing")} onEarnBadge={celebrateBadge} />
+        )}
+
+        {screen==="tactics" && (
+          <TacticSeries theme={THEMES[boardThemeKey]} textMain={textMain} textMuted={textMuted} panelBg={panelBg} borderCol={borderCol} accentGold={accentGold} isPhone={isPhone}
+            session={session} onEarnBadge={celebrateBadge} onExit={()=>setScreen("landing")} />
         )}
 
         {screen==="guided" && (
@@ -618,7 +625,7 @@ function MoveFeedbackPicker({ feedbackMode, setFeedbackModeState, textMuted, bor
   return (
     <div style={{ position: "relative" }}>
       <button onClick={() => setOpen((v) => !v)} title="Move sound and vibration" aria-label="Move sound and vibration settings"
-        style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: `1px solid ${borderCol}`, borderRadius: 7, padding: "6px 9px", cursor: "pointer" }}>
+        className="ch-iconbtn">
         <span style={{ fontSize: 13, lineHeight: 1 }}>{current.emoji}</span>
       </button>
       {open && (
@@ -641,7 +648,7 @@ function BoardThemePicker({ boardThemeKey, setBoardThemeKey, textMuted, borderCo
   return (
     <div style={{ position: "relative" }}>
       <button onClick={() => setOpen((v) => !v)} title="Board theme"
-        style={{ display: "flex", alignItems: "center", gap: 5, background: "transparent", border: `1px solid ${borderCol}`, borderRadius: 7, padding: "6px 9px", cursor: "pointer" }}>
+        className="ch-iconbtn">
         <span style={{ width: 14, height: 14, borderRadius: 3, overflow: "hidden", display: "flex" }}>
           <span style={{ width: 7, height: 14, background: THEMES[boardThemeKey].light }} />
           <span style={{ width: 7, height: 14, background: THEMES[boardThemeKey].dark }} />
@@ -667,13 +674,11 @@ function BoardThemePicker({ boardThemeKey, setBoardThemeKey, textMuted, borderCo
 
 function NavBtn({children, active, onClick, textMain, accentGold, full}){
   return (
-    <button onClick={onClick} style={{
-      background: active ? "rgba(226,105,75,0.12)" : "transparent",
-      color: active ? accentGold : textMain,
-      border:"none", borderRadius:20, padding: full ? "10px 14px" : "8px 14px",
-      fontSize:13.5, fontWeight: active?600:500, cursor:"pointer",
-      width: full ? "100%" : "auto", textAlign: full ? "left" : "center"
-    }}>
+    <button
+      onClick={onClick}
+      className={`ch-navbtn${active ? " is-active" : ""}${full ? " is-full" : ""}`}
+      style={{ "--ch-nav-text": active ? accentGold : textMain }}
+    >
       {children}
     </button>
   );
